@@ -141,15 +141,16 @@ function LFGAnnouncementsUI:_createEntryLabel(dungeonId, difficulty, message, ti
 		messageLabel:SetCallback("OnClick", onClick)
 		group:AddChild(messageLabel)
 
-		-- local timeLabel = AceGUI:Create("InteractiveLabel")
-		-- timeLabel:SetCallback("OnClick", onClick)
-		-- group:AddChild(timeLabel)
+		local timeLabel = AceGUI:Create("InteractiveLabel")
+		timeLabel.label:SetJustifyH("RIGHT")
+		timeLabel:SetCallback("OnClick", onClick)
+		group:AddChild(timeLabel)
 
 		entry = {
 			name = nameLabel,
 			difficulty = difficultyLabel,
 			message = messageLabel,
-			-- time = timeLabel,
+			time = timeLabel,
 		}
 
 		container.entries[authorGUID] = entry
@@ -164,7 +165,7 @@ function LFGAnnouncementsUI:_createEntryLabel(dungeonId, difficulty, message, ti
 	entry.name:SetText(string.format("|c%s%s|r", hex, author))
 	entry.difficulty:SetText(DifficultyTextLookup[difficulty])
 	entry.message:SetText(message)
-	-- entry.time:SetText(time)
+	entry.time:SetText(self:_format_time(time))
 
 	self:_calculateSize(entry, container.group, temp)
 end
@@ -189,33 +190,58 @@ function LFGAnnouncementsUI:_removeEntryLabel(dungeonId, authorGUID)
 	end
 end
 
+local TimeColorLookup = {
+	NEW = "|cff00ff00",
+	MEDIUM = "|cffeed202",
+	OLD = "|cffff0000",
+}
+function LFGAnnouncementsUI:_format_time(time)
+	local time_visible_sec = LFGAnnouncements.DB.data.profile.search_settings.time_visible_sec -- TODO: Might be slow. Cache?
+	local percentage = time / time_visible_sec
+	local color
+	if percentage < 0.33 then
+		color = TimeColorLookup.NEW
+	elseif percentage < 0.66 then
+		color = TimeColorLookup.MEDIUM
+	else
+		color = TimeColorLookup.OLD
+	end
+
+	local min = math.floor(time / 60)
+	return string.format("%s%dm %02ds|r", color, min, time % 60)
+end
+
 -- TODO - This is maybe not the best solution, but we give the max font width of a name
-local size
+local nameSize, timeSize
 local function temp()
-	if size then
-		return size
+	if nameSize then
+		return nameSize, timeSize
 	end
 
 	local frame = CreateFrame("Frame", nil, UIParent)
 	local s = frame:CreateFontString(frame, "BACKGROUND", "GameFontHighlightSmall")
 	s:SetText("XXXXXXXXXXXX")
-	size = s:GetStringWidth()
+	nameSize = s:GetStringWidth()
+
+	s:SetText("99m 59s")
+	timeSize = s:GetStringWidth()
 
 	frame:Hide()
-	return size
+	return nameSize, timeSize
 end
 
 function LFGAnnouncementsUI:_calculateSize(entry, group, newEntry)
 	local diffWidth = entry.difficulty.label:GetStringWidth()
-	local nameWidth = temp()
+	local nameWidth, timeWidth = temp()
 
 	if newEntry then
 		entry.difficulty:SetWidth(diffWidth)
 		entry.name:SetWidth(nameWidth)
+		entry.time:SetWidth(timeWidth)
 	end
 
 	local groupWidth = group.frame:GetWidth()
-	entry.message:SetWidth(groupWidth - diffWidth - nameWidth - (diffWidth - 1))
+	entry.message:SetWidth(groupWidth - diffWidth - timeWidth - nameWidth - 8 - 8 - 8)
 end
 
 function LFGAnnouncementsUI:OnDungeonActivated(event, dungeonId)

@@ -27,8 +27,7 @@ function LFGAnnouncementsCore:OnInitialize()
 	self._dungeonEntries = {}
 end
 
-local UpdateTime = 5
-local TimeToShow = 120
+local UpdateTime = 1
 function LFGAnnouncementsCore:OnEnable()
 	-- Called on PLAYER_LOGIN event
 	dprintf("LFGAnnouncementsCore:OnEnable")

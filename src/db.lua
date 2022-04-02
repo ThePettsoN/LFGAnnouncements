@@ -1,7 +1,6 @@
 local _, LFGAnnouncements = ...
 
-LFGAnnouncementsDBModule = {}
-test = nil
+local LFGAnnouncementsDBModule = {}
 local defaults = {
 	profile = {
 		minimap = {
