@@ -194,23 +194,22 @@ end
 
 function LFGAnnouncementsDungeons:OnEnable()
 	local db = LFGAnnouncements.DB
-	local firstTime = db.data.char.first_time
-	if firstTime then
+	local initialized = db:GetCharacterData("initialized")
+
+	if not initialized then
 		local playerLevel = UnitLevel("player")
 		local dungeonsPerLevel = self:GetDungeonsByLevel(playerLevel)
 		for i = 1, #dungeonsPerLevel do
 			self:ActivateDungeon(dungeonsPerLevel[i])
 		end
 
-		db.data.char.first_time = nil
+		db:SetCharacterData("initialized", true)
 	else
-		local dungeons = db.data.dungeons.activated
+		local dungeons = db:GetCharacterData("dungeons", "activated")
 		for key, _ in pairs(dungeons) do
 			self:ActivateDungeon(key)
 		end
 	end
-
-	db.data.char.dungeons.activated = self._activatedDungeons
 end
 
 function LFGAnnouncementsDungeons:GetActivatedDungeons()
@@ -219,6 +218,7 @@ end
 
 function LFGAnnouncementsDungeons:ActivateDungeon(id)
 	self._activatedDungeons[id] = true
+	LFGAnnouncements.DB:SetCharacterData(id, true, "dungeons", "activated")
 
 	local tags = instances.Tags[id]
 	for i = 1, #tags do

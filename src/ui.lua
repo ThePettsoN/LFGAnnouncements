@@ -216,7 +216,7 @@ local TimeColorLookup = {
 	OLD = "|cffff0000",
 }
 function LFGAnnouncementsUI:_format_time(time)
-	local time_visible_sec = LFGAnnouncements.DB.data.profile.search_settings.time_visible_sec -- TODO: Might be slow. Cache?
+	local time_visible_sec = LFGAnnouncements.DB:GetProfileData("search_settings", "time_visible_sec") -- TODO: Might be slow. Cache?
 	local percentage = time / time_visible_sec
 	local color
 	if percentage < 0.33 then

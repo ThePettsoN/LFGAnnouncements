@@ -42,7 +42,7 @@ function LFGAnnouncementsCore:OnEnable()
 
 	self:ScheduleRepeatingTimer("OnUpdate", UpdateTime)
 
-	self._timeToShow = LFGAnnouncements.DB.data.profile.search_settings.time_visible_sec
+	self._timeToShow = LFGAnnouncements.DB:GetProfileData("search_settings", "time_visible_sec")
 end
 
 function LFGAnnouncementsCore:OnDisable()
