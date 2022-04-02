@@ -74,26 +74,15 @@ local methods = {
 	end,
 
 	["Collapse"] = function(self)
-		local border = self.border
-		local isShown = border:IsShown()
-		if not isShown then
-			return
-		end
-
-		border:Hide()
+		self.border:Hide()
 		self:SetHeight(self.titleFrame:GetHeight())
 		self:SetTitle(self.title)
+
 		self:Fire("Collapse")
 	end,
 
 	["Expand"] = function(self)
-		local border = self.border
-		local isShown = border:IsShown()
-		if isShown then
-			return
-		end
-
-		border:Show()
+		self.border:Show()
 		self:SetTitle(self.title)
 		self:Fire("Expand")
 	end,

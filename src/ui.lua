@@ -48,18 +48,20 @@ function LFGAnnouncementsUI:_createUI()
 
 	local container = AceGUI:Create("ScrollFrame")
 	container:SetFullWidth(true)
-	container:SetLayout("Flow")
-	container:SetAutoAdjustHeight(true)
+	container:SetLayout("List")
+	container.RemoveChild = function(self, widget)
+		for i = 1, #self.children do
+			local child = self.children[i]
+			if child == widget then
+				tremove(self.children, i)
+				break
+			end
+		end
+	end
 	frame:AddChild(container)
 
 	self._frame = frame
 	self._scrollContainer = container
-
-	local dungeons = Dungeons
-	local activeDungeons = dungeons:GetActivatedDungeons()
-	for dungeonId, _ in pairs(activeDungeons) do
-		self:_createDungeonContainer(dungeonId)
-	end
 end
 
 function LFGAnnouncementsUI:_createDungeonContainer(dungeonId)
@@ -71,7 +73,6 @@ function LFGAnnouncementsUI:_createDungeonContainer(dungeonId)
 	group.counter = 0
 	group:SetFullWidth(true)
 	group:SetLayout("Flow")
-	group:SetAutoAdjustHeight(true)
 	group.RemoveChild = function(self, widget)
 		for i = 1, #self.children do
 			local child = self.children[i]
@@ -99,6 +100,22 @@ function LFGAnnouncementsUI:_createDungeonContainer(dungeonId)
 			self:_calculateSize(entry, group, false)
 		end
 	end)
+
+	return self._dungeonContainers[dungeonId]
+end
+
+function LFGAnnouncementsUI:_removeDungeonContainer(dungeonId)
+	LFGAnnouncements.dprintf("RemoveDungeonContainer: %q", dungeonId)
+	local container = self._dungeonContainers[dungeonId]
+	if not container then
+		return
+	end
+
+	local group = container.group
+	self._scrollContainer:RemoveChild(group)
+	group:Release()
+	self._dungeonContainers[dungeonId] = nil -- TODO: This will force us to re-create container tables everytime we remove/add. Might want to change
+	self._scrollContainer:DoLayout()
 end
 
 local DifficultyTextLookup = {
@@ -108,7 +125,7 @@ local DifficultyTextLookup = {
 function LFGAnnouncementsUI:_createEntryLabel(dungeonId, difficulty, message, time, authorGUID)
 	local container = self._dungeonContainers[dungeonId]
 	if not container then
-		return
+		container = self:_createDungeonContainer(dungeonId)
 	end
 
 	local _, class, _, _, _, author = GetPlayerInfoByGUID(authorGUID)
@@ -118,9 +135,7 @@ function LFGAnnouncementsUI:_createEntryLabel(dungeonId, difficulty, message, ti
 	local temp = false
 	if not entry then
 		local group = container.group
-
-		LFGAnnouncements.dprintf(string.format("New labels for '%s' in dungeon '%s'", author, dungeonId))
-		local onClick = function(widget, event, button) -- TODO: This is stupid. Should use one function
+		local onClick = function(widget, event, button) -- TODO: This is stupid. Should use one function instead of creating a new one every time
 			if button == "LeftButton" then
 			elseif button == "RightButton" then
 				C_FriendList.SendWho(author)
@@ -182,10 +197,15 @@ function LFGAnnouncementsUI:_removeEntryLabel(dungeonId, authorGUID)
 			end
 			container.entries[authorGUID] = nil
 
-			local containerName = group.name
 			local counter = group.counter - 1
-			group.counter = counter
-			group:SetTitle(string.format("%s (%d)", containerName, counter))
+
+			if counter <= 0 then
+				self:_removeDungeonContainer(dungeonId)
+			else
+				local containerName = group.name
+				group.counter = counter
+				group:SetTitle(string.format("%s (%d)", containerName, counter))
+			end
 		end
 	end
 end
@@ -246,9 +266,6 @@ end
 
 function LFGAnnouncementsUI:OnDungeonActivated(event, dungeonId)
 	LFGAnnouncements.dprintf("OnDungeonActivated: %s", dungeonId)
-	if self:IsShown() then
-		self:_createDungeonContainer(dungeonId)
-	end
 end
 
 function LFGAnnouncementsUI:OnDungeonDeactivated(event, dungeonId)
