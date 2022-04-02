@@ -25,6 +25,8 @@ function LFGAnnouncementsCore:OnInitialize()
 		[5] = true,
 	}
 	self._dungeonEntries = {}
+
+	LFGAnnouncements.GameExpansion = GetBuildInfo():sub(1,1) == '2' and "TBC" or "VANILLA"
 end
 
 local UpdateTime = 1
@@ -39,6 +41,8 @@ function LFGAnnouncementsCore:OnEnable()
 	self:RegisterChatCommand("lfga", "OnChatCommand")
 
 	self:ScheduleRepeatingTimer("OnUpdate", UpdateTime)
+
+	self._timeToShow = LFGAnnouncements.DB.data.profile.search_settings.time_visible_sec
 end
 
 function LFGAnnouncementsCore:OnDisable()
@@ -100,6 +104,9 @@ function LFGAnnouncementsCore:OnChatCommand(args)
 	elseif command == "hide" then
 		local module = self:GetModule("UI")
 		module:Hide()
+	elseif command == "enableall" then
+		local module = self:GetModule("Dungeons")
+		module:ActivateAll()
 	elseif command then
 		dprintf("Unkown command: %s", command)
 	end
@@ -141,7 +148,7 @@ function LFGAnnouncementsCore:_createDungeonEntry(dungeonId, difficulty, message
 	dungeonEntriesForId[authorGUID] = {
 		message = message,
 		difficulty = difficulty,
-		timestamp_to_remove = time() + TimeToShow,
+		timestamp_to_remove = time() + self._timeToShow,
 		time = 0,
 	}
 

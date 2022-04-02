@@ -13,6 +13,7 @@ local defaults = {
 		},
 	},
 	char = {
+		first_time = true,
 		dungeons = {
 			activated = {},
 			custom_tags = {},
@@ -25,9 +26,8 @@ local defaults = {
 }
 
 function LFGAnnouncementsDBModule:OnInitialize()
-	-- LFGAnnouncements.DB = self
-	self.test = LibStub("AceDB-3.0"):New("LFGAnnouncementsDB", defaults)
-	test = self
+	LFGAnnouncements.DB = self
+	self.data = LibStub("AceDB-3.0"):New("LFGAnnouncementsDB", defaults)
 end
 
 function LFGAnnouncementsDBModule:OnEnable()

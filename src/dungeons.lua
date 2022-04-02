@@ -193,30 +193,24 @@ function LFGAnnouncementsDungeons:OnInitialize()
 end
 
 function LFGAnnouncementsDungeons:OnEnable()
-	-- self:ActivateDungeon("RAMP")
-	-- self:ActivateDungeon("BF")
-	-- self:ActivateDungeon("SHH")
-	-- self:ActivateDungeon("SP")
-	-- self:ActivateDungeon("UB")
-	-- self:ActivateDungeon("SV")
-	-- self:ActivateDungeon("MT")
-	-- self:ActivateDungeon("AC")
-	-- self:ActivateDungeon("SL")
-	-- self:ActivateDungeon("OHB")
-	-- self:ActivateDungeon("BM")
-	-- self:ActivateDungeon("BOT")
-	-- self:ActivateDungeon("MECHA")
-	-- self:ActivateDungeon("ARCA")
+	local db = LFGAnnouncements.DB
+	local firstTime = db.data.char.first_time
+	if firstTime then
+		local playerLevel = UnitLevel("player")
+		local dungeonsPerLevel = self:GetDungeonsByLevel(playerLevel)
+		for i = 1, #dungeonsPerLevel do
+			self:ActivateDungeon(dungeonsPerLevel[i])
+		end
 
-	self:ActivateDungeon("KZ")
-	self:ActivateDungeon("GRUUL")
-	self:ActivateDungeon("MAG")
-	self:ActivateDungeon("SSC")
-	self:ActivateDungeon("TK")
-	self:ActivateDungeon("MH")
-	self:ActivateDungeon("BT")
-	self:ActivateDungeon("ZA")
-	self:ActivateDungeon("SWP")
+		db.data.char.first_time = nil
+	else
+		local dungeons = db.data.dungeons.activated
+		for key, _ in pairs(dungeons) do
+			self:ActivateDungeon(key)
+		end
+	end
+
+	db.data.char.dungeons.activated = self._activatedDungeons
 end
 
 function LFGAnnouncementsDungeons:GetActivatedDungeons()
@@ -246,11 +240,39 @@ function LFGAnnouncementsDungeons:DeactivateDungeon(id)
 	self:SendMessage("OnDungeonDeactivated", id)
 end
 
+function LFGAnnouncementsDungeons:ActivateAll()
+	for id, _ in pairs(instances.Names) do
+		self:ActivateDungeon(id)
+	end
+end
+
 function LFGAnnouncementsDungeons:GetDungeonName(id)
 	return instances.Names[id]
 end
 
 local dungeonsFound = {}
+function LFGAnnouncementsDungeons:GetDungeonsByLevel(level)
+	local maxLevel = LFGAnnouncements.GameExpansion == "TBC" and 70 or 60
+	wipe(dungeonsFound)
+
+	local minDiff, maxDiff
+	if level == maxLevel then
+		minDiff = level - 10
+		maxDiff = level
+	else
+		minDiff = math.max(level - 5, 0)
+		maxDiff = math.min(level + 5, maxLevel)
+	end
+
+	for id, range in pairs(instances.Levels) do
+		if range[1] >= minDiff and range[2] <= maxDiff then
+			dungeonsFound[#dungeonsFound+1] = id
+		end
+	end
+
+	return dungeonsFound
+end
+
 function LFGAnnouncementsDungeons:FindDungeons(splitMessage)
 	wipe(dungeonsFound)
 

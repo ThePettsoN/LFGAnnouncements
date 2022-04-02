@@ -245,13 +245,14 @@ function LFGAnnouncementsUI:_calculateSize(entry, group, newEntry)
 end
 
 function LFGAnnouncementsUI:OnDungeonActivated(event, dungeonId)
+	LFGAnnouncements.dprintf("OnDungeonActivated: %s", dungeonId)
 	if self:IsShown() then
 		self:_createDungeonContainer(dungeonId)
 	end
 end
 
-function LFGAnnouncementsUI:OnDungeonDeactivated(event, id)
-	LFGAnnouncements.dprintf("OnDungeonDeactivated: %s", id)
+function LFGAnnouncementsUI:OnDungeonDeactivated(event, dungeonId)
+	LFGAnnouncements.dprintf("OnDungeonDeactivated: %s", dungeonId)
 end
 
 function LFGAnnouncementsUI:OnDungeonEntry(event, dungeonId, difficulty, message, time, authorGUID)
