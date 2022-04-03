@@ -130,6 +130,27 @@ local DifficultyTextLookup = {
 	NORMAL = " |cff00ff00[N]|r ",
 	HEROIC = " |cffff0000[H]|r ",
 }
+
+local function getAnchors(frame)
+	local x, y = frame:GetCenter()
+	if not x or not y then return "CENTER" end
+	local hhalf = (x > UIParent:GetWidth()*2/3) and "RIGHT" or (x < UIParent:GetWidth()/3) and "LEFT" or ""
+	local vhalf = (y > UIParent:GetHeight()/2) and "TOP" or "BOTTOM"
+	return vhalf..hhalf, frame, (vhalf == "TOP" and "BOTTOM" or "TOP")..hhalf
+end
+
+local function onTooltipEnter(widget, event)
+	local tooltip = AceGUI.tooltip
+	tooltip:SetOwner(widget.frame, "ANCHOR_NONE")
+	tooltip:SetPoint(getAnchors(widget.frame))
+	tooltip:SetText(widget.label:GetText() or "", 1, .82, 0, true)
+	tooltip:Show()
+end
+
+local function onTooltipLeave(widget, event)
+	AceGUI.tooltip:Hide()
+end
+
 function LFGAnnouncementsUI:_createEntryLabel(dungeonId, difficulty, message, time, authorGUID)
 	local container = self._dungeonContainers[dungeonId]
 	if not container then
@@ -162,6 +183,8 @@ function LFGAnnouncementsUI:_createEntryLabel(dungeonId, difficulty, message, ti
 		messageLabel.label:SetWordWrap(false)
 		messageLabel.label:SetNonSpaceWrap(false)
 		messageLabel:SetCallback("OnClick", onClick)
+		messageLabel:SetCallback("OnEnter", onTooltipEnter)
+		messageLabel:SetCallback("OnLeave", onTooltipLeave)
 		group:AddChild(messageLabel)
 
 		local timeLabel = AceGUI:Create("InteractiveLabel")
