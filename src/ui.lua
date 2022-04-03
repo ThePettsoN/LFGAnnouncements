@@ -52,7 +52,8 @@ end
 function LFGAnnouncementsUI:_createUI()
 	local frame = AceGUI:Create("Frame")
 	frame:SetTitle(AddonName)
-	frame:SetLayout("Fill")
+	frame:SetLayout("List")
+	frame.statustext:GetParent():Hide()
 
 	local container = AceGUI:Create("ScrollFrame")
 	container:SetFullWidth(true)
@@ -67,6 +68,14 @@ function LFGAnnouncementsUI:_createUI()
 		end
 	end
 	frame:AddChild(container)
+
+	local settingsButton = AceGUI:Create("Button")
+	settingsButton:ClearAllPoints()
+	settingsButton:SetPoint("BOTTOMLEFT", 27, 17)
+	settingsButton:SetHeight(20)
+	settingsButton:SetWidth(100)
+	settingsButton:SetText("Settings")
+	frame:AddChild(settingsButton)
 
 	self._frame = frame
 	self._scrollContainer = container
