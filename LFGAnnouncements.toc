@@ -13,3 +13,4 @@ src/core.lua
 src/db.lua
 src/dungeons.lua
 src/ui.lua
+src/minimap_button.lua

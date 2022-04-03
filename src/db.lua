@@ -4,7 +4,8 @@ local LFGAnnouncementsDBModule = {}
 local defaults = {
 	profile = {
 		minimap = {
-			enanbled = true,
+			hide = false,
+			lock = false,
 		},
 		search_settings = {
 			time_visible_sec = 120,

@@ -1,30 +1,29 @@
-local addon = LibStub("AceAddon-3.0"):NewAddon("Bunnies", "AceConsole-3.0")
-local bunnyLDB = LibStub("LibDataBroker-1.1"):NewDataObject("Bunnies!", {
-	type = "data source",
-	text = "Bunnies!",
-	icon = "Interface\\Icons\\INV_Chest_Cloth_17",
-	OnClick = function()
-		print("BUNNIES ARE TAKING OVER THE WORLD")
-	end,
-})
-local icon = LibStub("LibDBIcon-1.0")
+local _, LFGAnnouncements = ...
+local AceGUI = LibStub("AceGUI-3.0", "AceEvent-3.0")
 
-function addon:OnInitialize() -- Obviously you'll need a ## SavedVariables: BunniesDB line in your TOC, duh!
-	self.db = LibStub("AceDB-3.0"):New("BunniesDB", {
-		profile = {
-			minimap = {
-				hide = false,
-			},
-		},
-	}) icon:Register("Bunnies!", bunnyLDB, self.db.profile.minimap)
-	self:RegisterChatCommand("bunnies", "CommandTheBunnies")
+local LFGAnnouncementsMinimap = {}
+function LFGAnnouncementsMinimap:OnInitialize()
+	LFGAnnouncements.MinimapButton = self
 end
 
-function addon:CommandTheBunnies()
-	self.db.profile.minimap.hide = not self.db.profile.minimap.hide
-	if self.db.profile.minimap.hide then
-		icon:Hide("Bunnies!")
-	else
-		icon:Show("Bunnies!")
-	end
+function LFGAnnouncementsMinimap:OnEnable()
+	local db = LFGAnnouncements.DB
+	local minimapSettings = db:GetProfileData("minimap")
+
+	local lfgLDB = LibStub("LibDataBroker-1.1"):NewDataObject("LFGAnnouncements", {
+		type = "launcher",
+		icon = "Interface\\Icons\\inv_misc_groupneedmore",
+		OnClick = function(_, button)
+			if button == "LeftButton" then
+				LFGAnnouncements.UI:Toggle()
+			else
+			end
+		end,
+		OnTooltipShow = function(tooltip)
+			tooltip:SetText("LFG Announcements")
+		end
+	})
+	LibStub("LibDBIcon-1.0"):Register("LFGAnnouncements", lfgLDB, minimapSettings)
 end
+
+LFGAnnouncements.Core:RegisterModule("MinimapButton", LFGAnnouncementsMinimap)

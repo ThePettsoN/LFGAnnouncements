@@ -41,6 +41,14 @@ function LFGAnnouncementsUI:Hide()
 	end
 end
 
+function LFGAnnouncementsUI:Toggle()
+	if self:IsShown() then
+		self:Hide()
+	else
+		self:Show()
+	end
+end
+
 function LFGAnnouncementsUI:_createUI()
 	local frame = AceGUI:Create("Frame")
 	frame:SetTitle(AddonName)
