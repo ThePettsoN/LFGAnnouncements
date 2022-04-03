@@ -140,11 +140,13 @@ local function getAnchors(frame)
 end
 
 local function onTooltipEnter(widget, event)
-	local tooltip = AceGUI.tooltip
-	tooltip:SetOwner(widget.frame, "ANCHOR_NONE")
-	tooltip:SetPoint(getAnchors(widget.frame))
-	tooltip:SetText(widget.label:GetText() or "", 1, .82, 0, true)
-	tooltip:Show()
+	if widget.is_truncated then
+		local tooltip = AceGUI.tooltip
+		tooltip:SetOwner(widget.frame, "ANCHOR_NONE")
+		tooltip:SetPoint(getAnchors(widget.frame))
+		tooltip:SetText(widget.label:GetText() or "", 1, .82, 0, true)
+		tooltip:Show()
+	end
 end
 
 local function onTooltipLeave(widget, event)
@@ -292,7 +294,11 @@ function LFGAnnouncementsUI:_calculateSize(entry, group, newEntry)
 	end
 
 	local groupWidth = group.frame:GetWidth()
-	entry.message:SetWidth(groupWidth - diffWidth - timeWidth - nameWidth - 8 - 8 - 8)
+
+	local messageTextWidth = entry.message.label:GetStringWidth()
+	local availableWidth = groupWidth - diffWidth - timeWidth - nameWidth - 8 - 8 - 8
+	entry.message.is_truncated = messageTextWidth > availableWidth
+	entry.message:SetWidth(availableWidth)
 end
 
 function LFGAnnouncementsUI:OnDungeonActivated(event, dungeonId)
