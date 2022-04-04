@@ -280,6 +280,10 @@ function LFGAnnouncementsDungeons:GetActivatedDungeons()
 end
 
 function LFGAnnouncementsDungeons:ActivateDungeon(id)
+	if self._activatedDungeons[id] then
+		return
+	end
+
 	self._activatedDungeons[id] = true
 	LFGAnnouncements.DB:SetCharacterData(id, true, "dungeons", "activated")
 
@@ -292,6 +296,10 @@ function LFGAnnouncementsDungeons:ActivateDungeon(id)
 end
 
 function LFGAnnouncementsDungeons:DeactivateDungeon(id)
+	if not self._activatedDungeons[id] then
+		return
+	end
+
 	self._activatedDungeons[id] = nil
 	LFGAnnouncements.DB:SetCharacterData(id, false, "dungeons", "activated")
 

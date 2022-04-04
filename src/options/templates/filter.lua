@@ -1,5 +1,61 @@
 local _, LFGAnnouncements = ...
 
+local function formatName(id)
+	local dungeonsModule = LFGAnnouncements.Dungeons
+	local levelRange = dungeonsModule:GetLevelRange(id)
+	local name = dungeonsModule:GetDungeonName(id)
+
+	return string.format("%s (%d - %d)", name, levelRange[1], levelRange[2])
+end
+
+local function createEntry(id, order)
+	return {
+		type = "toggle",
+		width = "full",
+		order = order,
+		name = formatName(id),
+		get = function(info)
+			return LFGAnnouncements.DB:GetCharacterData("dungeons", "activated", id)
+		end,
+		set = function(info, newValue)
+			LFGAnnouncements.Dungeons:SetActivated(id, newValue)
+		end,
+	}
+end
+
+local function createGroup(args, instances)
+	local num = #instances
+	for i = 1, num do
+		local id = instances[i]
+		args["instance_filter_" .. id] = createEntry(id, i)
+	end
+
+	args["enable_all"] = {
+		type = "execute",
+		name = "Enable All",
+		width = "normal",
+		order = num + 1,
+		func = function()
+			for i = 1, num do
+				local id = instances[i]
+				LFGAnnouncements.Dungeons:SetActivated(id, true)
+			end
+		end,
+	}
+	args["disable_all"] = {
+		type = "execute",
+		name = "Disable All",
+		width = "normal",
+		order = num + 2,
+		func = function()
+			for i = 1, num do
+				local id = instances[i]
+				LFGAnnouncements.Dungeons:SetActivated(id, false)
+			end
+		end,
+	}
+end
+
 local function optionsTemplate()
 	local dungeonsModule = LFGAnnouncements.Dungeons
 	local db = LFGAnnouncements.DB
@@ -38,61 +94,16 @@ local function optionsTemplate()
 	}
 
 	-- Vanilla Dungeons
-	local dungeons = dungeonsModule:GetDungeons("VANILLA")
-	for i = 1, #dungeons do
-		local id = dungeons[i]
-		local levelRange = dungeonsModule:GetLevelRange(id)
-		vanilla_dungeons.args["dungeon_" .. id] = {
-			type = "toggle",
-			width = "full",
-			order = i,
-			name = string.format("%s (%d - %d)", dungeonsModule:GetDungeonName(id), levelRange[1], levelRange[2]),
-			get = function(info)
-				return db:GetCharacterData("dungeons", "activated", id)
-			end,
-			set = function(info, newValue)
-				LFGAnnouncements.Dungeons:SetActivated(id, newValue)
-			end,
-		}
-	end
+	local instances = dungeonsModule:GetDungeons("VANILLA")
+	createGroup(vanilla_dungeons.args, instances)
 
 	-- TBC Dungeons
-	dungeons = dungeonsModule:GetDungeons("TBC")
-	for i = 1, #dungeons do
-		local id = dungeons[i]
-		local levelRange = dungeonsModule:GetLevelRange(id)
-		tbc_dungeons.args["dungeon_" .. id] = {
-			type = "toggle",
-			width = "full",
-			order = i,
-			name = string.format("%s (%d - %d)", dungeonsModule:GetDungeonName(id), levelRange[1], levelRange[2]),
-			get = function(info)
-				return db:GetCharacterData("dungeons", "activated", id)
-			end,
-			set = function(info, newValue)
-				LFGAnnouncements.Dungeons:SetActivated(id, newValue)
-			end,
-		}
-	end
+	instances = dungeonsModule:GetDungeons("TBC")
+	createGroup(tbc_dungeons.args, instances)
 
 	-- TBC Raids
-	dungeons = dungeonsModule:GetRaids("TBC")
-	for i = 1, #dungeons do
-		local id = dungeons[i]
-		local levelRange = dungeonsModule:GetLevelRange(id)
-		tbc_raids.args["raid_" .. id] = {
-			type = "toggle",
-			width = "full",
-			order = i,
-			name = string.format("%s (%d - %d)", dungeonsModule:GetDungeonName(id), levelRange[1], levelRange[2]),
-			get = function(info)
-				return db:GetCharacterData("dungeons", "activated", id)
-			end,
-			set = function(info, newValue)
-				LFGAnnouncements.Dungeons:SetActivated(id, newValue)
-			end,
-		}
-	end
+	instances = dungeonsModule:GetRaids("TBC")
+	createGroup(tbc_raids.args, instances)
 
 	return {
 		type = "group",
