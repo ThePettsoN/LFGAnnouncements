@@ -1,4 +1,4 @@
-local AddonName, LFGAnnouncements = ...
+local TOCNAME, LFGAnnouncements = ...
 
 local LFGAnnouncementsCore = LibStub("AceAddon-3.0"):NewAddon("LFGAnnouncementsCore", "AceEvent-3.0", "AceConsole-3.0", "AceTimer-3.0")
 local DEBUG = true
@@ -107,6 +107,8 @@ function LFGAnnouncementsCore:OnChatCommand(args)
 	elseif command == "enableall" then
 		local module = self:GetModule("Dungeons")
 		module:ActivateAll()
+	elseif command == "config" or command == "settings" or command == "options" then
+		LFGAnnouncements.Options.Toggle()
 	elseif command then
 		dprintf("Unkown command: %s", command)
 	end

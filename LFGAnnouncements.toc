@@ -14,3 +14,7 @@ src/db.lua
 src/dungeons.lua
 src/ui.lua
 src/minimap_button.lua
+
+src/options/main.lua
+src/options/templates/general.lua
+src/options/templates/filter.lua

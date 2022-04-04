@@ -1,5 +1,34 @@
 local _, LFGAnnouncements = ...
 local VanillaDungeons = {
+	Order = {
+		"RFC",
+		"WC",
+		"DM",
+		"SFK",
+		"STOCKS",
+		"BFD",
+		"GNOMER",
+		"RFK",
+		"SM",
+		"SM_GY",
+		"SM_LIB",
+		"SM_ARM",
+		"SM_CATH",
+		"RFD",
+		"ULDA",
+		"ZF",
+		"MARA",
+		"ST",
+		"BRD",
+		"LBRS",
+		"UBRS",
+		"SCHOLO",
+		"STRAT",
+		"DIRE_MAUL",
+		"DIRE_MAUL_E",
+		"DIRE_MAUL_N",
+		"DIRE_MAUL_W",
+	},
 	Names = {
 		RFC 			= "Ragefire Chasm",
 		WC 				= "Wailing Caverns",
@@ -90,6 +119,23 @@ local VanillaDungeons = {
 }
 
 local BurningCrusadeDungeons = {
+	Order = {
+		"RAMP",
+		"BF",
+		"SHH",
+		"SP",
+		"UB",
+		"SV",
+		"MT",
+		"AC",
+		"SL",
+		"OHB",
+		"BM",
+		"BOT",
+		"MECHA",
+		"ARCA",
+		"MGT",
+	},
 	Names = {
 		RAMP 	= "Hellfire Citadel: Hellfire Ramparts",
 		BF 		= "Hellfire Citadel: The Blood Furnace",
@@ -144,6 +190,17 @@ local BurningCrusadeDungeons = {
 }
 
 local BurningCrusadeRaids = {
+	Order = {
+		"KZ",
+		"GRUUL",
+		"MAG",
+		"SSC",
+		"TK",
+		"MH",
+		"BT",
+		"ZA",
+		"SWP",
+	},
 	Names = {
 		KZ = "Karazhan",
 		GRUUL = "Gruul's Lair",
@@ -179,9 +236,15 @@ local BurningCrusadeRaids = {
 	}
 }
 
-local dungeons = LFGAnnouncements.Utils.tMergeRecursive(VanillaDungeons, BurningCrusadeDungeons)
+local dungeons = {}
+LFGAnnouncements.Utils.tMergeRecursive(dungeons, VanillaDungeons)
+LFGAnnouncements.Utils.tMergeRecursive(dungeons, BurningCrusadeDungeons)
+
 local raids = BurningCrusadeRaids
-local instances = LFGAnnouncements.Utils.tMergeRecursive(dungeons, raids)
+
+local instances = {}
+LFGAnnouncements.Utils.tMergeRecursive(instances, dungeons)
+LFGAnnouncements.Utils.tMergeRecursive(instances, raids)
 
 
 local LFGAnnouncementsDungeons = {}
@@ -230,6 +293,8 @@ end
 
 function LFGAnnouncementsDungeons:DeactivateDungeon(id)
 	self._activatedDungeons[id] = nil
+	LFGAnnouncements.DB:SetCharacterData(id, false, "dungeons", "activated")
+
 	local activeTags = self._activeTags
 	for key, value in pairs(activeTags) do
 		if value == id then
@@ -240,6 +305,14 @@ function LFGAnnouncementsDungeons:DeactivateDungeon(id)
 	self:SendMessage("OnDungeonDeactivated", id)
 end
 
+function LFGAnnouncementsDungeons:SetActivated(id, value)
+	if value then
+		self:ActivateDungeon(id)
+	else
+		self:DeactivateDungeon(id)
+	end
+end
+
 function LFGAnnouncementsDungeons:ActivateAll()
 	for id, _ in pairs(instances.Names) do
 		self:ActivateDungeon(id)
@@ -248,6 +321,10 @@ end
 
 function LFGAnnouncementsDungeons:GetDungeonName(id)
 	return instances.Names[id]
+end
+
+function LFGAnnouncementsDungeons:GetLevelRange(id)
+	return instances.Levels[id]
 end
 
 local dungeonsFound = {}
@@ -271,6 +348,19 @@ function LFGAnnouncementsDungeons:GetDungeonsByLevel(level)
 	end
 
 	return dungeonsFound
+end
+
+function LFGAnnouncementsDungeons:GetDungeons(expansion)
+	wipe(dungeonsFound)
+	if expansion == "VANILLA" then
+		return VanillaDungeons.Order
+	end
+
+	return BurningCrusadeDungeons.Order
+end
+
+function LFGAnnouncementsDungeons:GetRaids(expansion)
+	return BurningCrusadeRaids.Order
 end
 
 function LFGAnnouncementsDungeons:FindDungeons(splitMessage)

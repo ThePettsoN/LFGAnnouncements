@@ -1,4 +1,4 @@
-local AddonName, LFGAnnouncements = ...
+local TOCNAME, LFGAnnouncements = ...
 local AceGUI = LibStub("AceGUI-3.0", "AceEvent-3.0")
 
 local Dungeons
@@ -51,7 +51,7 @@ end
 
 function LFGAnnouncementsUI:_createUI()
 	local frame = AceGUI:Create("Frame")
-	frame:SetTitle(AddonName)
+	frame:SetTitle(TOCNAME)
 	frame:SetLayout("List")
 	frame.statustext:GetParent():Hide()
 
@@ -75,6 +75,11 @@ function LFGAnnouncementsUI:_createUI()
 	settingsButton:SetHeight(20)
 	settingsButton:SetWidth(100)
 	settingsButton:SetText("Settings")
+	settingsButton:SetCallback("OnClick", function(widget, event, button)
+		if button == "LeftButton" then
+			LFGAnnouncements.Options.Toggle()
+		end
+	end)
 	frame:AddChild(settingsButton)
 
 	self._frame = frame
@@ -317,12 +322,13 @@ end
 
 function LFGAnnouncementsUI:OnDungeonDeactivated(event, dungeonId)
 	LFGAnnouncements.dprintf("OnDungeonDeactivated: %s", dungeonId)
+	self:_removeDungeonContainer(dungeonId)
 end
 
 function LFGAnnouncementsUI:OnDungeonEntry(event, dungeonId, difficulty, message, time, authorGUID)
 	if self:IsShown() then
 		self:_createEntryLabel(dungeonId, difficulty, message, time, authorGUID)
-		self._scrollContainer:DoLayout()
+		-- self._scrollContainer:DoLayout()
 	end
 end
 

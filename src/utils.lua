@@ -1,4 +1,4 @@
-local AddonName, LFGAnnouncements = ...
+local _, LFGAnnouncements = ...
 
 local tClone = function(t)
 	local clone = {}
@@ -13,11 +13,19 @@ local tClone = function(t)
 	return clone
 end
 
+local tMergeArray = function(dest, source)
+	for i = 1, #source do
+		dest[#dest+1] = source[i]
+	end
+end
+
 local tMergeRecursive = function(dest, source)
 	for k, v in pairs(source) do
 		local isTable = type(v) == "table"
 
-		if isTable and type(dest[k]) == "table" then
+		if isTable and v[1] and type(dest[k]) == "table" and dest[k][1] then
+			tMergeArray(dest[k], v)
+		elseif isTable and type(dest[k]) == "table" then
 			LFGAnnouncements.Utils.tMergeRecursive(dest[k], v)
 		elseif isTable then
 			dest[k] = tClone(v)
