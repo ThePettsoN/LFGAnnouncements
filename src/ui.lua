@@ -134,6 +134,14 @@ function LFGAnnouncementsUI:_removeDungeonContainer(dungeonId)
 	end
 
 	local group = container.group
+	local entries = container.entries
+	for _, entry in pairs(entries) do
+		for _, widget in pairs(entry) do
+			group:RemoveChild(widget)
+			widget:Release()
+		end
+	end
+
 	self._scrollContainer:RemoveChild(group)
 	group:Release()
 	self._dungeonContainers[dungeonId] = nil -- TODO: This will force us to re-create container tables everytime we remove/add. Might want to change
