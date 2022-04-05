@@ -8,6 +8,7 @@
 
 embeds.xml
 src/AceGUIContainer-CollapsableInlineGroup.lua
+src/AceGUIContainer-Toaster.lua
 src/utils.lua
 src/core.lua
 src/db.lua
