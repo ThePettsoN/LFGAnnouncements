@@ -12,6 +12,11 @@ end
 LFGAnnouncements.Core = LFGAnnouncementsCore
 LFGAnnouncements.DEBUG = DEBUG
 LFGAnnouncements.dprintf = dprintf
+LFGAnnouncements.DungeonEntryReason = {
+	NEW = 1,
+	UPDATE = 2,
+	SHOW = 3,
+}
 
 function LFGAnnouncementsCore:OnInitialize()
 	-- Called after addon is fully loaded
@@ -66,7 +71,7 @@ function LFGAnnouncementsCore:OnUpdate()
 			else
 				local time = self._dungeonEntries[dungeonId][authorGUID].time + UpdateTime
 				self._dungeonEntries[dungeonId][authorGUID].time = time
-				self:SendMessage("OnDungeonEntry", dungeonId, entry.difficulty, entry.message, time, authorGUID)
+				self:SendMessage("OnDungeonEntry", dungeonId, entry.difficulty, entry.message, time, authorGUID, LFGAnnouncements.DungeonEntryReason.UPDATE)
 			end
 		end
 	end
@@ -103,7 +108,7 @@ function LFGAnnouncementsCore:OnChatCommand(args)
 			module:Show()
 			for dungeonId, data in pairs(self._dungeonEntries) do
 				for authorGUID, entry in pairs(data) do
-					self:SendMessage("OnDungeonEntry", dungeonId, entry.difficulty, entry.message, entry.time, authorGUID)
+					self:SendMessage("OnDungeonEntry", dungeonId, entry.difficulty, entry.message, entry.time, authorGUID, LFGAnnouncements.DungeonEntryReason.SHOW)
 				end
 			end
 		end
@@ -153,6 +158,7 @@ function LFGAnnouncementsCore:_createDungeonEntry(dungeonId, difficulty, message
 		self._dungeonEntries[dungeonId] = dungeonEntriesForId
 	end
 
+	local newEntry = not dungeonEntriesForId[authorGUID]
 	dungeonEntriesForId[authorGUID] = {
 		message = message,
 		difficulty = difficulty,
@@ -160,7 +166,7 @@ function LFGAnnouncementsCore:_createDungeonEntry(dungeonId, difficulty, message
 		time = 0,
 	}
 
-	self:SendMessage("OnDungeonEntry", dungeonId, difficulty, message, 0, authorGUID)
+	self:SendMessage("OnDungeonEntry", dungeonId, difficulty, message, 0, authorGUID, newEntry and LFGAnnouncements.DungeonEntryReason.NEW or LFGAnnouncements.DungeonEntryReason.UPDATE)
 end
 
 local normal = "NORMAL"

@@ -12,6 +12,18 @@ local defaults = {
 			channels = {},
 			new_on_top = true,
 		},
+		announcements = {
+			toaster = false,
+			sound = false,
+			sound_id = 3081,
+			chat = false,
+			chat_channel = 1,
+		},
+		position = {
+			x = 0,
+			y = 0,
+			stored = false,
+		}
 	},
 	char = {
 		initialized = false,
