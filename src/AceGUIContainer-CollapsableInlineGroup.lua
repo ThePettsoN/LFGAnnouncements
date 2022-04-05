@@ -102,6 +102,10 @@ local methods = {
 		self:SetTitle(self.title)
 		self:Fire(isShown and "Collapse" or "Expand")
 	end,
+
+	["IsExpanded"] = function(self, button)
+		return self.border:IsShown()
+	end,
 }
 
 local PaneBackdrop  = {
