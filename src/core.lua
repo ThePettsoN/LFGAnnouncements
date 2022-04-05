@@ -38,6 +38,8 @@ function LFGAnnouncementsCore:OnEnable()
 	self:RegisterEvent("CHAT_MSG_GUILD", "OnChatMsgGuild")
 	self:RegisterEvent("CHAT_MSG_SAY", "OnChatMsgSay")
 
+	self:RegisterMessage("OnDungeonDeactivated", "OnDungeonDeactivated")
+
 	self:RegisterChatCommand("lfga", "OnChatCommand")
 
 	self:ScheduleRepeatingTimer("OnUpdate", UpdateTime)
@@ -87,6 +89,10 @@ end
 
 function LFGAnnouncementsCore:OnChatMsgSay(event, message, _, _, _, playerName, _, _, _, _, _, _, guid)
 	self:_parseMessage(message, guid)
+end
+
+function LFGAnnouncementsCore:OnDungeonDeactivated(event, dungeonId)
+	self._dungeonEntries[dungeonId] = nil
 end
 
 function LFGAnnouncementsCore:OnChatCommand(args)
