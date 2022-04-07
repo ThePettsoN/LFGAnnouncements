@@ -1,0 +1,59 @@
+package-as: LFGAnnouncements
+enable-nolib-creation: no
+
+externals:
+    libs/LibStub:
+        url: https://repos.curseforge.com/wow/libstub/trunk
+        tag: latest
+
+    libs/CallbackHandler-1.0:
+        url: https://repos.curseforge.com/wow/callbackhandler/trunk/CallbackHandler-1.0
+        tag: latest
+
+    libs/LibDataBroker-1.1:
+        url: https://repos.curseforge.com/wow/libdatabroker-1-1
+        tag: latest
+
+    libs/LibDBIcon-1.0:
+        url: https://repos.curseforge.com/wow/libdbicon-1-0
+        tag: latest
+
+    libs/AceAddon-3.0:
+        url: https://repos.curseforge.com/wow/ace3/trunk/AceAddon-3.0
+        tag: latest
+
+    libs/AceDB-3.0:
+        url: https://repos.curseforge.com/wow/ace3/trunk/AceDB-3.0
+        tag: latest
+
+    libs/AceGUI-3.0:
+        url: https://repos.curseforge.com/wow/ace3/trunk/AceGUI-3.0
+        tag: latest
+
+    libs/AceEvent-3.0:
+        url: https://repos.curseforge.com/wow/ace3/trunk/AceEvent-3.0
+        tag: latest
+
+    libs/AceConsole-3.0:
+        url: https://repos.curseforge.com/wow/ace3/trunk/AceConsole-3.0
+        tag: latest
+
+    libs/AceTimer-3.0:
+        url: https://repos.curseforge.com/wow/ace3/trunk/AceTimer-3.0
+        tag: latest
+
+    libs/AceConfig-3.0:
+        url: https://repos.curseforge.com/wow/ace3/trunk/AceConfig-3.0
+        tag: latest
+
+    libs/AceDBOptions-3.0:
+        url: https://repos.curseforge.com/wow/ace3/trunk/AceDBOptions-3.0
+        tag: latest
+
+ignore:
+    - .git
+    - .vscode
+    - local_development
+    - .gitignore
+    - LFGAnnouncements.code-workspace
+    - libs
