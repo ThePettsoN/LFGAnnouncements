@@ -63,18 +63,18 @@ local function optionsTemplate()
 						db:SetProfileData("sound", newValue, "announcements")
 					end,
 				},
-				message = {
-					type = "toggle",
-					width = "full",
-					order = 2,
-					name = "Write a chat message on new request",
-					get = function(info)
-						return db:GetProfileData("announcements", "chat")
-					end,
-					set = function(info, newValue)
-						db:SetProfileData("chat", newValue, "announcements")
-					end,
-				},
+				-- message = {
+				-- 	type = "toggle",
+				-- 	width = "full",
+				-- 	order = 2,
+				-- 	name = "Write a chat message on new request",
+				-- 	get = function(info)
+				-- 		return db:GetProfileData("announcements", "chat")
+				-- 	end,
+				-- 	set = function(info, newValue)
+				-- 		db:SetProfileData("chat", newValue, "announcements")
+				-- 	end,
+				-- },
 				toast = {
 					type = "toggle",
 					width = "full",
