@@ -89,7 +89,7 @@ function LFGAnnouncementsUI:_createUI()
 
 	local settingsButton = AceGUI:Create("Button")
 	settingsButton:ClearAllPoints()
-	settingsButton:SetPoint("BOTTOMLEFT", 27, 17)
+	settingsButton:SetPoint("BOTTOMLEFT", frame.frame, 27, 17)
 	settingsButton:SetHeight(20)
 	settingsButton:SetWidth(100)
 	settingsButton:SetText("Settings")
