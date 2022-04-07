@@ -14,8 +14,10 @@ function LFGAnnouncementsReport:OnEnable()
 	self:_createUI()
 end
 
-local function onClick()
+local function onClick(frame, button)
 	LFGAnnouncements.UI:Show()
+	LFGAnnouncements.UI:CloseAll()
+	LFGAnnouncements.UI:OpenGroup(frame.dungeonId)
 end
 
 function LFGAnnouncementsReport:_createUI()
@@ -30,11 +32,10 @@ function LFGAnnouncementsReport:_createUI()
 		self._db:SetProfileData("stored", true, "position")
 	end)
 
-	self._label = AceGUI:Create("InteractiveLabel")
+	self._label = AceGUI:Create("Label")
 	self._label:SetText("Label")
 	self._label.label:SetWordWrap(false)
 	self._label.label:SetNonSpaceWrap(false)
-	self._label:SetCallback("OnClick", onClick)
 	self._frame:AddChild(self._label)
 
 	local position = self._db:GetProfileData("position")
@@ -42,6 +43,12 @@ function LFGAnnouncementsReport:_createUI()
 		self._frame:ClearAllPoints()
 		self._frame:SetPoint("BOTTOMLEFT", position.x, position.y)
 	end
+
+
+	self._button = CreateFrame("Button", nil, self._frame.frame)
+	self._button:SetPoint("TOPLEFT", 0, 0)
+	self._button:SetPoint("BOTTOMRIGHT", 0, 0)
+	self._button:SetScript("OnMouseDown", onClick)
 
 	self._frame:Hide()
 end
@@ -70,6 +77,7 @@ function LFGAnnouncementsReport:OnDungeonEntry(event, dungeonId, difficulty, mes
 		end
 
 		self._frame:SetTitle(self._dungeons:GetDungeonName(dungeonId))
+		self._button.dungeonId = dungeonId
 		self._label:SetText(message)
 		self._frame:Show()
 		self._frame.frame:SetAlpha(1)

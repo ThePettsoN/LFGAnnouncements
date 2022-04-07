@@ -49,6 +49,21 @@ function LFGAnnouncementsUI:Toggle()
 	end
 end
 
+function LFGAnnouncementsUI:CloseAll()
+	for _, container in pairs(self._dungeonContainers) do
+		container.group:Collapse()
+	end
+end
+
+function LFGAnnouncementsUI:OpenGroup(dungeonId)
+	local container = self._dungeonContainers[dungeonId]
+	if not container then
+		return
+	end
+
+	container.group:Expand()
+end
+
 function LFGAnnouncementsUI:_createUI()
 	local frame = AceGUI:Create("Frame")
 	frame:SetTitle(TOCNAME)
