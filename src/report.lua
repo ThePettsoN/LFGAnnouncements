@@ -67,9 +67,9 @@ function LFGAnnouncementsReport:OnDungeonEntry(event, dungeonId, difficulty, mes
 		return
 	end
 
-	if self._db:GetProfileData("announcements", "chat") then
-		print(message)
-	end
+	-- if self._db:GetProfileData("announcements", "chat") then
+		-- print(message)
+	-- end
 
 	if self._db:GetProfileData("announcements", "toaster") then
 		if self._timer then
