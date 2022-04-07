@@ -1,7 +1,7 @@
 local TOCNAME, LFGAnnouncements = ...
 
 local LFGAnnouncementsCore = LibStub("AceAddon-3.0"):NewAddon("LFGAnnouncementsCore", "AceEvent-3.0", "AceConsole-3.0", "AceTimer-3.0")
-local DEBUG = true
+local DEBUG = false
 
 local dprintf = function(s, ...)
 	if DEBUG then
