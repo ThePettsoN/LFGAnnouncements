@@ -124,15 +124,15 @@ do
 		content.height = contentheight
 	end
 
-	local PaneBackdrop  = {
-		-- bgFile = "Interface\\ChatFrame\\ChatFrameBackground",
-		-- edgeFile = "Interface\\Tooltips\\UI-Tooltip-Border",
-		tile = true, tileSize = 16, edgeSize = 16,
-		insets = { left = 3, right = 3, top = 5, bottom = 3 }
+	-- TODO: Move this into a general place where UI can use it as well
+	local PaneBackdrop = {
+		edgeFile = "Interface\\AddOns\\LFGAnnouncements\\Media\\Textures\\White8x8",
+		bgFile = "Interface\\AddOns\\LFGAnnouncements\\Media\\Textures\\White8x8",
+		edgeSize = 1,
 	}
 
 	local function Constructor()
-		local frame = CreateFrame("Frame",nil,UIParent)
+		local frame = CreateFrame("Frame", nil, UIParent, BackdropTemplateMixin and "BackdropTemplate" or nil)
 		local self = {}
 		self.type = "Window"
 
@@ -156,7 +156,6 @@ do
 		frame:SetPoint("BOTTOMLEFT",UIParent, "CENTER", 0, 0)
 		frame:EnableMouse()
 		frame:SetMovable(true)
-		frame:SetResizable(true)
 		frame:SetFrameStrata("FULLSCREEN_DIALOG")
 		frame:SetScript("OnMouseDown", frameOnMouseDown)
 
@@ -164,23 +163,17 @@ do
 		frame:SetScript("OnHide",frameOnClose)
 		frame:SetToplevel(true)
 
-		local border = CreateFrame("Frame", nil, frame, BackdropTemplateMixin and "BackdropTemplate" or nil)
-		border:SetPoint("TOPLEFT", frame, "TOPLEFT", 0, 0)
-		border:SetPoint("BOTTOMRIGHT", 0, 0)
-		border:SetBackdrop(PaneBackdrop)
-		border:SetBackdropColor(0.1, 0.1, 0.1, 0.5)
+		frame:SetBackdrop(PaneBackdrop)
+		frame:SetBackdropColor(0.1, 0.1, 0.1, 0.8)
+		frame:SetBackdropBorderColor(0, 0, 0)
 
 		local titlebg = frame:CreateTexture(nil, "BACKGROUND")
-		titlebg:SetTexture(137056) -- Interface\\PaperDollInfoFrame\\UI-GearManager-Title-Background
 		titlebg:SetPoint("TOPLEFT", 0, 0)
 		titlebg:SetPoint("TOPRIGHT", frame, "TOPRIGHT", 0, 0)
-		titlebg:SetVertexColor(0, 0, 0, .75)
 
 		local dialogbg = frame:CreateTexture(nil, "BACKGROUND")
-		dialogbg:SetTexture(137056) -- Interface\\PaperDollInfoFrame\\UI-GearManager-Title-Background
 		dialogbg:SetPoint("TOPLEFT", titlebg, "BOTTOMLEFT", 0, 0)
 		dialogbg:SetPoint("BOTTOMRIGHT", 0, 0)
-		dialogbg:SetVertexColor(0, 0, 0, .75)
 
 		local close = CreateFrame("Button", nil, frame, "UIPanelCloseButton")
 		close:SetPoint("TOPRIGHT", 0, 0)
