@@ -1,0 +1,20 @@
+TODO:
+	- Notifications
+		- Add chat message
+	- DB
+		- Store size of main UI
+		- Store position of main UI
+	- Settings
+		- General
+			- Add toggles for which chat channels to parse from
+		- Filter
+			- Add button to enable & disable dungeons appropriate to player's level
+			- Add toggles to filter on normal/heroic
+			- Add toggle to try and filter LFG requests
+		- Notifications
+			- Add toggle to only show notification on new or on all requests
+			- Add picker for sound type
+			- Enable/disable chat message
+			- Decide which frame to write chat message to
+		- Tags
+			- Enable custom tags
