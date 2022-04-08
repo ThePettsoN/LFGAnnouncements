@@ -4,6 +4,8 @@ TODO:
 	- DB
 		- Store size of main UI
 		- Store position of main UI
+	- Searching
+		- Include special characters /\| together with whitespace as separators
 	- Settings
 		- General
 			- Add toggles for which chat channels to parse from
