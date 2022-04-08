@@ -13,7 +13,6 @@ TODO:
 			- Sort new requests on top
 		- Filter
 			- Add button to enable & disable dungeons appropriate to player's level
-			- Add toggles to filter on normal/heroic
 			- Add toggle to try and filter LFG requests
 		- Notifications
 			- Add toggle to only show notification on new or on all requests
