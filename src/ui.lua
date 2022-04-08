@@ -2,6 +2,11 @@ local TOCNAME, LFGAnnouncements = ...
 local AceGUI = LibStub("AceGUI-3.0", "AceEvent-3.0")
 
 local Dungeons
+local DifficultyTextLookup = {
+	NORMAL = " |cff00ff00[N]|r ",
+	HEROIC = " |cffff0000[H]|r ",
+}
+
 
 local LFGAnnouncementsUI = {}
 function LFGAnnouncementsUI:OnInitialize()
@@ -165,11 +170,6 @@ function LFGAnnouncementsUI:_removeDungeonContainer(dungeonId)
 	self._dungeonContainers[dungeonId] = nil -- TODO: This will force us to re-create container tables everytime we remove/add. Might want to change
 	self._scrollContainer:DoLayout()
 end
-
-local DifficultyTextLookup = {
-	NORMAL = " |cff00ff00[N]|r ",
-	HEROIC = " |cffff0000[H]|r ",
-}
 
 local function getAnchors(frame)
 	local x, y = frame:GetCenter()
