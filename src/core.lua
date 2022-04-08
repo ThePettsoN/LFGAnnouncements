@@ -44,7 +44,9 @@ function LFGAnnouncementsCore:OnEnable()
 
 	self:ScheduleRepeatingTimer("OnUpdate", UpdateTime)
 
-	self._timeToShow = LFGAnnouncements.DB:GetProfileData("general", "time_visible_sec")
+	local db = LFGAnnouncements.DB
+	self._timeToShow = db:GetProfileData("general", "time_visible_sec")
+	self._difficultyFilter = db:GetCharacterData("filters", "difficulty")
 end
 
 function LFGAnnouncementsCore:OnDisable()
@@ -77,6 +79,13 @@ end
 
 function LFGAnnouncementsCore:RegisterModule(name, module, ...)
 	self:NewModule(name, module, ...)
+end
+
+function LFGAnnouncementsCore:SetDifficultyFilter(difficulty)
+	if self._difficultyFilter ~= difficulty then
+		self._difficultyFilter = difficulty
+		LFGAnnouncements.DB:SetCharacterData("difficulty", difficulty, "filters")
+	end
 end
 
 function LFGAnnouncementsCore:OnChatMsgChannel(event, message, _, _, _, playerName, _, _, channelIndex, _, _, _, guid)
@@ -139,8 +148,10 @@ function LFGAnnouncementsCore:_parseMessage(message, authorGUID)
 	local foundDungeons = module:FindDungeons(splitMessage)
 	if foundDungeons then
 		local difficulty = self:_findDifficulty(splitMessage)
-		for dungeonId, _ in pairs(foundDungeons) do
-			self:_createDungeonEntry(dungeonId, difficulty, message, authorGUID)
+		if self._difficultyFilter == "ALL" or self._difficultyFilter == difficulty then
+			for dungeonId, _ in pairs(foundDungeons) do
+				self:_createDungeonEntry(dungeonId, difficulty, message, authorGUID)
+			end
 		end
 	end
 end

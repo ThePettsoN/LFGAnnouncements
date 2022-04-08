@@ -88,6 +88,19 @@ local function optionsTemplate()
 			width = "full",
 			name = "Filter",
 		},
+		normal_only_filter = {
+			type = "select",
+			width = "full",
+			order = 2,
+			name = "Filter on dungeon difficulty",
+			values = LFGAnnouncements.DB.dungeonDifficulties,
+			get = function(info)
+				return LFGAnnouncements.DB:GetCharacterData("filters", "difficulty")
+			end,
+			set = function(info, newValue)
+				LFGAnnouncements.Core:SetDifficultyFilter(newValue)
+			end,
+		},
 		vanilla_dungeons = vanilla_dungeons,
 		tbc_dungeons = tbc_dungeons,
 		tbc_raids = tbc_raids,

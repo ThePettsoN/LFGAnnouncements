@@ -52,6 +52,11 @@ local defaults = {
 function LFGAnnouncementsDBModule:OnInitialize()
 	LFGAnnouncements.DB = self
 	self._db = LibStub("AceDB-3.0"):New("LFGAnnouncementsDB", defaults)
+	self.dungeonDifficulties = {
+		ALL = "Show all",
+		NORMAL = "Normal Only",
+		HEROIC = "Heroic Only",
+	}
 end
 
 function LFGAnnouncementsDBModule:OnEnable()
