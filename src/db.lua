@@ -3,27 +3,38 @@ local _, LFGAnnouncements = ...
 local LFGAnnouncementsDBModule = {}
 local defaults = {
 	profile = {
+		general = {
+			time_visible_sec = 120,
+			channels = {},
+			new_on_top = false,
+			position = {
+				x = 0,
+				y = 0,
+				stored = false,
+			},
+		},
 		minimap = {
 			hide = false,
 			lock = false,
 		},
-		search_settings = {
-			time_visible_sec = 120,
-			channels = {},
-			new_on_top = true,
+		notifications = {
+			toaster = {
+				enabled = true,
+				position = {
+					x = 0,
+					y = 0,
+					stored = false,
+				},
+			},
+			sound = {
+				enabled = true,
+				id = 3081,
+			},
+			chat = {
+				enabled = false,
+				channel = 1,
+			},
 		},
-		announcements = {
-			toaster = false,
-			sound = false,
-			sound_id = 3081,
-			chat = false,
-			chat_channel = 1,
-		},
-		position = {
-			x = 0,
-			y = 0,
-			stored = false,
-		}
 	},
 	char = {
 		initialized = false,

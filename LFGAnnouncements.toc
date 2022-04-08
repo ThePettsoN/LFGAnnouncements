@@ -16,7 +16,7 @@ src/db.lua
 src/dungeons.lua
 src/ui.lua
 src/minimap_button.lua
-src/report.lua
+src/notifications.lua
 
 src/options/main.lua
 src/options/templates/general.lua

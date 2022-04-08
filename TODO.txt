@@ -7,6 +7,8 @@ TODO:
 	- Settings
 		- General
 			- Add toggles for which chat channels to parse from
+			- Time to be visible
+			- Sort new requests on top
 		- Filter
 			- Add button to enable & disable dungeons appropriate to player's level
 			- Add toggles to filter on normal/heroic

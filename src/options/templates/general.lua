@@ -57,10 +57,10 @@ local function optionsTemplate()
 					order = 1,
 					name = "Play sound on new request",
 					get = function(info)
-						return db:GetProfileData("announcements", "sound")
+						return db:GetProfileData("notifications", "sound", "enabled")
 					end,
 					set = function(info, newValue)
-						db:SetProfileData("sound", newValue, "announcements")
+						db:SetProfileData("enabled", newValue, "notifications", "sound")
 					end,
 				},
 				-- message = {
@@ -69,10 +69,10 @@ local function optionsTemplate()
 				-- 	order = 2,
 				-- 	name = "Write a chat message on new request",
 				-- 	get = function(info)
-				-- 		return db:GetProfileData("announcements", "chat")
+				--  	return db:GetProfileData("notifications", "chat", "enabled")
 				-- 	end,
 				-- 	set = function(info, newValue)
-				-- 		db:SetProfileData("chat", newValue, "announcements")
+				-- 		db:SetProfileData("enabled", newValue, "notifications", "chat")
 				-- 	end,
 				-- },
 				toast = {
@@ -81,10 +81,10 @@ local function optionsTemplate()
 					order = 3,
 					name = "Show a toast window on new request",
 					get = function(info)
-						return db:GetProfileData("announcements", "toaster")
+						return db:GetProfileData("notifications", "toaster", "enabled")
 					end,
 					set = function(info, newValue)
-						db:SetProfileData("toaster", newValue, "announcements")
+						db:SetProfileData("enabled", newValue, "notifications", "toaster")
 					end,
 				},
 			}
