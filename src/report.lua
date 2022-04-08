@@ -22,7 +22,7 @@ end
 
 function LFGAnnouncementsReport:_scheduleToasterTimer()
 	self._toasterTimer = self:ScheduleTimer(function()
-		self._toaster:FadeOut()
+		self._toaster:StartFadeOut()
 	end, 5)
 end
 
@@ -43,7 +43,7 @@ function LFGAnnouncementsReport:_createUI()
 		self._db:SetProfileData("y", floor(y + 0.5), "position")
 		self._db:SetProfileData("stored", true, "position")
 
-		if self._toaster:IsVisible() and (not self._toasterTimer or self._toasterTimer.cancelled) then
+		if self._toaster:IsShown() and self._toasterTimer then
 			self:_scheduleToasterTimer()
 		end
 
@@ -51,6 +51,7 @@ function LFGAnnouncementsReport:_createUI()
 	self._toaster:SetCallback("StartMoving", function (widget, event)
 		self:_cancelToasterTimer()
 		self._toaster:SetAlpha(1)
+		self._toaster:StopFadeOut()
 	end)
 
 	self._label = AceGUI:Create("Label")
