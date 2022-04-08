@@ -10,7 +10,6 @@ local DifficultyTextLookup = {
 
 local LFGAnnouncementsUI = {}
 function LFGAnnouncementsUI:OnInitialize()
-	LFGAnnouncements.dprintf("LFGAnnouncementsUI:OnInitialize")
 	LFGAnnouncements.UI = self
 
 	self._dungeonContainers = {}
@@ -24,7 +23,6 @@ function LFGAnnouncementsUI:OnInitialize()
 end
 
 function LFGAnnouncementsUI:OnEnable()
-	LFGAnnouncements.dprintf("LFGAnnouncementsUI:OnEnable")
 
 	-- Called on PLAYER_LOGIN event
 	Dungeons = LFGAnnouncements.Dungeons
@@ -150,7 +148,6 @@ function LFGAnnouncementsUI:_createDungeonContainer(dungeonId)
 end
 
 function LFGAnnouncementsUI:_removeDungeonContainer(dungeonId)
-	LFGAnnouncements.dprintf("RemoveDungeonContainer: %q", dungeonId)
 	local container = self._dungeonContainers[dungeonId]
 	if not container then
 		return
@@ -343,16 +340,13 @@ function LFGAnnouncementsUI:_calculateSize(entry, group, newEntry)
 end
 
 function LFGAnnouncementsUI:OnDungeonActivated(event, dungeonId)
-	LFGAnnouncements.dprintf("OnDungeonActivated: %q", dungeonId)
 end
 
 function LFGAnnouncementsUI:OnDungeonDeactivated(event, dungeonId)
-	LFGAnnouncements.dprintf("OnDungeonDeactivated: %q", dungeonId)
 	self:_removeDungeonContainer(dungeonId)
 end
 
 function LFGAnnouncementsUI:OnDungeonEntry(event, dungeonId, difficulty, message, time, authorGUID)
-	LFGAnnouncements.dprintf("OnDungeonEntry: %q | %q | %q | %q | %q", dungeonId, difficulty, message, time, authorGUID)
 	if self:IsShown() then
 		self:_createEntryLabel(dungeonId, difficulty, message, time, authorGUID)
 		-- self._scrollContainer:DoLayout()
@@ -360,7 +354,6 @@ function LFGAnnouncementsUI:OnDungeonEntry(event, dungeonId, difficulty, message
 end
 
 function LFGAnnouncementsUI:OnRemoveDungeonEntry(event, dungeonId, authorGUID)
-	LFGAnnouncements.dprintf("OnRemoveDungeonEntry: %q | %q", dungeonId, authorGUID)
 	if self:IsShown() then
 		self:_removeEntryLabel(dungeonId, authorGUID)
 		self._scrollContainer:DoLayout()

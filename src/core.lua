@@ -19,8 +19,6 @@ LFGAnnouncements.DungeonEntryReason = {
 }
 
 function LFGAnnouncementsCore:OnInitialize()
-	-- Called after addon is fully loaded
-	dprintf("LFGAnnouncementsCore:OnInitialize")
 	self._modules = {}
 	self._enabledChannels = {
 		[1] = true,
@@ -36,9 +34,6 @@ end
 
 local UpdateTime = 1
 function LFGAnnouncementsCore:OnEnable()
-	-- Called on PLAYER_LOGIN event
-	dprintf("LFGAnnouncementsCore:OnEnable")
-
 	self:RegisterEvent("CHAT_MSG_CHANNEL", "OnChatMsgChannel")
 	self:RegisterEvent("CHAT_MSG_GUILD", "OnChatMsgGuild")
 	self:RegisterEvent("CHAT_MSG_SAY", "OnChatMsgSay")
@@ -53,7 +48,6 @@ function LFGAnnouncementsCore:OnEnable()
 end
 
 function LFGAnnouncementsCore:OnDisable()
-	dprintf("LFGAnnouncementsCore:OnDisable")
 end
 
 local dungeonsToRemove = {}
