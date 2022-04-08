@@ -102,7 +102,7 @@ end
 
 function LFGAnnouncementsCore:OnChatCommand(args)
 	local command = self:GetArgs(args, 1)
-	if command == "show" then
+	if command == "show" or command == "open" then
 		local module = self:GetModule("UI")
 		if not module:IsShown() then
 			module:Show()
@@ -112,7 +112,7 @@ function LFGAnnouncementsCore:OnChatCommand(args)
 				end
 			end
 		end
-	elseif command == "hide" then
+	elseif command == "hide" or command == "close" then
 		local module = self:GetModule("UI")
 		module:Hide()
 	elseif command == "enableall" then
