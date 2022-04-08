@@ -41,8 +41,13 @@ do
 	end
 
 	local function titleOnMouseDown(this)
-		this:GetParent():StartMoving()
+		local frame = this:GetParent()
+		frame:StartMoving()
 		AceGUI:ClearFocus()
+
+		local self = frame.obj
+		self:SetIsMoving(true)
+		self:Fire("StartMoving")
 	end
 
 	local function frameOnMouseUp(this)
@@ -55,7 +60,16 @@ do
 		status.top = frame:GetTop()
 		status.left = frame:GetLeft()
 
+		self:SetIsMoving(false)
 		self:Fire("StopMoving", status.left, status.top - status.height)
+	end
+
+	local function IsMoving(self)
+		return self._isMoving
+	end
+
+	local function SetIsMoving(self, isMoving)
+		self._isMoving = isMoving
 	end
 
 	local function SetTitle(self,title)
@@ -68,6 +82,10 @@ do
 
 	local function Show(self)
 		self.frame:Show()
+	end
+
+	local function SetAlpha(self, alpha)
+		self.frame:SetAlpha(alpha)
 	end
 
 	local function OnAcquire(self)
@@ -89,6 +107,24 @@ do
 		assert(type(status) == "table")
 		self.status = status
 		self:ApplyStatus()
+	end
+
+	local FadeInfo = {
+		mode = "OUT",
+		timeToFade = 1,
+		startAlpha = 1,
+		endAlpha = 0,
+		finishedFunc = function(frame)
+			frame:Hide()
+		end
+	}
+
+	local function SetFadeOutDuration(self, duration)
+		FadeInfo.timeToFade = duration
+	end
+
+	local function FadeOut(self)
+		UIFrameFade(self.frame, FadeInfo)
 	end
 
 	local function ApplyStatus(self)
@@ -136,16 +172,22 @@ do
 		local self = {}
 		self.type = "Window"
 
+		FadeInfo.finishedArg1 = frame
+
 		self.Hide = Hide
 		self.Show = Show
 		self.SetTitle =  SetTitle
 		self.OnRelease = OnRelease
 		self.OnAcquire = OnAcquire
-		self.SetStatusText = SetStatusText
 		self.SetStatusTable = SetStatusTable
 		self.ApplyStatus = ApplyStatus
 		self.OnWidthSet = OnWidthSet
 		self.OnHeightSet = OnHeightSet
+		self.SetFadeOutDuration = SetFadeOutDuration
+		self.SetAlpha = SetAlpha
+		self.FadeOut = FadeOut
+		self.IsMoving = IsMoving
+		self.SetIsMoving = SetIsMoving
 
 		self.localstatus = {}
 
