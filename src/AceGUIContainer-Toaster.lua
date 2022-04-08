@@ -23,6 +23,14 @@ do
 	local Type = "Toaster"
 	local Version = 6
 
+	function copy(t)
+		local c = {}
+		for k, v in pairs(t) do
+			c[k] = v
+		end
+		return c
+	end
+
 	local function frameOnShow(this)
 		this.obj:Fire("OnShow")
 	end
@@ -123,8 +131,12 @@ do
 		FadeInfo.timeToFade = duration
 	end
 
-	local function FadeOut(self)
-		UIFrameFade(self.frame, FadeInfo)
+	local function StartFadeOut(self)
+		UIFrameFade(self.frame, copy(FadeInfo))
+	end
+
+	local function StopFadeOut(self)
+		UIFrameFadeRemoveFrame(self.frame)
 	end
 
 	local function ApplyStatus(self)
@@ -185,7 +197,8 @@ do
 		self.OnHeightSet = OnHeightSet
 		self.SetFadeOutDuration = SetFadeOutDuration
 		self.SetAlpha = SetAlpha
-		self.FadeOut = FadeOut
+		self.StartFadeOut = StartFadeOut
+		self.StopFadeOut = StopFadeOut
 		self.IsMoving = IsMoving
 		self.SetIsMoving = SetIsMoving
 
