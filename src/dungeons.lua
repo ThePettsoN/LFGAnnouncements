@@ -235,7 +235,7 @@ local BurningCrusadeRaids = {
 		TK = { "tk", "tempest", "eye", },
 		MH = { "mh", "hyjal", "hyj", },
 		BT = { "bt", "temple", },
-		ZA = { "za", "zul'aman", "zulaman", "aman", },
+		ZA = { "za", "zul'aman", "zulaman", "aman", "z'a", },
 		SWP = { "swp", "sunwell", "plateau", "sunwel", "plataeu", },
 	}
 }
