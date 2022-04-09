@@ -57,3 +57,4 @@ ignore:
     - .gitignore
     - LFGAnnouncements.code-workspace
     - libs
+    - TODO.txt
