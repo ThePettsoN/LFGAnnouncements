@@ -1,4 +1,6 @@
 TODO:
+	- UI
+		- Rightclick should open a context menu instead of doing "who" directly
 	- Notifications
 		- Add chat message
 	- DB
@@ -14,7 +16,7 @@ TODO:
 		- Filter
 			- Add button to enable & disable dungeons appropriate to player's level
 			- Add toggle to try and filter LFG requests
-			- Add toggle to try and filter boost requests
+			- Remove existing requests when changing filter settings (boost, difficulty)
 		- Notifications
 			- Add toggle to only show notification on new or on all requests
 			- Add picker for sound type
