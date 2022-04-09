@@ -47,6 +47,7 @@ function LFGAnnouncementsCore:OnEnable()
 	local db = LFGAnnouncements.DB
 	self._timeToShow = db:GetProfileData("general", "time_visible_sec")
 	self._difficultyFilter = db:GetCharacterData("filters", "difficulty")
+	self._boostFilter = db:GetCharacterData("filters", "boost")
 end
 
 function LFGAnnouncementsCore:OnDisable()
@@ -85,6 +86,13 @@ function LFGAnnouncementsCore:SetDifficultyFilter(difficulty)
 	if self._difficultyFilter ~= difficulty then
 		self._difficultyFilter = difficulty
 		LFGAnnouncements.DB:SetCharacterData("difficulty", difficulty, "filters")
+	end
+end
+
+function LFGAnnouncementsCore:SetBoostFilter(enabled)
+	if self._boostFilter ~= enabled then
+		self._boostFilter = enabled
+		LFGAnnouncements.DB:SetCharacterData("boost", enabled, "filters")
 	end
 end
 
@@ -152,8 +160,10 @@ function LFGAnnouncementsCore:_parseMessage(message, authorGUID)
 	if foundDungeons then
 		local difficulty = self:_findDifficulty(splitMessage)
 		if self._difficultyFilter == "ALL" or self._difficultyFilter == difficulty then
-			for dungeonId, _ in pairs(foundDungeons) do
-				self:_createDungeonEntry(dungeonId, difficulty, message, authorGUID)
+			if self:_tryFilterBoost(splitMessage) then
+				for dungeonId, _ in pairs(foundDungeons) do
+					self:_createDungeonEntry(dungeonId, difficulty, message, authorGUID)
+				end
 			end
 		end
 	end
@@ -195,4 +205,25 @@ function LFGAnnouncementsCore:_findDifficulty(splitMessage)
 	end
 
 	return normal
+end
+
+local boostTags = {
+	boost = true,
+	wts = true,
+	wst = true,
+	-- sell = true,
+	-- selling = true,
+}
+function LFGAnnouncementsCore:_tryFilterBoost(splitMessage)
+	if not self._boostFilter then
+		return true
+	end
+
+	for i = 1, #splitMessage do
+		if boostTags[splitMessage[i]] then
+			return false
+		end
+	end
+
+	return true
 end

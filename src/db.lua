@@ -44,6 +44,7 @@ local defaults = {
 		},
 		filters = {
 			difficulty = "ALL",
+			boost = false,
 			level_range = false,
 		}
 	}

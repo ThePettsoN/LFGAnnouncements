@@ -62,21 +62,21 @@ local function optionsTemplate()
 	local vanilla_dungeons = {
 		type = "group",
 		name = "Vanilla Dungeons",
-		order = 2,
+		order = 4,
 		inline = false,
 		args = {}
 	}
 	local tbc_dungeons = {
 		type = "group",
 		name = "TBC Dungeons",
-		order = 3,
+		order = 5,
 		inline = false,
 		args = {}
 	}
 	local tbc_raids = {
 		type = "group",
 		name = "TBC Raids",
-		order = 4,
+		order = 6,
 		inline = false,
 		args = {}
 	}
@@ -88,7 +88,7 @@ local function optionsTemplate()
 			width = "full",
 			name = "Filter",
 		},
-		normal_only_filter = {
+		difficulty_filter = {
 			type = "select",
 			width = "full",
 			order = 2,
@@ -99,6 +99,18 @@ local function optionsTemplate()
 			end,
 			set = function(info, newValue)
 				LFGAnnouncements.Core:SetDifficultyFilter(newValue)
+			end,
+		},
+		boost_filter = {
+			type = "toggle",
+			width = "full",
+			order = 3,
+			name = "Try filter boost requests",
+			get = function(info)
+				return LFGAnnouncements.DB:GetCharacterData("filters", "boost")
+			end,
+			set = function(info, newValue)
+				LFGAnnouncements.Core:SetBoostFilter(newValue)
 			end,
 		},
 		vanilla_dungeons = vanilla_dungeons,
