@@ -274,8 +274,12 @@ function LFGAnnouncementsDungeons:OnEnable()
 	else
 		local dungeons = db:GetCharacterData("dungeons", "activated")
 		for key, activated in pairs(dungeons) do
-			if activated then
-				self:ActivateDungeon(key)
+			if instances.Names[key] then
+				if activated then
+					self:ActivateDungeon(key)
+				end
+			else
+				db:SetCharacterData(key, false, "dungeons", "activated")
 			end
 		end
 	end
