@@ -1,6 +1,7 @@
 TODO:
 	- UI
 		- Rightclick should open a context menu instead of doing "who" directly
+		- Sort instance groups by level instead of "on first"
 	- Notifications
 		- Add chat message
 	- DB
