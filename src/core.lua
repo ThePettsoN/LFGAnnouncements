@@ -209,6 +209,7 @@ end
 
 local boostTags = {
 	boost = true,
+	boosts = true,
 	wts = true,
 	wst = true,
 	-- sell = true,
