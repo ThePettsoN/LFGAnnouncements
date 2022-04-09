@@ -142,7 +142,10 @@ function LFGAnnouncementsCore:_parseMessage(message, authorGUID)
 	end
 
 	wipe(splitMessage)
-	testPack(splitMessage, strsplit(" ", strlower(message)))
+	for v in string.gmatch(strlower(message), "[^| /\\.]+") do
+		splitMessage[#splitMessage+1] = v
+	end
+	-- testPack(splitMessage, strsplit(" ", strlower(message)))
 
 	module = LFGAnnouncements.Dungeons
 	local foundDungeons = module:FindDungeons(splitMessage)
