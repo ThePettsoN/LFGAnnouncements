@@ -128,6 +128,7 @@ local BurningCrusadeDungeons = {
 		"SV",
 		"MT",
 		"AC",
+		"SETH",
 		"SL",
 		"OHB",
 		"BM",
