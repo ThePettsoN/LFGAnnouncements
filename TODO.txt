@@ -23,6 +23,6 @@ TODO:
 			- Add picker for sound type
 			- Enable/disable chat message
 			- Decide which frame to write chat message to
-			- Hide toaster in raid
+			- Disable while in raid/pvp (zone)
 		- Tags
 			- Enable custom tags
