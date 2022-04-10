@@ -6,6 +6,8 @@
 ## DefaultState: Enabled
 ## LoadOnDemand: 0
 ## SavedVariables: LFGAnnouncementsDB
+## X-Curse-Project-ID: 606598
+## X-Wago-ID: q96dm5KO
 
 embeds.xml
 src/gui/AceGUIContainer-CollapsableInlineGroup.lua
