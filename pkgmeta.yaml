@@ -11,11 +11,11 @@ externals:
         tag: latest
 
     libs/LibDataBroker-1.1:
-        url: https://repos.curseforge.com/wow/libdatabroker-1-1
+        url: https://github.com/tekkub/libdatabroker-1-1
         tag: latest
 
     libs/LibDBIcon-1.0:
-        url: https://repos.curseforge.com/wow/libdbicon-1-0
+        url: https://repos.curseforge.com/wow/libdbicon-1-0/trunk/
         tag: latest
 
     libs/AceAddon-3.0:
