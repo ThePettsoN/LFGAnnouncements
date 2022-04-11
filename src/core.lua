@@ -136,12 +136,6 @@ function LFGAnnouncementsCore:OnChatCommand(args)
 	end
 end
 
-local testPack = function(tbl, ...)
-	for i = 1, select("#", ...) do
-		tbl[i] = select(i, ...)
-	end
-end
-
 local module
 local splitMessage = {}
 function LFGAnnouncementsCore:_parseMessage(message, authorGUID)
@@ -153,7 +147,6 @@ function LFGAnnouncementsCore:_parseMessage(message, authorGUID)
 	for v in string.gmatch(strlower(message), "[^| /\\.{},+]+") do
 		splitMessage[#splitMessage+1] = v
 	end
-	-- testPack(splitMessage, strsplit(" ", strlower(message)))
 
 	module = LFGAnnouncements.Dungeons
 	local foundDungeons = module:FindDungeons(splitMessage)
