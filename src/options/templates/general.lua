@@ -87,6 +87,19 @@ local function optionsTemplate()
 						db:SetProfileData("enabled", newValue, "notifications", "toaster")
 					end,
 				},
+				disable_in_instance = {
+					name = "Show notifications in areas",
+					type = "multiselect",
+					width = "full",
+					order = 4,
+					values = db.instanceTypes,
+					get = function(info, key)
+						return db:GetProfileData("notifications", "general", "enable_in_instance", key)
+					end,
+					set = function(info, key, newValue)
+						LFGAnnouncements.Notifications:SetNotificationInInstance(key, newValue)
+					end,
+				}
 			}
 		},
 	}

@@ -3,13 +3,17 @@ local AceGUI = LibStub("AceGUI-3.0", "AceEvent-3.0")
 
 local LFGAnnouncementsNotification = {}
 function LFGAnnouncementsNotification:OnInitialize()
-	LFGAnnouncements.Announcement = self
+	LFGAnnouncements.Notifications = self
 	self:RegisterMessage("OnDungeonEntry", "OnDungeonEntry")
 end
 
 function LFGAnnouncementsNotification:OnEnable()
+	self:RegisterEvent("PLAYER_ENTERING_WORLD", "OnPlayerEnteringWorld")
+
 	self._dungeons = LFGAnnouncements.Dungeons
 	self._db = LFGAnnouncements.DB
+
+	self._enabledForInstanceTypes = self._db:GetProfileData("notifications", "general", "enable_in_instance")
 
 	self:_createUI()
 end
@@ -73,8 +77,22 @@ function LFGAnnouncementsNotification:_createUI()
 	self._button:SetScript("OnMouseDown", onClick)
 end
 
+function LFGAnnouncementsNotification:SetNotificationInInstance(key, value)
+	self._enabledForInstanceTypes[key] = value
+	self._db:SetProfileData(key, value, "notifications", "general", "enable_in_instance")
+end
+
+function LFGAnnouncementsNotification:OnPlayerEnteringWorld(event, isInitialLogin, isReloadingUi)
+	local _, instanceType = GetInstanceInfo()
+	self._instanceType = instanceType == "none" and "world" or instanceType
+end
+
 function LFGAnnouncementsNotification:OnDungeonEntry(event, dungeonId, difficulty, message, time, authorGUID, reason)
 	if reason ~= LFGAnnouncements.DungeonEntryReason.NEW then
+		return
+	end
+
+	if not self._enabledForInstanceTypes[self._instanceType] then
 		return
 	end
 

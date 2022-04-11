@@ -18,6 +18,15 @@ local defaults = {
 			lock = false,
 		},
 		notifications = {
+			general = {
+				enable_in_instance = {
+					world = true,
+					party = false,
+					raid = false,
+					arena = false,
+					pvp = false,
+				},
+			},
 			toaster = {
 				enabled = true,
 				position = {
@@ -57,6 +66,14 @@ function LFGAnnouncementsDBModule:OnInitialize()
 		ALL = "Show all",
 		NORMAL = "Normal Only",
 		HEROIC = "Heroic Only",
+	}
+
+	self.instanceTypes = {
+		world = "World",
+		party = "Dungeons",
+		raid = "Raids",
+		arena = "Arenas",
+		pvp = "Battlegrounds",
 	}
 end
 
