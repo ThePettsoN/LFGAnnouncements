@@ -337,6 +337,12 @@ function LFGAnnouncementsDungeons:ActivateAll()
 	end
 end
 
+function LFGAnnouncementsDungeons:DisableAll()
+	for id, _ in pairs(instances.Names) do
+		self:DeactivateDungeon(id)
+	end
+end
+
 function LFGAnnouncementsDungeons:GetDungeonName(id)
 	return instances.Names[id]
 end

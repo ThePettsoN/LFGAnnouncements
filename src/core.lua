@@ -129,6 +129,9 @@ function LFGAnnouncementsCore:OnChatCommand(args)
 	elseif command == "enableall" then
 		local module = self:GetModule("Dungeons")
 		module:ActivateAll()
+	elseif command == "disableall" then
+		local module = self:GetModule("Dungeons")
+		module:DisableAll()
 	elseif command == "config" or command == "settings" or command == "options" then
 		LFGAnnouncements.Options.Toggle()
 	elseif command then
