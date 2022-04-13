@@ -1,3 +1,4 @@
 .vscode/
 local_development/
 *.code-workspace
+libs/
