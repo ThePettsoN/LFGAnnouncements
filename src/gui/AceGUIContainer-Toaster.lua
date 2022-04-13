@@ -23,14 +23,6 @@ do
 	local Type = "Toaster"
 	local Version = 6
 
-	function copy(t)
-		local c = {}
-		for k, v in pairs(t) do
-			c[k] = v
-		end
-		return c
-	end
-
 	local function frameOnShow(this)
 		this.obj:Fire("OnShow")
 	end
@@ -132,7 +124,7 @@ do
 	end
 
 	local function StartFadeOut(self)
-		UIFrameFade(self.frame, copy(FadeInfo))
+		UIFrameFade(self.frame, CopyTable(FadeInfo, true)) -- We copy to make sure the original isn't overwritten and we're able to restart the fadeOut whenever we want
 	end
 
 	local function StopFadeOut(self)
