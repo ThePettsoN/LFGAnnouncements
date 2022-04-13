@@ -57,5 +57,4 @@ ignore:
     - local_development
     - .gitignore
     - LFGAnnouncements.code-workspace
-    - libs
     - TODO.txt
