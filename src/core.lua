@@ -39,6 +39,7 @@ function LFGAnnouncementsCore:OnEnable()
 	self:RegisterEvent("CHAT_MSG_SAY", "OnChatMsgSay")
 
 	self:RegisterMessage("OnDungeonDeactivated", "OnDungeonDeactivated")
+	self:RegisterMessage("OnShowUI", "OnShowUI")
 
 	self:RegisterChatCommand("lfga", "OnChatCommand")
 
@@ -111,17 +112,20 @@ function LFGAnnouncementsCore:OnDungeonDeactivated(event, dungeonId)
 	self._dungeonEntries[dungeonId] = nil
 end
 
+function LFGAnnouncementsCore:OnShowUI(event)
+	for dungeonId, data in pairs(self._dungeonEntries) do
+		for authorGUID, entry in pairs(data) do
+			self:SendMessage("OnDungeonEntry", dungeonId, entry.difficulty, entry.message, entry.time, authorGUID, LFGAnnouncements.DungeonEntryReason.SHOW)
+		end
+	end
+end
+
 function LFGAnnouncementsCore:OnChatCommand(args)
 	local command = self:GetArgs(args, 1)
 	if command == "show" or command == "open" then
 		local module = self:GetModule("UI")
 		if not module:IsShown() then
-			module:Show()
-			for dungeonId, data in pairs(self._dungeonEntries) do
-				for authorGUID, entry in pairs(data) do
-					self:SendMessage("OnDungeonEntry", dungeonId, entry.difficulty, entry.message, entry.time, authorGUID, LFGAnnouncements.DungeonEntryReason.SHOW)
-				end
-			end
+			module:Toggle()
 		end
 	elseif command == "hide" or command == "close" then
 		local module = self:GetModule("UI")

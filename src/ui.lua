@@ -36,14 +36,17 @@ end
 function LFGAnnouncementsUI:Show()
 	if not self._frame then
 		self:_createUI()
+		self:SendMessage("OnShowUI")
 	elseif not self._frame:IsShown() then
 		self._frame:Show()
+		self:SendMessage("OnShowUI")
 	end
 end
 
 function LFGAnnouncementsUI:Hide()
-	if self._frame:IsShown() then
+	if self._frame and self._frame:IsShown() then
 		self._frame:Hide()
+		self:SendMessage("OnHideUI")
 	end
 end
 
@@ -190,7 +193,7 @@ local function onTooltipLeave(widget, event)
 	AceGUI.tooltip:Hide()
 end
 
-function LFGAnnouncementsUI:_createEntryLabel(dungeonId, difficulty, message, time, authorGUID)
+function LFGAnnouncementsUI:_createEntryLabel(dungeonId, difficulty, message, time, authorGUID, reason)
 	local container = self._dungeonContainers[dungeonId]
 	if not container then
 		container = self:_createDungeonContainer(dungeonId)
@@ -346,9 +349,9 @@ function LFGAnnouncementsUI:OnDungeonDeactivated(event, dungeonId)
 	self:_removeDungeonContainer(dungeonId)
 end
 
-function LFGAnnouncementsUI:OnDungeonEntry(event, dungeonId, difficulty, message, time, authorGUID)
-	if self:IsShown() then
-		self:_createEntryLabel(dungeonId, difficulty, message, time, authorGUID)
+function LFGAnnouncementsUI:OnDungeonEntry(event, dungeonId, difficulty, message, time, authorGUID, reason)
+	if self:IsShown() or reason == LFGAnnouncements.DungeonEntryReason.SHOW then
+		self:_createEntryLabel(dungeonId, difficulty, message, time, authorGUID, reason)
 		-- self._scrollContainer:DoLayout()
 	end
 end
