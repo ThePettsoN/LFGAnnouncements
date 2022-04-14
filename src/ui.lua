@@ -350,7 +350,7 @@ function LFGAnnouncementsUI:OnDungeonDeactivated(event, dungeonId)
 end
 
 function LFGAnnouncementsUI:OnDungeonEntry(event, dungeonId, difficulty, message, time, authorGUID, reason)
-	if self:IsShown() or reason == LFGAnnouncements.DungeonEntryReason.SHOW then
+	if self:IsShown() then
 		self:_createEntryLabel(dungeonId, difficulty, message, time, authorGUID, reason)
 		-- self._scrollContainer:DoLayout()
 	end
@@ -364,10 +364,11 @@ function LFGAnnouncementsUI:OnRemoveDungeonEntry(event, dungeonId, authorGUID)
 end
 
 function LFGAnnouncementsUI:OnRemoveDungeons(event, dungeons)
+	for dungeonId, authorGUID in pairs(dungeons) do
+		self:_removeEntryLabel(dungeonId, authorGUID)
+	end
+
 	if self:IsShown() then
-		for dungeonId, authorGUID in pairs(dungeons) do
-			self:_removeEntryLabel(dungeonId, authorGUID)
-		end
 		self._scrollContainer:DoLayout()
 	end
 end
