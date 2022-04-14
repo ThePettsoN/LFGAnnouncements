@@ -200,10 +200,10 @@ function LFGAnnouncementsCore:_parseMessage(message, authorGUID)
 	end
 end
 
-function LFGAnnouncementsCore:_createDungeonEntry(dungeonId, difficulty, message,  authorGUID)
+function LFGAnnouncementsCore:_createDungeonEntry(dungeonId, difficulty, message, authorGUID)
 	if self._dungeons:GetInstanceType(dungeonId) == LFGAnnouncements.Dungeons.InstanceType.RAID then
 		difficulty = Difficulties.RAID
-	elseif self._difficultyFilter == "ALL" or self._difficultyFilter == difficulty then -- TODO: Shouldn't need to do the ALL comparision every time
+	elseif self._difficultyFilter ~= "ALL" and self._difficultyFilter ~= difficulty then -- TODO: Shouldn't need to do the ALL comparision every time
 		return
 	end
 
