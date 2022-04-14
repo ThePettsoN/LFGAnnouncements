@@ -252,6 +252,12 @@ LFGAnnouncements.Utils.tMergeRecursive(instances, raids)
 
 
 local LFGAnnouncementsDungeons = {}
+local InstanceType = {
+	DUNGEON = "DUNGEON",
+	RAID = "RAID",
+}
+LFGAnnouncementsDungeons.InstanceType = InstanceType
+
 function LFGAnnouncementsDungeons:OnInitialize()
 	self._activatedDungeons = {}
 	self._activeTags = {}
@@ -381,6 +387,10 @@ function LFGAnnouncementsDungeons:GetDungeons(expansion)
 	end
 
 	return BurningCrusadeDungeons.Order
+end
+
+function LFGAnnouncementsDungeons:GetInstanceType(instanceId)
+	return dungeons.Names[instanceId] ~= nil and InstanceType.DUNGEON or InstanceType.RAID
 end
 
 function LFGAnnouncementsDungeons:GetRaids(expansion)

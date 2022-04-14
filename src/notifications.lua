@@ -88,7 +88,7 @@ function LFGAnnouncementsNotification:OnPlayerEnteringWorld(event, isInitialLogi
 end
 
 function LFGAnnouncementsNotification:OnDungeonEntry(event, dungeonId, difficulty, message, time, authorGUID, reason)
-	if reason ~= LFGAnnouncements.DungeonEntryReason.NEW then
+	if reason ~= LFGAnnouncements.Core.DungeonEntryReason.NEW then
 		return
 	end
 

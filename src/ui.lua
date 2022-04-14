@@ -5,6 +5,7 @@ local Dungeons
 local DifficultyTextLookup = {
 	NORMAL = " |cff00ff00[N]|r ",
 	HEROIC = " |cffff0000[H]|r ",
+	RAID = " |cff8000ff[R]|r ",
 }
 
 

@@ -9,14 +9,23 @@ local dprintf = function(s, ...)
 	end
 end
 
-LFGAnnouncements.Core = LFGAnnouncementsCore
-LFGAnnouncements.DEBUG = DEBUG
-LFGAnnouncements.dprintf = dprintf
-LFGAnnouncements.DungeonEntryReason = {
+local DungeonEntryReason = {
 	NEW = 1,
 	UPDATE = 2,
 	SHOW = 3,
 }
+LFGAnnouncementsCore.DungeonEntryReason = DungeonEntryReason
+
+local Difficulties = {
+	NORMAL = "NORMAL",
+	HEROIC = "HEROIC",
+	RAID = "RAID",
+}
+LFGAnnouncementsCore.Difficulties = Difficulties
+
+LFGAnnouncements.Core = LFGAnnouncementsCore
+LFGAnnouncements.DEBUG = DEBUG
+LFGAnnouncements.dprintf = dprintf
 
 function LFGAnnouncementsCore:OnInitialize()
 	self._modules = {}
@@ -46,6 +55,7 @@ function LFGAnnouncementsCore:OnEnable()
 	self:ScheduleRepeatingTimer("OnUpdate", UpdateTime)
 
 	local db = LFGAnnouncements.DB
+	self._dungeons = LFGAnnouncements.Dungeons
 	self._timeToShow = db:GetProfileData("general", "time_visible_sec")
 	self._difficultyFilter = db:GetCharacterData("filters", "difficulty")
 	self._boostFilter = db:GetCharacterData("filters", "boost")
@@ -70,7 +80,7 @@ function LFGAnnouncementsCore:OnUpdate()
 			else
 				local time = self._dungeonEntries[dungeonId][authorGUID].time + UpdateTime
 				self._dungeonEntries[dungeonId][authorGUID].time = time
-				self:SendMessage("OnDungeonEntry", dungeonId, entry.difficulty, entry.message, time, authorGUID, LFGAnnouncements.DungeonEntryReason.UPDATE)
+				self:SendMessage("OnDungeonEntry", dungeonId, entry.difficulty, entry.message, time, authorGUID, DungeonEntryReason.UPDATE)
 			end
 		end
 	end
@@ -116,7 +126,7 @@ end
 function LFGAnnouncementsCore:OnShowUI(event)
 	for dungeonId, data in pairs(self._dungeonEntries) do
 		for authorGUID, entry in pairs(data) do
-			self:SendMessage("OnDungeonEntry", dungeonId, entry.difficulty, entry.message, entry.time, authorGUID, LFGAnnouncements.DungeonEntryReason.SHOW)
+			self:SendMessage("OnDungeonEntry", dungeonId, entry.difficulty, entry.message, entry.time, authorGUID, DungeonEntryReason.SHOW)
 		end
 	end
 end
@@ -159,7 +169,7 @@ function LFGAnnouncementsCore:_parseMessage(message, authorGUID)
 		i = i + 1
 	end
 
-	module = LFGAnnouncements.Dungeons
+	module = self._dungeons
 	local foundDungeons = module:FindDungeons(splitMessage)
 	if foundDungeons then
 		local difficulty = self:_findDifficulty(splitMessage)
@@ -180,6 +190,10 @@ function LFGAnnouncementsCore:_createDungeonEntry(dungeonId, difficulty, message
 		self._dungeonEntries[dungeonId] = dungeonEntriesForId
 	end
 
+	if self._dungeons:GetInstanceType(dungeonId) == LFGAnnouncements.Dungeons.InstanceType.RAID then
+		difficulty = Difficulties.RAID
+	end
+
 	local newEntry = not dungeonEntriesForId[authorGUID]
 	dungeonEntriesForId[authorGUID] = {
 		message = message,
@@ -188,17 +202,15 @@ function LFGAnnouncementsCore:_createDungeonEntry(dungeonId, difficulty, message
 		time = 0,
 	}
 
-	self:SendMessage("OnDungeonEntry", dungeonId, difficulty, message, 0, authorGUID, newEntry and LFGAnnouncements.DungeonEntryReason.NEW or LFGAnnouncements.DungeonEntryReason.UPDATE)
+	self:SendMessage("OnDungeonEntry", dungeonId, difficulty, message, 0, authorGUID, newEntry and DungeonEntryReason.NEW or DungeonEntryReason.UPDATE)
 end
 
-local normal = "NORMAL"
-local heroic = "HEROIC"
 local tags = {
-	n = normal,
-	normal = normal,
-	h = heroic,
-	hc = heroic,
-	heroic = heroic,
+	n = Difficulties.NORMAL,
+	normal = Difficulties.NORMAL,
+	h = Difficulties.HEROIC,
+	hc = Difficulties.HEROIC,
+	heroic = Difficulties.HEROIC,
 }
 function LFGAnnouncementsCore:_findDifficulty(splitMessage)
 	for i = 1, #splitMessage do
@@ -208,7 +220,7 @@ function LFGAnnouncementsCore:_findDifficulty(splitMessage)
 		end
 	end
 
-	return normal
+	return Difficulties.NORMAL
 end
 
 local boostTags = {
