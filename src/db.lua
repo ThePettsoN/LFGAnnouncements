@@ -1,5 +1,6 @@
 local _, LFGAnnouncements = ...
 
+
 local LFGAnnouncementsDBModule = {}
 local defaults = {
 	profile = {
@@ -38,6 +39,7 @@ local defaults = {
 			sound = {
 				enabled = true,
 				id = 3081,
+				path = "",
 			},
 			chat = {
 				enabled = false,

@@ -23,3 +23,4 @@ src/notifications.lua
 src/options/main.lua
 src/options/templates/general.lua
 src/options/templates/filter.lua
+src/options/templates/notification.lua

@@ -1,6 +1,8 @@
 local _, LFGAnnouncements = ...
 local AceGUI = LibStub("AceGUI-3.0", "AceEvent-3.0")
 
+local LSM = LibStub("LibSharedMedia-3.0"); -- TODO: Include in project
+
 local LFGAnnouncementsNotification = {}
 function LFGAnnouncementsNotification:OnInitialize()
 	LFGAnnouncements.Notifications = self
@@ -14,6 +16,10 @@ function LFGAnnouncementsNotification:OnEnable()
 	self._db = LFGAnnouncements.DB
 
 	self._enabledForInstanceTypes = self._db:GetProfileData("notifications", "general", "enable_in_instance")
+
+	local soundId = self._db:GetProfileData("notifications", "sound", "id")
+	local soundPath = self._db:GetProfileData("notifications", "sound", "path")
+	self:SetSound(soundId, soundPath, true)
 
 	self:_createUI()
 end
@@ -77,9 +83,37 @@ function LFGAnnouncementsNotification:_createUI()
 	self._button:SetScript("OnMouseDown", onClick)
 end
 
+function LFGAnnouncementsNotification:_playSound()
+	if self._soundPath then
+		PlaySoundFile(self._soundPath, "master")
+	else
+		PlaySound(self._soundId, "master")
+	end
+end
+
 function LFGAnnouncementsNotification:SetNotificationInInstance(key, value)
 	self._enabledForInstanceTypes[key] = value
 	self._db:SetProfileData(key, value, "notifications", "general", "enable_in_instance")
+end
+
+function LFGAnnouncementsNotification:SetSound(key, path, skipSave)
+	if LSM:IsValid("sound", key) then
+		self._soundPath = path
+		self._soundId = nil
+	else
+		self._soundPath = nil
+		if type(key) == "number" then
+			self._soundId = key
+		else
+			self._soundId = 3081
+			skipSave = false
+		end
+	end
+
+	if not skipSave then
+		self._db:SetProfileData("id", key, "notifications", "sound")
+		self._db:SetProfileData("path", path, "notifications", "sound")
+	end
 end
 
 function LFGAnnouncementsNotification:OnPlayerEnteringWorld(event, isInitialLogin, isReloadingUi)
@@ -116,7 +150,7 @@ function LFGAnnouncementsNotification:OnDungeonEntry(event, dungeonId, difficult
 	end
 
 	if self._db:GetProfileData("notifications", "sound", "enabled") then
-		PlaySound(self._db:GetProfileData("notifications", "sound", "id"), "master")
+		self:_playSound()
 	end
 end
 

@@ -44,64 +44,6 @@ local function optionsTemplate()
 				},
 			}
 		},
-
-		notifications = {
-			type = "group",
-			name = "Notifications",
-			order = 3,
-			inline = true,
-			args = {
-				sound = {
-					type = "toggle",
-					width = "full",
-					order = 1,
-					name = "Play sound on new request",
-					get = function(info)
-						return db:GetProfileData("notifications", "sound", "enabled")
-					end,
-					set = function(info, newValue)
-						db:SetProfileData("enabled", newValue, "notifications", "sound")
-					end,
-				},
-				-- message = {
-				-- 	type = "toggle",
-				-- 	width = "full",
-				-- 	order = 2,
-				-- 	name = "Write a chat message on new request",
-				-- 	get = function(info)
-				--  	return db:GetProfileData("notifications", "chat", "enabled")
-				-- 	end,
-				-- 	set = function(info, newValue)
-				-- 		db:SetProfileData("enabled", newValue, "notifications", "chat")
-				-- 	end,
-				-- },
-				toast = {
-					type = "toggle",
-					width = "full",
-					order = 3,
-					name = "Show a toast window on new request",
-					get = function(info)
-						return db:GetProfileData("notifications", "toaster", "enabled")
-					end,
-					set = function(info, newValue)
-						db:SetProfileData("enabled", newValue, "notifications", "toaster")
-					end,
-				},
-				disable_in_instance = {
-					name = "Show notifications in areas",
-					type = "multiselect",
-					width = "full",
-					order = 4,
-					values = db.instanceTypes,
-					get = function(info, key)
-						return db:GetProfileData("notifications", "general", "enable_in_instance", key)
-					end,
-					set = function(info, key, newValue)
-						LFGAnnouncements.Notifications:SetNotificationInInstance(key, newValue)
-					end,
-				}
-			}
-		},
 	}
 
 	return {
