@@ -30,6 +30,7 @@ local defaults = {
 			},
 			toaster = {
 				enabled = true,
+				duration = 1,
 				position = {
 					x = 0,
 					y = 0,

@@ -86,7 +86,7 @@ local function optionsTemplate()
 			order = 1,
 			type = "header",
 			width = "full",
-			name = "Filter",
+			name = "Filters",
 		},
 		difficulty_filter = {
 			type = "select",
@@ -132,10 +132,10 @@ local function optionsTemplate()
 
 	return {
 		type = "group",
-		name = "Filter",
+		name = "Filters",
 		order = 2,
 		args = args
 	}
 end
 
-LFGAnnouncements.Options.AddOptionTemplate("filter", optionsTemplate)
+LFGAnnouncements.Options.AddOptionTemplate("filters", optionsTemplate)

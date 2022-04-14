@@ -22,7 +22,7 @@ local function optionsTemplate()
 			order = 1,
 			type = "header",
 			width = "full",
-			name = "Notification",
+			name = "Notifications",
 		},
 
 		sound = {
@@ -87,6 +87,21 @@ local function optionsTemplate()
 						db:SetProfileData("enabled", newValue, "notifications", "toaster")
 					end,
 				},
+				duration = {
+					type = "range",
+					width = "full",
+					order = 2,
+					name = "Duration, in seconds, the toaster should be visible",
+					min = 1,
+					max = 10,
+					step = 1,
+					get = function(info)
+						return db:GetProfileData("notifications", "toaster", "duration")
+					end,
+					set = function(info, newValue)
+						LFGAnnouncements.Notifications:SetToasterDuration(newValue)
+					end
+				}
 			}
 		},
 
@@ -107,10 +122,10 @@ local function optionsTemplate()
 
 	return {
 		type = "group",
-		name = "Notification",
+		name = "Notifications",
 		order = 1,
 		args = args
 	}
 end
 
-LFGAnnouncements.Options.AddOptionTemplate("notification", optionsTemplate)
+LFGAnnouncements.Options.AddOptionTemplate("notifications", optionsTemplate)

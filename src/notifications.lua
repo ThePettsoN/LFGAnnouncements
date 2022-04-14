@@ -33,7 +33,7 @@ end
 function LFGAnnouncementsNotification:_scheduleToasterTimer()
 	self._toasterTimer = self:ScheduleTimer(function()
 		self._toaster:StartFadeOut()
-	end, 5)
+	end, self._toasterDuration)
 end
 
 function LFGAnnouncementsNotification:_cancelToasterTimer()
@@ -63,6 +63,7 @@ function LFGAnnouncementsNotification:_createUI()
 		self._toaster:SetAlpha(1)
 		self._toaster:StopFadeOut()
 	end)
+	self._toasterDuration = self._db:GetProfileData("notifications", "toaster", "duration")
 
 	self._label = AceGUI:Create("Label")
 	self._label:SetText("Label")
@@ -114,6 +115,11 @@ function LFGAnnouncementsNotification:SetSound(key, path, skipSave)
 		self._db:SetProfileData("id", key, "notifications", "sound")
 		self._db:SetProfileData("path", path, "notifications", "sound")
 	end
+end
+
+function LFGAnnouncementsNotification:SetToasterDuration(duration)
+	self._toasterDuration = duration
+	self._db:SetProfileData("duration", duration, "notifications", "toaster")
 end
 
 function LFGAnnouncementsNotification:OnPlayerEnteringWorld(event, isInitialLogin, isReloadingUi)
