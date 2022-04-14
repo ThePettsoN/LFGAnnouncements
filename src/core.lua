@@ -173,25 +173,25 @@ function LFGAnnouncementsCore:_parseMessage(message, authorGUID)
 	local foundDungeons = module:FindDungeons(splitMessage)
 	if foundDungeons then
 		local difficulty = self:_findDifficulty(splitMessage)
-		if self._difficultyFilter == "ALL" or self._difficultyFilter == difficulty then
-			if self:_tryFilterBoost(splitMessage) then
-				for dungeonId, _ in pairs(foundDungeons) do
-					self:_createDungeonEntry(dungeonId, difficulty, message, authorGUID)
-				end
+		if self:_tryFilterBoost(splitMessage) then
+			for dungeonId, _ in pairs(foundDungeons) do
+				self:_createDungeonEntry(dungeonId, difficulty, message, authorGUID)
 			end
 		end
 	end
 end
 
 function LFGAnnouncementsCore:_createDungeonEntry(dungeonId, difficulty, message,  authorGUID)
+	if self._dungeons:GetInstanceType(dungeonId) == LFGAnnouncements.Dungeons.InstanceType.RAID then
+		difficulty = Difficulties.RAID
+	elseif self._difficultyFilter == "ALL" or self._difficultyFilter == difficulty then -- TODO: Shouldn't need to do the ALL comparision every time
+		return
+	end
+
 	local dungeonEntriesForId = self._dungeonEntries[dungeonId]
 	if not dungeonEntriesForId then
 		dungeonEntriesForId = {}
 		self._dungeonEntries[dungeonId] = dungeonEntriesForId
-	end
-
-	if self._dungeons:GetInstanceType(dungeonId) == LFGAnnouncements.Dungeons.InstanceType.RAID then
-		difficulty = Difficulties.RAID
 	end
 
 	local newEntry = not dungeonEntriesForId[authorGUID]
