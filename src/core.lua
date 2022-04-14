@@ -78,8 +78,8 @@ function LFGAnnouncementsCore:OnUpdate()
 				removeDungeons = true
 				self._dungeonEntries[dungeonId][authorGUID] = nil
 			else
-				local time = self._dungeonEntries[dungeonId][authorGUID].time + UpdateTime
-				self._dungeonEntries[dungeonId][authorGUID].time = time
+				local time = entry.time + UpdateTime
+				entry.time = time
 				self:SendMessage("OnDungeonEntry", dungeonId, entry.difficulty, entry.message, time, authorGUID, DungeonEntryReason.UPDATE)
 			end
 		end
@@ -106,6 +106,22 @@ function LFGAnnouncementsCore:SetBoostFilter(enabled)
 		self._boostFilter = enabled
 		LFGAnnouncements.DB:SetCharacterData("boost", enabled, "filters")
 	end
+end
+
+function LFGAnnouncementsCore:SetDuration(newDuration)
+	local diff = self._timeToShow - newDuration
+	if diff == 0 then
+		return
+	end
+
+	for a, data in pairs(self._dungeonEntries) do
+		for b, entry in pairs(data) do
+			entry.timestamp_to_remove = entry.timestamp_to_remove - diff
+		end
+	end
+
+	self._timeToShow = newDuration
+	LFGAnnouncements.DB:SetProfileData("time_visible_sec", newDuration, "general")
 end
 
 function LFGAnnouncementsCore:OnChatMsgChannel(event, message, _, _, _, playerName, _, _, channelIndex, _, _, _, guid)

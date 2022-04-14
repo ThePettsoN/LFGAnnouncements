@@ -10,10 +10,26 @@ local function optionsTemplate()
 			name = "General",
 		},
 
+		duration = {
+			type = "range",
+			width = "full",
+			order = 2,
+			name = "Duration, in seconds, each request should be visible",
+			min = 1,
+			max = 300,
+			step = 1,
+			get = function(info)
+				return db:GetProfileData("general", "time_visible_sec")
+			end,
+			set = function(info, newValue)
+				LFGAnnouncements.Core:SetDuration(newValue)
+			end
+		},
+
 		minimap = {
 			type = "group",
 			name = "Minimap",
-			order = 2,
+			order = 3,
 			inline = true,
 			args = {
 				visible = {

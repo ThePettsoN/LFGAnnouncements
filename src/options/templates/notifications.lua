@@ -101,7 +101,7 @@ local function optionsTemplate()
 					set = function(info, newValue)
 						LFGAnnouncements.Notifications:SetToasterDuration(newValue)
 					end
-				}
+				},
 			}
 		},
 
