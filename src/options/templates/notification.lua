@@ -5,6 +5,8 @@ local LSM = LibStub("LibSharedMedia-3.0"); -- TODO: Include in project
 local function getSounds()
 	local sounds = {
 		[3081] = "Default",
+		[110981] = "VoiceChat - Join Channel",
+		[39517] = "InGame Store - Purchase Delivered",
 	}
 	for name, path in next, LSM:HashTable("sound") do
 		sounds[name] = name
@@ -43,7 +45,7 @@ local function optionsTemplate()
 				},
 				sound_id = {
 					type = "select",
-					width = "full",
+					width = "double",
 					order = 2,
 					name = "Sound To Play",
 					values = getSounds(),
@@ -54,6 +56,15 @@ local function optionsTemplate()
 						local path = LSM:Fetch("sound", newValue)
 						LFGAnnouncements.Notifications:SetSound(newValue, path)
 					end,
+				},
+				play_sound = {
+					type = "execute",
+					width = "half",
+					order = 3,
+					name = "Play",
+					func = function()
+						LFGAnnouncements.Notifications:_playSound()
+					end
 				}
 			}
 		},
