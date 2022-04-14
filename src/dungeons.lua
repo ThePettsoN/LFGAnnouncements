@@ -399,7 +399,7 @@ function LFGAnnouncementsDungeons:FindDungeons(splitMessage)
 		end
 	end
 
-	return found and dungeonsFound or false
+	return found and dungeonsFound
 end
 
 LFGAnnouncements.Core:RegisterModule("Dungeons", LFGAnnouncementsDungeons, "AceEvent-3.0")

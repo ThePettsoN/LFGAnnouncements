@@ -55,11 +55,12 @@ function LFGAnnouncementsCore:OnDisable()
 end
 
 local dungeonsToRemove = {}
-local removeDungeons = false
+local removeDungeons, currentTime
 function LFGAnnouncementsCore:OnUpdate()
 	wipe(dungeonsToRemove)
 	removeDungeons = false
-	local currentTime = time()
+	 currentTime = time()
+
 	for dungeonId, data in pairs(self._dungeonEntries) do
 		for authorGUID, entry in pairs(data) do
 			if currentTime >= entry.timestamp_to_remove then
@@ -143,7 +144,7 @@ function LFGAnnouncementsCore:OnChatCommand(args)
 	end
 end
 
-local module
+local module, i
 local splitMessage = {}
 function LFGAnnouncementsCore:_parseMessage(message, authorGUID)
 	if #message < 3 then
@@ -151,8 +152,11 @@ function LFGAnnouncementsCore:_parseMessage(message, authorGUID)
 	end
 
 	wipe(splitMessage)
+	i = 1
+
 	for v in string.gmatch(strlower(message), "[^| /\\.{},+]+") do
-		splitMessage[#splitMessage+1] = v
+		splitMessage[i] = v
+		i = i + 1
 	end
 
 	module = LFGAnnouncements.Dungeons
