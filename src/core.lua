@@ -69,12 +69,15 @@ local removeDungeons, currentTime
 function LFGAnnouncementsCore:OnUpdate()
 	wipe(dungeonsToRemove)
 	removeDungeons = false
-	 currentTime = time()
+	currentTime = time()
 
+	local index = 1
 	for dungeonId, data in pairs(self._dungeonEntries) do
 		for authorGUID, entry in pairs(data) do
 			if currentTime >= entry.timestamp_to_remove then
-				dungeonsToRemove[dungeonId] = authorGUID
+				dungeonsToRemove[index] = dungeonId
+				dungeonsToRemove[index + 1] = authorGUID
+				index = index + 2
 				removeDungeons = true
 				self._dungeonEntries[dungeonId][authorGUID] = nil
 			else

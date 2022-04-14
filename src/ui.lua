@@ -365,7 +365,9 @@ function LFGAnnouncementsUI:OnRemoveDungeonEntry(event, dungeonId, authorGUID)
 end
 
 function LFGAnnouncementsUI:OnRemoveDungeons(event, dungeons)
-	for dungeonId, authorGUID in pairs(dungeons) do
+	for i = 1, #dungeons, 2 do
+		local dungeonId = dungeons[i]
+		local authorGUID = dungeons[i + 1]
 		self:_removeEntryLabel(dungeonId, authorGUID)
 	end
 
