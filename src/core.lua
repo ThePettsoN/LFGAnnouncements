@@ -217,7 +217,7 @@ function LFGAnnouncementsCore:_parseMessage(message, authorGUID)
 	wipe(splitMessage)
 	i = 1
 
-	for v in string.gmatch(strlower(message), "[^| /\\.{},+]+") do
+	for v in string.gmatch(strlower(message), "[^| /\\.{},+()]+") do
 		splitMessage[i] = v
 		i = i + 1
 	end
