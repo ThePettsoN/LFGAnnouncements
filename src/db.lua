@@ -46,6 +46,9 @@ local defaults = {
 				enabled = false,
 				channel = 1,
 			},
+			flash = {
+				enabled = false,
+			},
 		},
 	},
 	char = {

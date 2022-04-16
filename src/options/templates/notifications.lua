@@ -35,7 +35,7 @@ local function optionsTemplate()
 					type = "toggle",
 					width = "full",
 					order = 1,
-					name = "Play sound on new request",
+					name = "Play sound on new requests",
 					get = function(info)
 						return db:GetProfileData("notifications", "sound", "enabled")
 					end,
@@ -79,7 +79,7 @@ local function optionsTemplate()
 					type = "toggle",
 					width = "full",
 					order = 1,
-					name = "Show a toast window on new request",
+					name = "Show a toast window on new requests",
 					get = function(info)
 						return db:GetProfileData("notifications", "toaster", "enabled")
 					end,
@@ -105,11 +105,32 @@ local function optionsTemplate()
 			}
 		},
 
+		flash_icon = {
+			type = "group",
+			name = "Flash Client Icon",
+			order = 4,
+			inline = true,
+			args = {
+				enabled = {
+					type = "toggle",
+					width = "full",
+					order = 1,
+					name = "Flash the client game icon on new requests",
+					get = function(info)
+						return db:GetProfileData("notifications", "flash", "enabled")
+					end,
+					set = function(info, newValue)
+						db:SetProfileData("enabled", newValue, "notifications", "flash")
+					end,
+				},
+			}
+		},
+
 		show_in_areas = {
 			name = "Show notifications in areas",
 			type = "multiselect",
 			width = "full",
-			order = 4,
+			order = 5,
 			values = db.instanceTypes,
 			get = function(info, key)
 				return db:GetProfileData("notifications", "general", "enable_in_instance", key)

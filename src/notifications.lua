@@ -84,11 +84,26 @@ function LFGAnnouncementsNotification:_createUI()
 	self._button:SetScript("OnMouseDown", onClick)
 end
 
-function LFGAnnouncementsNotification:_playSound()
+function LFGAnnouncementsNotification:_triggerSound()
 	if self._soundPath then
 		PlaySoundFile(self._soundPath, "master")
 	else
 		PlaySound(self._soundId, "master")
+	end
+end
+
+function LFGAnnouncementsNotification:_triggerToaster(dungeonId, message)
+	self:_cancelToasterTimer()
+
+	self._button.dungeonId = dungeonId
+	self._label:SetText(message)
+
+	self._toaster:SetTitle(self._dungeons:GetDungeonName(dungeonId))
+	self._toaster:Show()
+	self._toaster:SetAlpha(1)
+
+	if not self._toaster:IsMoving() then
+		self:_scheduleToasterTimer()
 	end
 end
 
@@ -141,22 +156,15 @@ function LFGAnnouncementsNotification:OnDungeonEntry(event, dungeonId, difficult
 	-- end
 
 	if self._db:GetProfileData("notifications", "toaster", "enabled") then
-		self:_cancelToasterTimer()
-
-		self._button.dungeonId = dungeonId
-		self._label:SetText(message)
-
-		self._toaster:SetTitle(self._dungeons:GetDungeonName(dungeonId))
-		self._toaster:Show()
-		self._toaster:SetAlpha(1)
-
-		if not self._toaster:IsMoving() then
-			self:_scheduleToasterTimer()
-		end
+		self:_triggerToaster(dungeonId, message)
 	end
 
 	if self._db:GetProfileData("notifications", "sound", "enabled") then
-		self:_playSound()
+		self:_triggerSound()
+	end
+
+	if self._db:GetProfileData("notifications", "flash", "enabled") then
+		FlashClientIcon()
 	end
 end
 
