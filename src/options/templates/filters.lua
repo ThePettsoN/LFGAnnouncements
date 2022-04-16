@@ -8,6 +8,11 @@ local function formatName(id)
 	return string.format("%s (%d - %d)", name, levelRange[1], levelRange[2])
 end
 
+local function UpdateData(object, funcName, ...)
+	object[funcName](object, ...)
+	LFGAnnouncements.Core:UpdateInvalidEntries()
+end
+
 local function createEntry(id, order)
 	return {
 		type = "toggle",
@@ -18,7 +23,7 @@ local function createEntry(id, order)
 			return LFGAnnouncements.DB:GetCharacterData("dungeons", "activated", id)
 		end,
 		set = function(info, newValue)
-			LFGAnnouncements.Dungeons:SetActivated(id, newValue)
+			UpdateData(LFGAnnouncements.Dungeons, "SetActivated", id, newValue)
 		end,
 	}
 end
@@ -59,6 +64,7 @@ end
 local function optionsTemplate()
 	local dungeonsModule = LFGAnnouncements.Dungeons
 	local db = LFGAnnouncements.DB
+	local core = LFGAnnouncements.Core
 	local vanilla_dungeons = {
 		type = "group",
 		name = "Vanilla Dungeons",
@@ -93,12 +99,12 @@ local function optionsTemplate()
 			width = "full",
 			order = 2,
 			name = "Filter on dungeon difficulty",
-			values = LFGAnnouncements.DB.dungeonDifficulties,
+			values = db.dungeonDifficulties,
 			get = function(info)
-				return LFGAnnouncements.DB:GetCharacterData("filters", "difficulty")
+				return db:GetCharacterData("filters", "difficulty")
 			end,
 			set = function(info, newValue)
-				LFGAnnouncements.Core:SetDifficultyFilter(newValue)
+				UpdateData(core, "SetDifficultyFilter", newValue)
 			end,
 		},
 		boost_filter = {
@@ -107,10 +113,10 @@ local function optionsTemplate()
 			order = 3,
 			name = "Try filter boost requests",
 			get = function(info)
-				return LFGAnnouncements.DB:GetCharacterData("filters", "boost")
+				return db:GetCharacterData("filters", "boost")
 			end,
 			set = function(info, newValue)
-				LFGAnnouncements.Core:SetBoostFilter(newValue)
+				UpdateData(core, "SetBoostFilter", newValue)
 			end,
 		},
 		vanilla_dungeons = vanilla_dungeons,

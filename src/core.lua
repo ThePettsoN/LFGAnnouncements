@@ -93,6 +93,40 @@ function LFGAnnouncementsCore:OnUpdate()
 	end
 end
 
+function LFGAnnouncementsCore:UpdateInvalidEntries()
+	local dungeonsModule = self._dungeons
+	removeDungeons = false
+	wipe(dungeonsToRemove)
+
+	local index = 1
+	for dungeonId, data in pairs(self._dungeonEntries) do
+		if not dungeonsModule:IsActive(dungeonId) then
+			for authorGUID, _ in pairs(data) do
+				dungeonsToRemove[index] = dungeonId
+				dungeonsToRemove[index + 1] = authorGUID
+				index = index + 2
+			end
+			removeDungeons = true
+			wipe(data)
+		else
+			for authorGUID, entry in pairs(data) do
+				local difficulty = entry.difficulty
+				if not self:_isAllowedDifficulty(difficulty) or (self._boostFilter and entry.boost) then
+					data[authorGUID] = nil
+					dungeonsToRemove[index] = dungeonId
+					dungeonsToRemove[index + 1] = authorGUID
+					index = index + 2
+					removeDungeons = true
+				end
+			end
+		end
+	end
+
+	if removeDungeons then
+		self:SendMessage("OnRemoveDungeons", dungeonsToRemove)
+	end
+end
+
 function LFGAnnouncementsCore:RegisterModule(name, module, ...)
 	self:NewModule(name, module, ...)
 end
@@ -192,18 +226,19 @@ function LFGAnnouncementsCore:_parseMessage(message, authorGUID)
 	local foundDungeons = module:FindDungeons(splitMessage)
 	if foundDungeons then
 		local difficulty = self:_findDifficulty(splitMessage)
-		if self:_tryFilterBoost(splitMessage) then
+		local isBoostEntry = self:_isBoostEntry(splitMessage)
+		if not self._boostFilter or not isBoostEntry then
 			for dungeonId, _ in pairs(foundDungeons) do
-				self:_createDungeonEntry(dungeonId, difficulty, message, authorGUID)
+				self:_createDungeonEntry(dungeonId, difficulty, message, authorGUID, isBoostEntry)
 			end
 		end
 	end
 end
 
-function LFGAnnouncementsCore:_createDungeonEntry(dungeonId, difficulty, message, authorGUID)
+function LFGAnnouncementsCore:_createDungeonEntry(dungeonId, difficulty, message, authorGUID, isBoostEntry)
 	if self._dungeons:GetInstanceType(dungeonId) == LFGAnnouncements.Dungeons.InstanceType.RAID then
 		difficulty = Difficulties.RAID
-	elseif self._difficultyFilter ~= "ALL" and self._difficultyFilter ~= difficulty then -- TODO: Shouldn't need to do the ALL comparision every time
+	elseif not self:_isAllowedDifficulty(difficulty) then
 		return
 	end
 
@@ -219,6 +254,7 @@ function LFGAnnouncementsCore:_createDungeonEntry(dungeonId, difficulty, message
 		difficulty = difficulty,
 		timestamp_to_remove = time() + self._timeToShow,
 		time = 0,
+		boost = isBoostEntry,
 	}
 
 	self:SendMessage("OnDungeonEntry", dungeonId, difficulty, message, 0, authorGUID, newEntry and DungeonEntryReason.NEW or DungeonEntryReason.UPDATE)
@@ -250,16 +286,23 @@ local boostTags = {
 	-- sell = true,
 	-- selling = true,
 }
-function LFGAnnouncementsCore:_tryFilterBoost(splitMessage)
-	if not self._boostFilter then
+function LFGAnnouncementsCore:_isBoostEntry(splitMessage)
+	for i = 1, #splitMessage do
+		if boostTags[splitMessage[i]] then
+			return true
+		end
+	end
+	return false
+end
+
+function LFGAnnouncementsCore:_isAllowedDifficulty(difficulty)
+	if self._difficultyFilter == "ALL" then
 		return true
 	end
 
-	for i = 1, #splitMessage do
-		if boostTags[splitMessage[i]] then
-			return false
-		end
+	if difficulty == Difficulties.RAID then
+		return true
 	end
 
-	return true
+	return self._difficultyFilter == difficulty
 end
