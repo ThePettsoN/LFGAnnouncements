@@ -24,10 +24,11 @@ function LFGAnnouncementsUI:OnInitialize()
 end
 
 function LFGAnnouncementsUI:OnEnable()
-
 	-- Called on PLAYER_LOGIN event
 	Dungeons = LFGAnnouncements.Dungeons
 	self._ready = true
+
+	self._fontSettings = LFGAnnouncements.DB:GetProfileData("general", "font")
 end
 
 function LFGAnnouncementsUI:IsShown()
@@ -72,6 +73,48 @@ function LFGAnnouncementsUI:OpenGroup(dungeonId)
 	end
 
 	container.group:Expand()
+end
+
+-- TODO - This is maybe not the best solution, but we give the max font width of a name
+local nameSize, timeSize
+local function temp(fontSettings)
+	if nameSize then
+		return nameSize, timeSize
+	end
+
+	local frame = CreateFrame("Frame", nil, UIParent)
+	local s = frame:CreateFontString(frame, "BACKGROUND")
+	s:SetFont(fontSettings.path, fontSettings.size, fontSettings.flags)
+
+	s:SetText("XXXXXXXXXXXX")
+	nameSize = s:GetStringWidth()
+
+	s:SetText(" 99m 59s ")
+	timeSize = s:GetStringWidth()
+
+	frame:Hide()
+	return nameSize, timeSize
+end
+
+function LFGAnnouncementsUI:SetFont(font, size, flags)
+	local settings = self._fontSettings
+	settings.path = font and font or settings.path
+	settings.size = size and size or settings.size
+	settings.flags = flags and flags or settings.flags
+	LFGAnnouncements.DB:SetProfileData("font", settings, "general")
+
+	nameSize = nil
+	timeSize = nil
+
+	for _, container in pairs(self._dungeonContainers) do
+		for _, entry in pairs(container.entries) do
+			self:_setFont(entry)
+			self:_calculateSize(entry, container.group, true)
+		end
+		container.group:SetTitleFont(settings.path, settings.size, settings.flags)
+	end
+
+	self._scrollContainer:DoLayout()
 end
 
 function LFGAnnouncementsUI:_createUI()
@@ -130,6 +173,7 @@ function LFGAnnouncementsUI:_createDungeonContainer(dungeonId)
 		end
 	end
 	group:SetTitle(string.format("%s (0)", name))
+	group:SetTitleFont(self._fontSettings.path, self._fontSettings.size, self._fontSettings.flags)
 	group:Collapse()
 
 	self._scrollContainer:AddChild(group)
@@ -194,6 +238,16 @@ local function onTooltipLeave(widget, event)
 	AceGUI.tooltip:Hide()
 end
 
+function LFGAnnouncementsUI:_setFont(entry)
+	local font = self._fontSettings.path
+	local size = self._fontSettings.size
+	local flags = self._fontSettings.flags
+
+	for _, obj in pairs(entry) do
+		obj:SetFont(font, size, flags)
+	end
+end
+
 function LFGAnnouncementsUI:_createEntryLabel(dungeonId, difficulty, message, time, authorGUID, reason)
 	local container = self._dungeonContainers[dungeonId]
 	if not container then
@@ -242,6 +296,7 @@ function LFGAnnouncementsUI:_createEntryLabel(dungeonId, difficulty, message, ti
 			message = messageLabel,
 			time = timeLabel,
 		}
+		self:_setFont(entry)
 
 		container.entries[authorGUID] = entry
 
@@ -306,28 +361,9 @@ function LFGAnnouncementsUI:_format_time(time)
 	return string.format("%s%dm %02ds|r", color, min, time % 60)
 end
 
--- TODO - This is maybe not the best solution, but we give the max font width of a name
-local nameSize, timeSize
-local function temp()
-	if nameSize then
-		return nameSize, timeSize
-	end
-
-	local frame = CreateFrame("Frame", nil, UIParent)
-	local s = frame:CreateFontString(frame, "BACKGROUND", "GameFontHighlightSmall")
-	s:SetText("XXXXXXXXXXXX")
-	nameSize = s:GetStringWidth()
-
-	s:SetText("99m 59s")
-	timeSize = s:GetStringWidth()
-
-	frame:Hide()
-	return nameSize, timeSize
-end
-
 function LFGAnnouncementsUI:_calculateSize(entry, group, newEntry)
 	local diffWidth = entry.difficulty.label:GetStringWidth()
-	local nameWidth, timeWidth = temp()
+	local nameWidth, timeWidth = temp(self._fontSettings)
 
 	if newEntry then
 		entry.difficulty:SetWidth(diffWidth)

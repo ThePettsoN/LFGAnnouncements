@@ -1,5 +1,15 @@
 local _, LFGAnnouncements = ...
 
+local LSM = LibStub("LibSharedMedia-3.0")
+
+local function getFonts()
+	local fonts = {}
+	for name, path in next, LSM:HashTable("font") do
+		fonts[path] = name
+	end
+	return fonts
+end
+
 local function optionsTemplate()
 	local db = LFGAnnouncements.DB
 	local args = {
@@ -26,10 +36,45 @@ local function optionsTemplate()
 			end
 		},
 
+		font = {
+			type = "group",
+			name = "Font",
+			order = 3,
+			inline = true,
+			args = {
+				name = {
+					type = "select",
+					order = 1,
+					name = "Font",
+					values = getFonts(),
+					get = function(info)
+						return LFGAnnouncements.DB:GetProfileData("general", "font", "path")
+					end,
+					set = function(info, newValue)
+						LFGAnnouncements.UI:SetFont(newValue, nil, nil)
+					end,
+				},
+				size = {
+					type = "range",
+					order = 2,
+					name = "Size",
+					min = 8,
+					max = 64,
+					step = 1,
+					get = function(info)
+						return db:GetProfileData("general", "font", "size")
+					end,
+					set = function(info, newValue)
+						LFGAnnouncements.UI:SetFont(nil, newValue, nil)
+					end
+				}
+			}
+		},
+
 		minimap = {
 			type = "group",
 			name = "Minimap",
-			order = 3,
+			order = 4,
 			inline = true,
 			args = {
 				visible = {

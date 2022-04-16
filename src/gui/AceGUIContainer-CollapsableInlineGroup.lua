@@ -37,7 +37,9 @@ local methods = {
 		end
 
 		if self.border:IsShown() then
-			self:SetHeight((height or 0) + 40)
+			self:SetHeight((height or 0) + 24 + self.titleFrame:GetHeight())
+		else
+			self:SetHeight(self.titleFrame:GetHeight())
 		end
 	end,
 
@@ -87,7 +89,7 @@ local methods = {
 		self:Fire("Expand")
 	end,
 
-	["Toggle"] = function(self, button)
+	["Toggle"] = function(self)
 		local border = self.border
 
 		local isShown = border:IsShown()
@@ -103,9 +105,14 @@ local methods = {
 		self:Fire(isShown and "Collapse" or "Expand")
 	end,
 
-	["IsExpanded"] = function(self, button)
+	["IsExpanded"] = function(self)
 		return self.border:IsShown()
 	end,
+
+	["SetTitleFont"] = function(self, font, size, flags)
+		self.titleText:SetFont(font, size, flags)
+		self.titleFrame:SetHeight(self.titleText:GetStringHeight())
+	end
 }
 
 local PaneBackdrop  = {
@@ -121,13 +128,13 @@ local function Constructor()
 	local titleFrame = CreateFrame("Frame", nil, frame)
 	titleFrame:SetPoint("TOPLEFT", 0, 0)
 	titleFrame:SetPoint("TOPRIGHT", 0, 0)
-	titleFrame:SetHeight(18)
 
 	local titleText = titleFrame:CreateFontString(nil, "OVERLAY", "GameFontNormal")
 	titleText:SetPoint("TOPLEFT", 4, -4)
 	titleText:SetPoint("BOTTOMRIGHT", -4, 4)
 	titleText:SetJustifyH("LEFT")
 	titleText:SetHeight(18)
+	titleFrame:SetHeight(titleText:GetStringHeight() + 8)
 
 	local border = CreateFrame("Frame", nil, frame, BackdropTemplateMixin and "BackdropTemplate" or nil)
 	border:SetPoint("TOPLEFT", titleFrame, "BOTTOMLEFT", 0, 0)

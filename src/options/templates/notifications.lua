@@ -1,6 +1,6 @@
 local _, LFGAnnouncements = ...
 
-local LSM = LibStub("LibSharedMedia-3.0"); -- TODO: Include in project
+local LSM = LibStub("LibSharedMedia-3.0")
 
 local function getSounds()
 	local sounds = {

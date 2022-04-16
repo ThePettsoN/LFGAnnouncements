@@ -13,6 +13,11 @@ local defaults = {
 				y = 0,
 				stored = false,
 			},
+			font = {
+				path = "Fonts\\FRIZQT__.TTF",
+				size = 12,
+				flags = "",
+			}
 		},
 		minimap = {
 			hide = false,
