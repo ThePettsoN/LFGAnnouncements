@@ -329,6 +329,10 @@ function LFGAnnouncementsDungeons:DeactivateDungeon(id)
 	self:SendMessage("OnDungeonDeactivated", id)
 end
 
+function LFGAnnouncementsDungeons:IsValid(instanceId)
+	return instances.Tags[instanceId] ~= nil
+end
+
 function LFGAnnouncementsDungeons:IsActive(instanceId)
 	return self._activatedDungeons[instanceId] ~= nil
 end

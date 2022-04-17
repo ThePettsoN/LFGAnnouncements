@@ -1,6 +1,6 @@
 local _, LFGAnnouncements = ...
 
-local LFGAnnouncementsCore = LibStub("AceAddon-3.0"):NewAddon("LFGAnnouncementsCore", "AceEvent-3.0", "AceConsole-3.0", "AceTimer-3.0")
+local LFGAnnouncementsCore = LibStub("AceAddon-3.0"):NewAddon("LFGAnnouncementsCore", "AceEvent-3.0", "AceTimer-3.0")
 local DEBUG = false
 
 local dprintf = function(s, ...)
@@ -49,8 +49,6 @@ function LFGAnnouncementsCore:OnEnable()
 
 	self:RegisterMessage("OnDungeonDeactivated", "OnDungeonDeactivated")
 	self:RegisterMessage("OnShowUI", "OnShowUI")
-
-	self:RegisterChatCommand("lfga", "OnChatCommand")
 
 	self:ScheduleRepeatingTimer("OnUpdate", UpdateTime)
 
@@ -181,29 +179,6 @@ function LFGAnnouncementsCore:OnShowUI(event)
 		for authorGUID, entry in pairs(data) do
 			self:SendMessage("OnDungeonEntry", dungeonId, entry.difficulty, entry.message, entry.time, authorGUID, DungeonEntryReason.SHOW)
 		end
-	end
-end
-
-function LFGAnnouncementsCore:OnChatCommand(args)
-	local command = self:GetArgs(args, 1)
-	if command == "show" or command == "open" then
-		local module = self:GetModule("UI")
-		if not module:IsShown() then
-			module:Toggle()
-		end
-	elseif command == "hide" or command == "close" then
-		local module = self:GetModule("UI")
-		module:Hide()
-	elseif command == "enableall" then
-		local module = self:GetModule("Dungeons")
-		module:ActivateAll()
-	elseif command == "disableall" then
-		local module = self:GetModule("Dungeons")
-		module:DisableAll()
-	elseif command == "config" or command == "settings" or command == "options" then
-		LFGAnnouncements.Options.Toggle()
-	elseif command then
-		dprintf("Unkown command: %s", command)
 	end
 end
 
