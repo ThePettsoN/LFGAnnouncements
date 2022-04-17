@@ -129,7 +129,9 @@ function LFGAnnouncementsUI:SetFont(font, size, flags)
 		container.group:SetTitleFont(settings.path, settings.size, settings.flags)
 	end
 
-	self._scrollContainer:DoLayout()
+	if self._scrollContainer then
+		self._scrollContainer:DoLayout()
+	end
 end
 
 function LFGAnnouncementsUI:_createUI()

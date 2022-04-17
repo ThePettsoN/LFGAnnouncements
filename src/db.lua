@@ -43,6 +43,10 @@ local defaults = {
 					y = 0,
 					stored = false,
 				},
+				size = {
+					width = 300,
+					height = 52,
+				}
 			},
 			sound = {
 				enabled = true,

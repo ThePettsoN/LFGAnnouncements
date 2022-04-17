@@ -3,6 +3,7 @@ local _, LFGAnnouncements = ...
 -- Lua APIs
 local floor = floor
 local type = type
+local max = max
 
 -- WoW APIs
 local CreateFrame = CreateFrame
@@ -33,6 +34,7 @@ function LFGAnnouncementsNotification:OnEnable()
 	self._dungeons = LFGAnnouncements.Dungeons
 	self._db = LFGAnnouncements.DB
 
+	self._fontSettings = LFGAnnouncements.DB:GetProfileData("general", "font")
 	self._enabledForInstanceTypes = self._db:GetProfileData("notifications", "general", "enable_in_instance")
 
 	local soundId = self._db:GetProfileData("notifications", "sound", "id")
@@ -54,9 +56,14 @@ function LFGAnnouncementsNotification:_cancelToasterTimer()
 	end
 end
 
+
 function LFGAnnouncementsNotification:_createUI()
+	local size = self._db:GetProfileData("notifications", "toaster", "size")
+
 	self._toaster = AceGUI:Create("Toaster")
 	self._toaster:SetLayout("Fill")
+	self._toaster:SetWidth(size.width)
+	self._toaster:SetHeight(size.height)
 	self._toaster:SetTitle("LFGAnnouncements")
 	self._toaster.titletext:SetWordWrap(false)
 	self._toaster.titletext:SetNonSpaceWrap(false)
@@ -77,11 +84,15 @@ function LFGAnnouncementsNotification:_createUI()
 	end)
 	self._toasterDuration = self._db:GetProfileData("notifications", "toaster", "duration")
 
-	self._label = AceGUI:Create("Label")
-	self._label:SetText("Label")
-	self._label.label:SetWordWrap(false)
-	self._label.label:SetNonSpaceWrap(false)
-	self._toaster:AddChild(self._label)
+	local label = self._toaster.content:CreateFontString(nil, "BACKGROUND", "GameFontHighlightSmall")
+	label:ClearAllPoints()
+	label:SetPoint("TOPLEFT", 0, 0)
+	label:SetPoint("BOTTOMRIGHT", 0, 0)
+	label:SetJustifyH("LEFT")
+	label:SetJustifyV("TOP")
+	label:SetFont(self._fontSettings.path, self._fontSettings.size, self._fontSettings.flags)
+	label:Show()
+	self._label = label
 
 	local toasterPosition = self._db:GetProfileData("notifications", "toaster", "position")
 	if toasterPosition.stored then
@@ -147,6 +158,27 @@ end
 function LFGAnnouncementsNotification:SetToasterDuration(duration)
 	self._toasterDuration = duration
 	self._db:SetProfileData("duration", duration, "notifications", "toaster")
+end
+
+function LFGAnnouncementsNotification:SetToasterSize(width, height)
+	if width then
+		self._toaster:SetWidth(width)
+		self._db:SetProfileData("width", width, "notifications", "toaster", "size")
+	end
+	if height then
+		self._toaster:SetHeight(height)
+		self._db:SetProfileData("height", height, "notifications", "toaster", "size")
+	end
+end
+
+function LFGAnnouncementsNotification:SetFont(font, size, flags)
+	local settings = self._fontSettings
+	settings.path = font and font or settings.path
+	settings.size = size and size or settings.size
+	settings.flags = flags and flags or settings.flags
+	LFGAnnouncements.DB:SetProfileData("font", settings, "general") -- TODO: currently calling this twice in both UI and Notifications. Need to move any db save out of modules and into templates?
+
+	self._label:SetFont(settings.path, settings.size, settings.flags)
 end
 
 function LFGAnnouncementsNotification:OnPlayerEnteringWorld(event, isInitialLogin, isReloadingUi)

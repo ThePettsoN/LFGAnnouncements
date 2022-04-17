@@ -1,5 +1,10 @@
 local _, LFGAnnouncements = ...
 
+local ceil = ceil
+
+local GetScreenWidth = GetScreenWidth
+local GetScreenHeight = GetScreenHeight
+
 local LSM = LibStub("LibSharedMedia-3.0")
 
 local function getSounds()
@@ -102,6 +107,37 @@ local function optionsTemplate()
 					end,
 					set = function(info, newValue)
 						LFGAnnouncements.Notifications:SetToasterDuration(newValue)
+					end
+				},
+
+				width = {
+					type = "range",
+					-- width = "full",
+					order = 3,
+					name = "Width",
+					min = 1,
+					max = ceil(GetScreenWidth()),
+					step = 1,
+					get = function(info)
+						return db:GetProfileData("notifications", "toaster", "size", "width")
+					end,
+					set = function(info, newWidth)
+						LFGAnnouncements.Notifications:SetToasterSize(newWidth, nil)
+					end
+				},
+				height = {
+					type = "range",
+					-- width = "full",
+					order = 4,
+					name = "Height",
+					min = 52,
+					max = ceil(GetScreenHeight()),
+					step = 1,
+					get = function(info)
+						return db:GetProfileData("notifications", "toaster", "size", "height")
+					end,
+					set = function(info, newHeight)
+						LFGAnnouncements.Notifications:SetToasterSize(nil, newHeight)
 					end
 				},
 			}

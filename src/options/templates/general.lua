@@ -51,8 +51,9 @@ local function optionsTemplate()
 					get = function(info)
 						return LFGAnnouncements.DB:GetProfileData("general", "font", "path")
 					end,
-					set = function(info, newValue)
-						LFGAnnouncements.UI:SetFont(newValue, nil, nil)
+					set = function(info, newFont)
+						LFGAnnouncements.UI:SetFont(newFont, nil, nil)
+						LFGAnnouncements.Notifications:SetFont(newFont, nil, nil)
 					end,
 				},
 				size = {
@@ -65,8 +66,9 @@ local function optionsTemplate()
 					get = function(info)
 						return db:GetProfileData("general", "font", "size")
 					end,
-					set = function(info, newValue)
-						LFGAnnouncements.UI:SetFont(nil, newValue, nil)
+					set = function(info, newSize)
+						LFGAnnouncements.UI:SetFont(nil, newSize, nil)
+						LFGAnnouncements.Notifications:SetFont(nil, newSize, nil)
 					end
 				}
 			}
