@@ -1,5 +1,12 @@
 local _, LFGAnnouncements = ...
 
+-- Lua APIs
+local pairs = pairs
+local type = type
+
+-- WoW APIs
+local CopyTable = CopyTable
+
 local tMergeArray = function(dest, source)
 	for i = 1, #source do
 		dest[#dest+1] = source[i]

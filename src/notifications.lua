@@ -1,7 +1,25 @@
 local _, LFGAnnouncements = ...
-local AceGUI = LibStub("AceGUI-3.0", "AceEvent-3.0")
 
-local LSM = LibStub("LibSharedMedia-3.0"); -- TODO: Include in project
+-- Lua APIs
+local floor = floor
+local type = type
+
+-- WoW APIs
+local CreateFrame = CreateFrame
+local GetInstanceInfo = GetInstanceInfo
+local PlaySound = PlaySound
+local PlaySoundFile = PlaySoundFile
+local FlashClientIcon = FlashClientIcon
+
+local AceGUI = LibStub("AceGUI-3.0", "AceEvent-3.0")
+local LSM = LibStub("LibSharedMedia-3.0")
+
+local function onClickToaster(frame)
+	local ui = LFGAnnouncements.UI
+	ui:Show()
+	ui:CloseAll()
+	ui:OpenGroup(frame.dungeonId)
+end
 
 local LFGAnnouncementsNotification = {}
 function LFGAnnouncementsNotification:OnInitialize()
@@ -22,12 +40,6 @@ function LFGAnnouncementsNotification:OnEnable()
 	self:SetSound(soundId, soundPath, true)
 
 	self:_createUI()
-end
-
-local function onClick(frame, button)
-	LFGAnnouncements.UI:Show()
-	LFGAnnouncements.UI:CloseAll()
-	LFGAnnouncements.UI:OpenGroup(frame.dungeonId)
 end
 
 function LFGAnnouncementsNotification:_scheduleToasterTimer()
@@ -81,7 +93,7 @@ function LFGAnnouncementsNotification:_createUI()
 	self._button = CreateFrame("Button", nil, self._toaster.frame)
 	self._button:SetPoint("TOPLEFT", 0, 0)
 	self._button:SetPoint("BOTTOMRIGHT", 0, 0)
-	self._button:SetScript("OnMouseDown", onClick)
+	self._button:SetScript("OnMouseDown", onClickToaster)
 end
 
 function LFGAnnouncementsNotification:_triggerSound()
@@ -143,7 +155,7 @@ function LFGAnnouncementsNotification:OnPlayerEnteringWorld(event, isInitialLogi
 end
 
 function LFGAnnouncementsNotification:OnDungeonEntry(event, dungeonId, difficulty, message, time, authorGUID, reason)
-	if reason ~= LFGAnnouncements.Core.DungeonEntryReason.NEW then
+	if reason ~= LFGAnnouncements.Core.DUNGEON_ENTRY_REASON.NEW then
 		return
 	end
 

@@ -1,11 +1,14 @@
 local _, LFGAnnouncements = ...
 
+-- Lua APIs
+local stringformat = string.format
+
 local function formatName(id)
 	local dungeonsModule = LFGAnnouncements.Dungeons
 	local levelRange = dungeonsModule:GetLevelRange(id)
 	local name = dungeonsModule:GetDungeonName(id)
 
-	return string.format("%s (%d - %d)", name, levelRange[1], levelRange[2])
+	return stringformat("%s (%d - %d)", name, levelRange[1], levelRange[2])
 end
 
 local function UpdateData(object, funcName, ...)

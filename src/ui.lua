@@ -1,4 +1,19 @@
 local TOCNAME, LFGAnnouncements = ...
+
+-- Lua APIs
+local pairs = pairs
+local tremove = tremove
+local stringformat = string.format
+local floor = floor
+
+-- WoW APIs
+local CreateFrame = CreateFrame
+local C_FriendList = C_FriendList
+local GetPlayerInfoByGUID = GetPlayerInfoByGUID
+local GetClassColor = GetClassColor
+local UIParent = UIParent
+local ChatFrame_OpenChat = ChatFrame_OpenChat
+
 local AceGUI = LibStub("AceGUI-3.0", "AceEvent-3.0")
 
 local Dungeons
@@ -172,7 +187,7 @@ function LFGAnnouncementsUI:_createDungeonContainer(dungeonId)
 			end
 		end
 	end
-	group:SetTitle(string.format("%s (0)", name))
+	group:SetTitle(stringformat("%s (0)", name))
 	group:SetTitleFont(self._fontSettings.path, self._fontSettings.size, self._fontSettings.flags)
 	group:Collapse()
 
@@ -263,7 +278,7 @@ function LFGAnnouncementsUI:_createEntryLabel(dungeonId, difficulty, message, ti
 		local group = container.group
 		local onClick = function(widget, event, button) -- TODO: This is stupid. Should use one function instead of creating a new one every time
 			if button == "LeftButton" then
-				ChatFrame_OpenChat(string.format("/w %s ", author))
+				ChatFrame_OpenChat(stringformat("/w %s ", author))
 			elseif button == "RightButton" then
 				C_FriendList.SendWho(author)
 			end
@@ -303,11 +318,11 @@ function LFGAnnouncementsUI:_createEntryLabel(dungeonId, difficulty, message, ti
 		local containerName = group.name
 		local containerCounter = group.counter + 1
 		group.counter = containerCounter
-		group:SetTitle(string.format("%s (%d)", containerName, containerCounter))
+		group:SetTitle(stringformat("%s (%d)", containerName, containerCounter))
 		temp = true
 	end
 
-	entry.name:SetText(string.format("|c%s%s|r", hex, author))
+	entry.name:SetText(stringformat("|c%s%s|r", hex, author))
 	entry.difficulty:SetText(DifficultyTextLookup[difficulty])
 	entry.message:SetText(message)
 	entry.time:SetText(self:_format_time(time))
@@ -334,7 +349,7 @@ function LFGAnnouncementsUI:_removeEntryLabel(dungeonId, authorGUID)
 			else
 				local containerName = group.name
 				group.counter = counter
-				group:SetTitle(string.format("%s (%d)", containerName, counter))
+				group:SetTitle(stringformat("%s (%d)", containerName, counter))
 			end
 		end
 	end
@@ -357,8 +372,8 @@ function LFGAnnouncementsUI:_format_time(time)
 		color = TimeColorLookup.OLD
 	end
 
-	local min = math.floor(time / 60)
-	return string.format("%s%dm %02ds|r", color, min, time % 60)
+	local min = floor(time / 60)
+	return stringformat("%s%dm %02ds|r", color, min, time % 60)
 end
 
 function LFGAnnouncementsUI:_calculateSize(entry, group, newEntry)

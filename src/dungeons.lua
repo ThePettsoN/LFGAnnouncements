@@ -1,4 +1,14 @@
 local _, LFGAnnouncements = ...
+
+-- Lua APIs
+local wipe = wipe
+local pairs = pairs
+local max = max
+local min = min
+
+-- WoW APIs
+local UnitLevel = UnitLevel
+
 local VanillaDungeons = {
 	Order = {
 		"RFC",
@@ -241,14 +251,16 @@ local BurningCrusadeRaids = {
 }
 
 local dungeons = {}
-LFGAnnouncements.Utils.tMergeRecursive(dungeons, VanillaDungeons)
-LFGAnnouncements.Utils.tMergeRecursive(dungeons, BurningCrusadeDungeons)
+
+local utils = LFGAnnouncements.Utils
+utils.tMergeRecursive(dungeons, VanillaDungeons)
+utils.tMergeRecursive(dungeons, BurningCrusadeDungeons)
 
 local raids = BurningCrusadeRaids
 
 local instances = {}
-LFGAnnouncements.Utils.tMergeRecursive(instances, dungeons)
-LFGAnnouncements.Utils.tMergeRecursive(instances, raids)
+utils.tMergeRecursive(instances, dungeons)
+utils.tMergeRecursive(instances, raids)
 
 
 local LFGAnnouncementsDungeons = {}
@@ -375,8 +387,8 @@ function LFGAnnouncementsDungeons:GetDungeonsByLevel(level)
 		minDiff = level - 10
 		maxDiff = level
 	else
-		minDiff = math.max(level - 5, 0)
-		maxDiff = math.min(level + 5, maxLevel)
+		minDiff = max(level - 5, 0)
+		maxDiff = min(level + 5, maxLevel)
 	end
 
 	for id, range in pairs(instances.Levels) do

@@ -1,11 +1,19 @@
 local AceGUI = LibStub("AceGUI-3.0")
 
 -- Lua APIs
-local pairs, assert, type = pairs, assert, type
+local pairs = pairs
+local assert = assert
+local type = type
 
 -- WoW APIs
 local PlaySound = PlaySound
-local CreateFrame, UIParent = CreateFrame, UIParent
+local CreateFrame = CreateFrame
+local UIParent = UIParent
+local CopyTable = CopyTable
+local UIFrameFade = UIFrameFade
+local UIFrameFadeRemoveFrame = UIFrameFadeRemoveFrame
+local BackdropTemplateMixin = BackdropTemplateMixin
+local GameFontNormal = GameFontNormal
 
 -- Global vars/functions that we don't upvalue since they might get hooked, or upgraded
 -- List them here for Mikk's FindGlobals script

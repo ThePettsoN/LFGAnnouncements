@@ -7,6 +7,7 @@ local function getFonts()
 	for name, path in next, LSM:HashTable("font") do
 		fonts[path] = name
 	end
+
 	return fonts
 end
 

@@ -21,7 +21,6 @@ function LFGAnnouncementsCommands:OnEnable()
 	self:RegisterChatCommand("lfga", "OnChatCommand")
 end
 
--- TODO: Move to own file?
 function LFGAnnouncementsCommands:OnChatCommand(args)
 	local command, nextPosition = self:GetArgs(args, 1)
 	if not command then

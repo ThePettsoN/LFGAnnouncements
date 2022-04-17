@@ -3,14 +3,18 @@ CollapsableInlineGroup Container
 Simple container widget that creates a visible "box" with an optional title that can be collapsed and expaneded.
 -------------------------------------------------------------------------------]]
 local Type, Version = "CollapsableInlineGroup", 1
+
 local AceGUI = LibStub and LibStub("AceGUI-3.0", true)
 if not AceGUI or (AceGUI:GetWidgetVersion(Type) or 0) >= Version then return end
 
 -- Lua APIs
 local pairs = pairs
+local stringformat = string.format
 
 -- WoW APIs
-local CreateFrame, UIParent = CreateFrame, UIParent
+local CreateFrame = CreateFrame
+local UIParent = UIParent
+local BackdropTemplateMixin = BackdropTemplateMixin
 
 local methods = {
 	["OnAcquire"] = function(self)
@@ -22,9 +26,9 @@ local methods = {
 	["SetTitle"] = function(self, title)
 		local text
 		if self.border:IsShown() then
-			text = string.format("[-] %s", title)
+			text = stringformat("[-] %s", title)
 		else
-			text = string.format("[+] %s", title)
+			text = stringformat("[+] %s", title)
 		end
 		self.titleText:SetText(text)
 		self.title = title

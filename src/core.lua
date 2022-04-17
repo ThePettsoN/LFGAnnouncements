@@ -1,27 +1,59 @@
 local _, LFGAnnouncements = ...
 
+-- Lua APIs
+local stringformat = string.format
+local stringgmatch = string.gmatch
+local strlower = strlower
+local print = print
+local wipe = wipe
+local time = time
+local pairs = pairs
+
+-- WoW APIs
+local GetBuildInfo = GetBuildInfo
+
 local LFGAnnouncementsCore = LibStub("AceAddon-3.0"):NewAddon("LFGAnnouncementsCore", "AceEvent-3.0", "AceTimer-3.0")
 local DEBUG = false
 
-local dprintf = function(s, ...)
-	if DEBUG then
-		print(string.format(s, ...))
-	end
-end
-
-local DungeonEntryReason = {
-	NEW = 1,
-	UPDATE = 2,
-	SHOW = 3,
-}
-LFGAnnouncementsCore.DungeonEntryReason = DungeonEntryReason
-
-local Difficulties = {
+local DIFFICULTIES = {
 	NORMAL = "NORMAL",
 	HEROIC = "HEROIC",
 	RAID = "RAID",
 }
-LFGAnnouncementsCore.Difficulties = Difficulties
+
+local DIFFICULTY_TAGS = {
+	n = DIFFICULTIES.NORMAL,
+	normal = DIFFICULTIES.NORMAL,
+	h = DIFFICULTIES.HEROIC,
+	hc = DIFFICULTIES.HEROIC,
+	heroic = DIFFICULTIES.HEROIC,
+}
+
+local BOOST_TAGS = {
+	boost = true,
+	boosts = true,
+	wts = true,
+	wst = true,
+	-- sell = true,
+	-- selling = true,
+}
+
+local DUNGEON_ENTRY_REASON = {
+	NEW = 1,
+	UPDATE = 2,
+	SHOW = 3,
+}
+
+
+local dprintf = function(s, ...)
+	if DEBUG then
+		print(stringformat(s, ...))
+	end
+end
+
+LFGAnnouncementsCore.DUNGEON_ENTRY_REASON = DUNGEON_ENTRY_REASON
+
+LFGAnnouncementsCore.DIFFICULTIES = DIFFICULTIES
 
 LFGAnnouncements.Core = LFGAnnouncementsCore
 LFGAnnouncements.DEBUG = DEBUG
@@ -81,7 +113,7 @@ function LFGAnnouncementsCore:OnUpdate()
 			else
 				local time = entry.time + UpdateTime
 				entry.time = time
-				self:SendMessage("OnDungeonEntry", dungeonId, entry.difficulty, entry.message, time, authorGUID, DungeonEntryReason.UPDATE)
+				self:SendMessage("OnDungeonEntry", dungeonId, entry.difficulty, entry.message, time, authorGUID, DUNGEON_ENTRY_REASON.UPDATE)
 			end
 		end
 	end
@@ -149,37 +181,14 @@ function LFGAnnouncementsCore:SetDuration(newDuration)
 		return
 	end
 
-	for a, data in pairs(self._dungeonEntries) do
-		for b, entry in pairs(data) do
+	for _, data in pairs(self._dungeonEntries) do
+		for _, entry in pairs(data) do
 			entry.timestamp_to_remove = entry.timestamp_to_remove - diff
 		end
 	end
 
 	self._timeToShow = newDuration
 	LFGAnnouncements.DB:SetProfileData("time_visible_sec", newDuration, "general")
-end
-
-function LFGAnnouncementsCore:OnChatMsgChannel(event, message, _, _, _, playerName, _, _, channelIndex, _, _, _, guid)
-	self:_parseMessage(message, guid)
-end
-
-function LFGAnnouncementsCore:OnChatMsgGuild(event, message, author, language, lineId, senderGUID)
-end
-
-function LFGAnnouncementsCore:OnChatMsgSay(event, message, _, _, _, playerName, _, _, _, _, _, _, guid)
-	self:_parseMessage(message, guid)
-end
-
-function LFGAnnouncementsCore:OnDungeonDeactivated(event, dungeonId)
-	self._dungeonEntries[dungeonId] = nil
-end
-
-function LFGAnnouncementsCore:OnShowUI(event)
-	for dungeonId, data in pairs(self._dungeonEntries) do
-		for authorGUID, entry in pairs(data) do
-			self:SendMessage("OnDungeonEntry", dungeonId, entry.difficulty, entry.message, entry.time, authorGUID, DungeonEntryReason.SHOW)
-		end
-	end
 end
 
 local module, i
@@ -192,7 +201,7 @@ function LFGAnnouncementsCore:_parseMessage(message, authorGUID)
 	wipe(splitMessage)
 	i = 1
 
-	for v in string.gmatch(strlower(message), "[^| /\\.{},+()]+") do
+	for v in stringgmatch(strlower(message), "[^| /\\.{},+()]+") do
 		splitMessage[i] = v
 		i = i + 1
 	end
@@ -212,7 +221,7 @@ end
 
 function LFGAnnouncementsCore:_createDungeonEntry(dungeonId, difficulty, message, authorGUID, isBoostEntry)
 	if self._dungeons:GetInstanceType(dungeonId) == LFGAnnouncements.Dungeons.InstanceType.RAID then
-		difficulty = Difficulties.RAID
+		difficulty = DIFFICULTIES.RAID
 	elseif not self:_isAllowedDifficulty(difficulty) then
 		return
 	end
@@ -232,38 +241,23 @@ function LFGAnnouncementsCore:_createDungeonEntry(dungeonId, difficulty, message
 		boost = isBoostEntry,
 	}
 
-	self:SendMessage("OnDungeonEntry", dungeonId, difficulty, message, 0, authorGUID, newEntry and DungeonEntryReason.NEW or DungeonEntryReason.UPDATE)
+	self:SendMessage("OnDungeonEntry", dungeonId, difficulty, message, 0, authorGUID, newEntry and DUNGEON_ENTRY_REASON.NEW or DUNGEON_ENTRY_REASON.UPDATE)
 end
 
-local tags = {
-	n = Difficulties.NORMAL,
-	normal = Difficulties.NORMAL,
-	h = Difficulties.HEROIC,
-	hc = Difficulties.HEROIC,
-	heroic = Difficulties.HEROIC,
-}
 function LFGAnnouncementsCore:_findDifficulty(splitMessage)
 	for i = 1, #splitMessage do
-		local difficulty = tags[splitMessage[i]]
+		local difficulty = DIFFICULTY_TAGS[splitMessage[i]]
 		if difficulty then
 			return difficulty
 		end
 	end
 
-	return Difficulties.NORMAL
+	return DIFFICULTIES.NORMAL
 end
 
-local boostTags = {
-	boost = true,
-	boosts = true,
-	wts = true,
-	wst = true,
-	-- sell = true,
-	-- selling = true,
-}
 function LFGAnnouncementsCore:_isBoostEntry(splitMessage)
 	for i = 1, #splitMessage do
-		if boostTags[splitMessage[i]] then
+		if BOOST_TAGS[splitMessage[i]] then
 			return true
 		end
 	end
@@ -275,9 +269,35 @@ function LFGAnnouncementsCore:_isAllowedDifficulty(difficulty)
 		return true
 	end
 
-	if difficulty == Difficulties.RAID then
+	if difficulty == DIFFICULTIES.RAID then
 		return true
 	end
 
 	return self._difficultyFilter == difficulty
+end
+
+
+--Events
+
+function LFGAnnouncementsCore:OnChatMsgChannel(event, message, _, _, _, playerName, _, _, channelIndex, _, _, _, guid)
+	self:_parseMessage(message, guid)
+end
+
+function LFGAnnouncementsCore:OnChatMsgGuild(event, message, author, language, lineId, senderGUID)
+end
+
+function LFGAnnouncementsCore:OnChatMsgSay(event, message, _, _, _, playerName, _, _, _, _, _, _, guid)
+	self:_parseMessage(message, guid)
+end
+
+function LFGAnnouncementsCore:OnDungeonDeactivated(event, dungeonId)
+	self._dungeonEntries[dungeonId] = nil
+end
+
+function LFGAnnouncementsCore:OnShowUI(event)
+	for dungeonId, data in pairs(self._dungeonEntries) do
+		for authorGUID, entry in pairs(data) do
+			self:SendMessage("OnDungeonEntry", dungeonId, entry.difficulty, entry.message, entry.time, authorGUID, DUNGEON_ENTRY_REASON.SHOW)
+		end
+	end
 end

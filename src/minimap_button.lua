@@ -1,4 +1,5 @@
 local TOCNAME, LFGAnnouncements = ...
+
 local libIcon = LibStub("LibDBIcon-1.0")
 
 local LFGAnnouncementsMinimap = {}

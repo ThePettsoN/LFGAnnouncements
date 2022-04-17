@@ -1,5 +1,7 @@
 local _, LFGAnnouncements = ...
 
+-- Lua APIs
+local select = select
 
 local LFGAnnouncementsDBModule = {}
 local defaults = {

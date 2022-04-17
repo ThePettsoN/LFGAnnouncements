@@ -8,15 +8,17 @@ local function getSounds()
 		[110981] = "VoiceChat - Join Channel",
 		[39517] = "InGame Store - Purchase Delivered",
 	}
-	for name, path in next, LSM:HashTable("sound") do
+
+	for name, _ in next, LSM:HashTable("sound") do
 		sounds[name] = name
 	end
+
 	return sounds
 end
 
 local function optionsTemplate()
-
 	local db = LFGAnnouncements.DB
+
 	local args = {
 		header = {
 			order = 1,

@@ -4,6 +4,9 @@ local AceConfig = LibStub("AceConfig-3.0")
 local AceConfigDialog = LibStub("AceConfigDialog-3.0")
 local AceDBOptions = LibStub("AceDBOptions-3.0")
 
+-- Lua APIs
+local pairs = pairs
+
 local LFGAnnouncementsOptions = {
 	optionTemplates = {},
 }
@@ -30,7 +33,7 @@ local config_template = {
 	name = "LFGAnnouncements",
 	args = {},
 }
-function LFGAnnouncementsOptions.GetConfig(a, b, c, d)
+function LFGAnnouncementsOptions.GetConfig()
 	local args = config_template.args
 	for name, func in pairs(LFGAnnouncementsOptions.optionTemplates) do
 		args[name] = func()
