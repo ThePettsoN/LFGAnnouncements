@@ -41,7 +41,7 @@ local methods = {
 		end
 
 		if self.border:IsShown() then
-			self:SetHeight((height or 0) + 24 + self.titleFrame:GetHeight())
+			self:SetHeight((height or 0) + self.titleFrame:GetHeight() + 20)
 		else
 			self:SetHeight(self.titleFrame:GetHeight())
 		end
