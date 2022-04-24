@@ -21,6 +21,7 @@ local DifficultyTextLookup = {
 	NORMAL = " |cff00ff00[N]|r ",
 	HEROIC = " |cffff0000[H]|r ",
 	RAID = " |cff8000ff[R]|r ",
+	CUSTOM = "",
 }
 
 
@@ -173,6 +174,7 @@ end
 
 function LFGAnnouncementsUI:_createDungeonContainer(dungeonId)
 	local dungeons = Dungeons
+	print(dungeonId)
 	local name = dungeons:GetDungeonName(dungeonId)
 
 	local group = AceGUI:Create("CollapsableInlineGroup")

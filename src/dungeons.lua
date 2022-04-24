@@ -250,6 +250,13 @@ local BurningCrusadeRaids = {
 	}
 }
 
+local CustomInstances = {
+	Order = {},
+	Names = {},
+	Levels = {},
+	Tags = {},
+}
+
 local dungeons = {}
 
 local utils = LFGAnnouncements.Utils
@@ -261,18 +268,21 @@ local raids = BurningCrusadeRaids
 local instances = {}
 utils.tMergeRecursive(instances, dungeons)
 utils.tMergeRecursive(instances, raids)
+utils.tMergeRecursive(instances, CustomInstances)
 
 
 local LFGAnnouncementsDungeons = {}
 local InstanceType = {
 	DUNGEON = "DUNGEON",
 	RAID = "RAID",
+	CUSTOM = "CUSTOM",
 }
 LFGAnnouncementsDungeons.InstanceType = InstanceType
 
 function LFGAnnouncementsDungeons:OnInitialize()
 	self._activatedDungeons = {}
 	self._activeTags = {}
+	self._customTags = {}
 
 	LFGAnnouncements.Dungeons = self
 end
@@ -280,12 +290,13 @@ end
 function LFGAnnouncementsDungeons:OnEnable()
 	local db = LFGAnnouncements.DB
 	local initialized = db:GetCharacterData("initialized")
+	local isCustom = false
 
 	if not initialized then
 		local playerLevel = UnitLevel("player")
 		local dungeonsPerLevel = self:GetDungeonsByLevel(playerLevel)
 		for i = 1, #dungeonsPerLevel do
-			self:ActivateDungeon(dungeonsPerLevel[i])
+			self:ActivateDungeon(dungeonsPerLevel[i], isCustom)
 		end
 
 		db:SetCharacterData("initialized", true)
@@ -294,11 +305,37 @@ function LFGAnnouncementsDungeons:OnEnable()
 		for key, activated in pairs(dungeons) do
 			if instances.Names[key] then
 				if activated then
-					self:ActivateDungeon(key)
+					self:ActivateDungeon(key, isCustom)
 				end
 			else
 				db:SetCharacterData(key, false, "dungeons", "activated")
 			end
+		end
+
+		-- Order = {},
+		-- Names = {},
+		-- Levels = {},
+		-- Tags = {},
+
+		local customEntries = db:GetCharacterData("dungeons", "custom_entries")
+		for id, entry in pairs(customEntries) do
+			CustomInstances.Order[#CustomInstances.Order + 1] = id
+			CustomInstances.Names[id] = entry.name
+			CustomInstances.Levels[id] = {0, 70}
+			CustomInstances.Tags[id] = entry.tags
+
+			instances.Order[#instances.Order + 1] = id
+			instances.Names[id] = entry.name
+			instances.Levels[id] = {0, 70}
+			instances.Tags[id] = entry.tags
+
+			self._customTags[id] = {}
+			for i = 1, #entry.tags do
+				local tag = entry.tags[i]
+				self._customTags[id][tag] = true
+			end
+
+			self:ActivateDungeon(id, true)
 		end
 	end
 end
@@ -307,7 +344,7 @@ function LFGAnnouncementsDungeons:GetActivatedDungeons()
 	return self._activatedDungeons
 end
 
-function LFGAnnouncementsDungeons:ActivateDungeon(id)
+function LFGAnnouncementsDungeons:ActivateDungeon(id, isCustom)
 	if self._activatedDungeons[id] then
 		return
 	end
@@ -347,14 +384,6 @@ end
 
 function LFGAnnouncementsDungeons:IsActive(instanceId)
 	return self._activatedDungeons[instanceId] ~= nil
-end
-
-function LFGAnnouncementsDungeons:SetActivated(id, value)
-	if value then
-		self:ActivateDungeon(id)
-	else
-		self:DeactivateDungeon(id)
-	end
 end
 
 function LFGAnnouncementsDungeons:ActivateAll()
@@ -409,8 +438,18 @@ function LFGAnnouncementsDungeons:GetDungeons(expansion)
 	return BurningCrusadeDungeons.Order
 end
 
+function LFGAnnouncementsDungeons:GetCustomEntries()
+	return CustomInstances
+end
+
 function LFGAnnouncementsDungeons:GetInstanceType(instanceId)
-	return dungeons.Names[instanceId] ~= nil and InstanceType.DUNGEON or InstanceType.RAID
+	if dungeons.Names[instanceId] ~= nil then
+		return InstanceType.DUNGEON
+	elseif instanceId == InstanceType.CUSTOM then
+		return InstanceType.CUSTOM
+	end
+
+	return InstanceType.RAID
 end
 
 function LFGAnnouncementsDungeons:GetRaids(expansion)
@@ -422,10 +461,20 @@ function LFGAnnouncementsDungeons:FindDungeons(splitMessage)
 
 	local found = false
 	for i = 1, #splitMessage do
-		local id = self._activeTags[splitMessage[i]]
+		local word = splitMessage[i]
+
+		local id = self._activeTags[word]
 		if id then
 			found = true
 			dungeonsFound[id] = true
+		end
+
+		for id, tags in pairs(self._customTags) do
+			if tags[word] then
+				found = true
+				dungeonsFound[id] = true
+				break
+			end
 		end
 	end
 

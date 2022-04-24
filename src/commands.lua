@@ -55,7 +55,7 @@ function LFGAnnouncementsCommands:enable(nextPosition, args)
 	if dungeonId == "all" then
 		module:ActivateAll()
 	elseif module:IsValid(dungeonId) then
-		module:SetActivated(dungeonId, true)
+		module:DeactivateDungeon(dungeonId, false)
 	end
 end
 
@@ -69,7 +69,7 @@ function LFGAnnouncementsCommands:disable(nextPosition, args)
 	if dungeonId == "all" then
 		module:DisableAll()
 	elseif module:IsValid(dungeonId) then
-		module:SetActivated(dungeonId, false)
+		module:DeactivateDungeon(dungeonId, false)
 	end
 end
 

@@ -46,7 +46,7 @@ local function createGroup(args, instances)
 		func = function()
 			for i = 1, num do
 				local id = instances[i]
-				LFGAnnouncements.Dungeons:SetActivated(id, true)
+				LFGAnnouncements.Dungeons:ActivateDungeon(id, false)
 			end
 		end,
 	}
@@ -58,9 +58,68 @@ local function createGroup(args, instances)
 		func = function()
 			for i = 1, num do
 				local id = instances[i]
-				LFGAnnouncements.Dungeons:SetActivated(id, false)
+				LFGAnnouncements.Dungeons:DeactivateDungeon(id, false)
 			end
 		end,
+	}
+end
+
+local function createCustomFilters(args, customEntries)
+	for id, name in pairs(customEntries.Names) do
+		local group = {
+			type = "group",
+			name = name,
+			order = 1,
+			inline = true,
+			args = {
+					tags = {
+						type = "input",
+						name = "Tags",
+						desc = "Custom tags separated by spaces",
+						width = "double",
+						order = 1,
+						get = function()
+							return strjoin(" ", unpack(customEntries.Tags[id]))
+						end,
+						set = function(info, newValue)
+						end,
+					},
+					remove = {
+						type = "execute",
+						name = "Remove",
+						width = "half",
+						order = 2,
+					}
+			}
+		}
+
+		args[id] = group
+	end
+
+	args.new = {
+		type = "group",
+		name = "New",
+		order = 2,
+		inline = true,
+		args = {
+			name = {
+				type = "input",
+				name = "Name",
+				width = "double",
+				order = 1,
+				get = function()
+					return ""
+				end,
+				set = function(info, value)
+				end,
+			},
+			button = {
+				type = "execute",
+				name = "Add",
+				width = "half",
+				order = 2,
+			},
+		}
 	}
 end
 
@@ -88,6 +147,13 @@ local function optionsTemplate()
 		order = 6,
 		inline = false,
 		args = {}
+	}
+	local custom_entries = {
+		type = "group",
+		name = "Custom",
+		order = 7,
+		inline = false,
+		args = {},
 	}
 
 	local args = {
@@ -125,6 +191,7 @@ local function optionsTemplate()
 		vanilla_dungeons = vanilla_dungeons,
 		tbc_dungeons = tbc_dungeons,
 		tbc_raids = tbc_raids,
+		custom_entries = custom_entries,
 	}
 
 	-- Vanilla Dungeons
@@ -138,6 +205,8 @@ local function optionsTemplate()
 	-- TBC Raids
 	instances = dungeonsModule:GetRaids("TBC")
 	createGroup(tbc_raids.args, instances)
+
+	createCustomFilters(custom_entries.args, dungeonsModule:GetCustomEntries())
 
 	return {
 		type = "group",

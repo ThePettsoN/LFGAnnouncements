@@ -13,12 +13,13 @@ local pairs = pairs
 local GetBuildInfo = GetBuildInfo
 
 local LFGAnnouncementsCore = LibStub("AceAddon-3.0"):NewAddon("LFGAnnouncementsCore", "AceEvent-3.0", "AceTimer-3.0")
-local DEBUG = false
+local DEBUG = true
 
 local DIFFICULTIES = {
 	NORMAL = "NORMAL",
 	HEROIC = "HEROIC",
 	RAID = "RAID",
+	CUSTOM = "CUSTOM",
 }
 
 local DIFFICULTY_TAGS = {
@@ -193,6 +194,7 @@ end
 
 local module, i
 local splitMessage = {}
+local regex = "[^| /\\.{},+()]+"
 function LFGAnnouncementsCore:_parseMessage(message, authorGUID)
 	if #message < 3 then
 		return
@@ -201,7 +203,7 @@ function LFGAnnouncementsCore:_parseMessage(message, authorGUID)
 	wipe(splitMessage)
 	i = 1
 
-	for v in stringgmatch(strlower(message), "[^| /\\.{},+()]+") do
+	for v in stringgmatch(strlower(message), regex) do
 		splitMessage[i] = v
 		i = i + 1
 	end
@@ -220,8 +222,13 @@ function LFGAnnouncementsCore:_parseMessage(message, authorGUID)
 end
 
 function LFGAnnouncementsCore:_createDungeonEntry(dungeonId, difficulty, message, authorGUID, isBoostEntry)
-	if self._dungeons:GetInstanceType(dungeonId) == LFGAnnouncements.Dungeons.InstanceType.RAID then
+	dprintf("DUNGEON: %q | Diff: %q", dungeonId, difficulty)
+	local instanceType = self._dungeons:GetInstanceType(dungeonId)
+	dprintf("Type: %q", instanceType)
+	if instanceType == LFGAnnouncements.Dungeons.InstanceType.RAID then
 		difficulty = DIFFICULTIES.RAID
+	elseif instanceType == LFGAnnouncements.Dungeons.InstanceType.CUSTOM then
+		difficulty = DIFFICULTIES.CUSTOM
 	elseif not self:_isAllowedDifficulty(difficulty) then
 		return
 	end
@@ -269,7 +276,7 @@ function LFGAnnouncementsCore:_isAllowedDifficulty(difficulty)
 		return true
 	end
 
-	if difficulty == DIFFICULTIES.RAID then
+	if difficulty == DIFFICULTIES.RAID or difficulty == DIFFICULTIES.CUSTOM then
 		return true
 	end
 

@@ -66,7 +66,13 @@ local defaults = {
 		initialized = false,
 		dungeons = {
 			activated = {},
-			custom_tags = {},
+			custom_tags_per_instance = {},
+			custom_entries = {
+				test = {
+					name = "GDKP",
+					tags = {"gdkp", "sell", "wts"},
+				}
+			}
 		},
 		filters = {
 			difficulty = "ALL",
