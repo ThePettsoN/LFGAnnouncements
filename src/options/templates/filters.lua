@@ -4,9 +4,9 @@ local _, LFGAnnouncements = ...
 local stringformat = string.format
 
 local function formatName(id)
-	local dungeonsModule = LFGAnnouncements.Dungeons
-	local levelRange = dungeonsModule:GetLevelRange(id)
-	local name = dungeonsModule:GetDungeonName(id)
+	local module = LFGAnnouncements.Instances
+	local levelRange = module:GetLevelRange(id)
+	local name = module:GetInstanceName(id)
 
 	return stringformat("%s (%d - %d)", name, levelRange[1], levelRange[2])
 end
@@ -26,7 +26,7 @@ local function createEntry(id, order)
 			return LFGAnnouncements.DB:GetCharacterData("dungeons", "activated", id)
 		end,
 		set = function(info, newValue)
-			UpdateData(LFGAnnouncements.Dungeons, "SetActivated", id, newValue)
+			UpdateData(LFGAnnouncements.Instances, "SetActivated", id, newValue)
 		end,
 	}
 end
@@ -46,7 +46,7 @@ local function createGroup(args, instances)
 		func = function()
 			for i = 1, num do
 				local id = instances[i]
-				LFGAnnouncements.Dungeons:SetActivated(id, true)
+				LFGAnnouncements.Instances:SetActivated(id, true)
 			end
 		end,
 	}
@@ -58,14 +58,14 @@ local function createGroup(args, instances)
 		func = function()
 			for i = 1, num do
 				local id = instances[i]
-				LFGAnnouncements.Dungeons:SetActivated(id, false)
+				LFGAnnouncements.Instances:SetActivated(id, false)
 			end
 		end,
 	}
 end
 
 local function optionsTemplate()
-	local dungeonsModule = LFGAnnouncements.Dungeons
+	local instances = LFGAnnouncements.Instances
 	local db = LFGAnnouncements.DB
 	local core = LFGAnnouncements.Core
 	local vanilla_dungeons = {
@@ -128,15 +128,15 @@ local function optionsTemplate()
 	}
 
 	-- Vanilla Dungeons
-	local instances = dungeonsModule:GetDungeons("VANILLA")
+	local instances = instances:GetInstances("VANILLA")
 	createGroup(vanilla_dungeons.args, instances)
 
 	-- TBC Dungeons
-	instances = dungeonsModule:GetDungeons("TBC")
+	instances = instances:GetInstances("TBC")
 	createGroup(tbc_dungeons.args, instances)
 
 	-- TBC Raids
-	instances = dungeonsModule:GetRaids("TBC")
+	instances = instances:GetRaids("TBC")
 	createGroup(tbc_raids.args, instances)
 
 	return {

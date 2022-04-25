@@ -68,7 +68,7 @@ function LFGAnnouncementsCore:OnInitialize()
 		[4] = true,
 		[5] = true,
 	}
-	self._dungeonEntries = {}
+	self._instanceEntries = {}
 
 	LFGAnnouncements.GameExpansion = GetBuildInfo():sub(1,1) == '2' and "TBC" or "VANILLA"
 end
@@ -79,13 +79,13 @@ function LFGAnnouncementsCore:OnEnable()
 	self:RegisterEvent("CHAT_MSG_GUILD", "OnChatMsgGuild")
 	self:RegisterEvent("CHAT_MSG_SAY", "OnChatMsgSay")
 
-	self:RegisterMessage("OnDungeonDeactivated", "OnDungeonDeactivated")
+	self:RegisterMessage("OnInstanceDeactivated", "OnInstanceDeactivated")
 	self:RegisterMessage("OnShowUI", "OnShowUI")
 
 	self:ScheduleRepeatingTimer("OnUpdate", UpdateTime)
 
 	local db = LFGAnnouncements.DB
-	self._dungeons = LFGAnnouncements.Dungeons
+	self._instances = LFGAnnouncements.Instances
 	self._timeToShow = db:GetProfileData("general", "time_visible_sec")
 	self._difficultyFilter = db:GetCharacterData("filters", "difficulty")
 	self._boostFilter = db:GetCharacterData("filters", "boost")
@@ -94,66 +94,66 @@ end
 function LFGAnnouncementsCore:OnDisable()
 end
 
-local dungeonsToRemove = {}
-local removeDungeons, currentTime
+local instancesToRemove = {}
+local removeInstances, currentTime
 function LFGAnnouncementsCore:OnUpdate()
-	wipe(dungeonsToRemove)
-	removeDungeons = false
+	wipe(instancesToRemove)
+	removeInstances = false
 	currentTime = time()
 
 	local index = 1
-	for dungeonId, data in pairs(self._dungeonEntries) do
+	for instanceId, data in pairs(self._instanceEntries) do
 		for authorGUID, entry in pairs(data) do
 			if currentTime >= entry.timestamp_to_remove then
-				dungeonsToRemove[index] = dungeonId
-				dungeonsToRemove[index + 1] = authorGUID
+				instancesToRemove[index] = instanceId
+				instancesToRemove[index + 1] = authorGUID
 				index = index + 2
-				removeDungeons = true
-				self._dungeonEntries[dungeonId][authorGUID] = nil
+				removeInstances = true
+				self._instanceEntries[instanceId][authorGUID] = nil
 			else
 				local time = entry.time + UpdateTime
 				entry.time = time
-				self:SendMessage("OnDungeonEntry", dungeonId, entry.difficulty, entry.message, time, authorGUID, DUNGEON_ENTRY_REASON.UPDATE)
+				self:SendMessage("OnInstanceEntry", instanceId, entry.difficulty, entry.message, time, authorGUID, DUNGEON_ENTRY_REASON.UPDATE)
 			end
 		end
 	end
 
-	if removeDungeons then
-		self:SendMessage("OnRemoveDungeons", dungeonsToRemove)
+	if removeInstances then
+		self:SendMessage("OnRemoveInstances", instancesToRemove)
 	end
 end
 
 function LFGAnnouncementsCore:UpdateInvalidEntries()
-	local dungeonsModule = self._dungeons
-	removeDungeons = false
-	wipe(dungeonsToRemove)
+	local instancesModule = self._instances
+	removeInstances = false
+	wipe(instancesToRemove)
 
 	local index = 1
-	for dungeonId, data in pairs(self._dungeonEntries) do
-		if not dungeonsModule:IsActive(dungeonId) then
+	for instanceId, data in pairs(self._instanceEntries) do
+		if not instancesModule:IsActive(instanceId) then
 			for authorGUID, _ in pairs(data) do
-				dungeonsToRemove[index] = dungeonId
-				dungeonsToRemove[index + 1] = authorGUID
+				instancesToRemove[index] = instanceId
+				instancesToRemove[index + 1] = authorGUID
 				index = index + 2
 			end
-			removeDungeons = true
+			removeInstances = true
 			wipe(data)
 		else
 			for authorGUID, entry in pairs(data) do
 				local difficulty = entry.difficulty
 				if not self:_isAllowedDifficulty(difficulty) or (self._boostFilter and entry.boost) then
 					data[authorGUID] = nil
-					dungeonsToRemove[index] = dungeonId
-					dungeonsToRemove[index + 1] = authorGUID
+					instancesToRemove[index] = instanceId
+					instancesToRemove[index + 1] = authorGUID
 					index = index + 2
-					removeDungeons = true
+					removeInstances = true
 				end
 			end
 		end
 	end
 
-	if removeDungeons then
-		self:SendMessage("OnRemoveDungeons", dungeonsToRemove)
+	if removeInstances then
+		self:SendMessage("OnRemoveInstances", instancesToRemove)
 	end
 end
 
@@ -181,7 +181,7 @@ function LFGAnnouncementsCore:SetDuration(newDuration)
 		return
 	end
 
-	for _, data in pairs(self._dungeonEntries) do
+	for _, data in pairs(self._instanceEntries) do
 		for _, entry in pairs(data) do
 			entry.timestamp_to_remove = entry.timestamp_to_remove - diff
 		end
@@ -206,34 +206,34 @@ function LFGAnnouncementsCore:_parseMessage(message, authorGUID)
 		i = i + 1
 	end
 
-	module = self._dungeons
-	local foundDungeons = module:FindDungeons(splitMessage)
-	if foundDungeons then
+	module = self._instances
+	local foundInstances = module:FindInstances(splitMessage)
+	if foundInstances then
 		local difficulty = self:_findDifficulty(splitMessage)
 		local isBoostEntry = self:_isBoostEntry(splitMessage)
 		if not self._boostFilter or not isBoostEntry then
-			for dungeonId, _ in pairs(foundDungeons) do
-				self:_createDungeonEntry(dungeonId, difficulty, message, authorGUID, isBoostEntry)
+			for instanceId, _ in pairs(foundInstances) do
+				self:_createInstanceEntry(instanceId, difficulty, message, authorGUID, isBoostEntry)
 			end
 		end
 	end
 end
 
-function LFGAnnouncementsCore:_createDungeonEntry(dungeonId, difficulty, message, authorGUID, isBoostEntry)
-	if self._dungeons:GetInstanceType(dungeonId) == LFGAnnouncements.Dungeons.InstanceType.RAID then
+function LFGAnnouncementsCore:_createInstanceEntry(instanceId, difficulty, message, authorGUID, isBoostEntry)
+	if self._instances:GetInstanceType(instanceId) == LFGAnnouncements.Instances.InstanceType.RAID then
 		difficulty = DIFFICULTIES.RAID
 	elseif not self:_isAllowedDifficulty(difficulty) then
 		return
 	end
 
-	local dungeonEntriesForId = self._dungeonEntries[dungeonId]
-	if not dungeonEntriesForId then
-		dungeonEntriesForId = {}
-		self._dungeonEntries[dungeonId] = dungeonEntriesForId
+	local instanceEntriesForId = self._instanceEntries[instanceId]
+	if not instanceEntriesForId then
+		instanceEntriesForId = {}
+		self._instanceEntries[instanceId] = instanceEntriesForId
 	end
 
-	local newEntry = not dungeonEntriesForId[authorGUID]
-	dungeonEntriesForId[authorGUID] = {
+	local newEntry = not instanceEntriesForId[authorGUID]
+	instanceEntriesForId[authorGUID] = {
 		message = message,
 		difficulty = difficulty,
 		timestamp_to_remove = time() + self._timeToShow,
@@ -241,7 +241,7 @@ function LFGAnnouncementsCore:_createDungeonEntry(dungeonId, difficulty, message
 		boost = isBoostEntry,
 	}
 
-	self:SendMessage("OnDungeonEntry", dungeonId, difficulty, message, 0, authorGUID, newEntry and DUNGEON_ENTRY_REASON.NEW or DUNGEON_ENTRY_REASON.UPDATE)
+	self:SendMessage("OnInstanceEntry", instanceId, difficulty, message, 0, authorGUID, newEntry and DUNGEON_ENTRY_REASON.NEW or DUNGEON_ENTRY_REASON.UPDATE)
 end
 
 function LFGAnnouncementsCore:_findDifficulty(splitMessage)
@@ -290,14 +290,14 @@ function LFGAnnouncementsCore:OnChatMsgSay(event, message, _, _, _, playerName, 
 	self:_parseMessage(message, guid)
 end
 
-function LFGAnnouncementsCore:OnDungeonDeactivated(event, dungeonId)
-	self._dungeonEntries[dungeonId] = nil
+function LFGAnnouncementsCore:OnInstanceDeactivated(event, instanceId)
+	self._instanceEntries[instanceId] = nil
 end
 
 function LFGAnnouncementsCore:OnShowUI(event)
-	for dungeonId, data in pairs(self._dungeonEntries) do
+	for instanceId, data in pairs(self._instanceEntries) do
 		for authorGUID, entry in pairs(data) do
-			self:SendMessage("OnDungeonEntry", dungeonId, entry.difficulty, entry.message, entry.time, authorGUID, DUNGEON_ENTRY_REASON.SHOW)
+			self:SendMessage("OnInstanceEntry", instanceId, entry.difficulty, entry.message, entry.time, authorGUID, DUNGEON_ENTRY_REASON.SHOW)
 		end
 	end
 end

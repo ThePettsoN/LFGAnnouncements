@@ -16,7 +16,7 @@ local ChatFrame_OpenChat = ChatFrame_OpenChat
 
 local AceGUI = LibStub("AceGUI-3.0", "AceEvent-3.0")
 
-local Dungeons
+local Instances
 local DifficultyTextLookup = {
 	NORMAL = " |cff00ff00[N]|r ",
 	HEROIC = " |cffff0000[H]|r ",
@@ -28,19 +28,19 @@ local LFGAnnouncementsUI = {}
 function LFGAnnouncementsUI:OnInitialize()
 	LFGAnnouncements.UI = self
 
-	self._dungeonContainers = {}
+	self._instanceContainers = {}
 	self._frame = nil
 
-	self:RegisterMessage("OnDungeonActivated", "OnDungeonActivated")
-	self:RegisterMessage("OnDungeonDeactivated", "OnDungeonDeactivated")
-	self:RegisterMessage("OnDungeonEntry", "OnDungeonEntry")
-	self:RegisterMessage("OnRemoveDungeonEntry", "OnRemoveDungeonEntry")
-	self:RegisterMessage("OnRemoveDungeons", "OnRemoveDungeons")
+	self:RegisterMessage("OnInstanceActivated", "OnInstanceActivated")
+	self:RegisterMessage("OnInstanceDeactivated", "OnInstanceDeactivated")
+	self:RegisterMessage("OnInstanceEntry", "OnInstanceEntry")
+	self:RegisterMessage("OnRemoveInstanceEntry", "OnRemoveInstanceEntry")
+	self:RegisterMessage("OnRemoveInstances", "OnRemoveInstances")
 end
 
 function LFGAnnouncementsUI:OnEnable()
 	-- Called on PLAYER_LOGIN event
-	Dungeons = LFGAnnouncements.Dungeons
+	Instances = LFGAnnouncements.Instances
 	self._ready = true
 
 	self._fontSettings = LFGAnnouncements.DB:GetProfileData("general", "font")
@@ -76,13 +76,13 @@ function LFGAnnouncementsUI:Toggle()
 end
 
 function LFGAnnouncementsUI:CloseAll()
-	for _, container in pairs(self._dungeonContainers) do
+	for _, container in pairs(self._instanceContainers) do
 		container.group:Collapse()
 	end
 end
 
-function LFGAnnouncementsUI:OpenGroup(dungeonId)
-	local container = self._dungeonContainers[dungeonId]
+function LFGAnnouncementsUI:OpenGroup(instanceId)
+	local container = self._instanceContainers[instanceId]
 	if not container then
 		return
 	end
@@ -121,7 +121,7 @@ function LFGAnnouncementsUI:SetFont(font, size, flags)
 	nameSize = nil
 	timeSize = nil
 
-	for _, container in pairs(self._dungeonContainers) do
+	for _, container in pairs(self._instanceContainers) do
 		for _, entry in pairs(container.entries) do
 			self:_setFont(entry)
 			self:_calculateSize(entry, container.group, true)
@@ -171,9 +171,9 @@ function LFGAnnouncementsUI:_createUI()
 	self._scrollContainer = container
 end
 
-function LFGAnnouncementsUI:_createDungeonContainer(dungeonId)
-	local dungeons = Dungeons
-	local name = dungeons:GetDungeonName(dungeonId)
+function LFGAnnouncementsUI:_createInstanceContainer(instanceId)
+	local instances = Instances
+	local name = instances:GetInstanceName(instanceId)
 
 	local group = AceGUI:Create("CollapsableInlineGroup")
 	group.name = name
@@ -195,7 +195,7 @@ function LFGAnnouncementsUI:_createDungeonContainer(dungeonId)
 
 	self._scrollContainer:AddChild(group)
 
-	self._dungeonContainers[dungeonId] = {
+	self._instanceContainers[instanceId] = {
 		group = group,
 		entries = {},
 	}
@@ -203,17 +203,17 @@ function LFGAnnouncementsUI:_createDungeonContainer(dungeonId)
 	group:SetCallback("Expand", function() self._scrollContainer:DoLayout() end)
 	group:SetCallback("Collapse", function() self._scrollContainer:DoLayout() end)
 	group:SetCallback("OnWidthSet", function()
-		local entires = self._dungeonContainers[dungeonId].entries
+		local entires = self._instanceContainers[instanceId].entries
 		for _, entry in pairs(entires) do
 			self:_calculateSize(entry, group, false)
 		end
 	end)
 
-	return self._dungeonContainers[dungeonId]
+	return self._instanceContainers[instanceId]
 end
 
-function LFGAnnouncementsUI:_removeDungeonContainer(dungeonId)
-	local container = self._dungeonContainers[dungeonId]
+function LFGAnnouncementsUI:_removeInstanceContainer(instanceId)
+	local container = self._instanceContainers[instanceId]
 	if not container then
 		return
 	end
@@ -229,7 +229,7 @@ function LFGAnnouncementsUI:_removeDungeonContainer(dungeonId)
 
 	self._scrollContainer:RemoveChild(group)
 	group:Release()
-	self._dungeonContainers[dungeonId] = nil -- TODO: This will force us to re-create container tables everytime we remove/add. Might want to change
+	self._instanceContainers[instanceId] = nil -- TODO: This will force us to re-create container tables everytime we remove/add. Might want to change
 	self._scrollContainer:DoLayout()
 end
 
@@ -265,10 +265,10 @@ function LFGAnnouncementsUI:_setFont(entry)
 	end
 end
 
-function LFGAnnouncementsUI:_createEntryLabel(dungeonId, difficulty, message, time, authorGUID, reason)
-	local container = self._dungeonContainers[dungeonId]
+function LFGAnnouncementsUI:_createEntryLabel(instanceId, difficulty, message, time, authorGUID, reason)
+	local container = self._instanceContainers[instanceId]
 	if not container then
-		container = self:_createDungeonContainer(dungeonId)
+		container = self:_createInstanceContainer(instanceId)
 	end
 
 	local _, class, _, _, _, author = GetPlayerInfoByGUID(authorGUID)
@@ -332,8 +332,8 @@ function LFGAnnouncementsUI:_createEntryLabel(dungeonId, difficulty, message, ti
 	self:_calculateSize(entry, container.group, temp)
 end
 
-function LFGAnnouncementsUI:_removeEntryLabel(dungeonId, authorGUID)
-	local container = self._dungeonContainers[dungeonId]
+function LFGAnnouncementsUI:_removeEntryLabel(instanceId, authorGUID)
+	local container = self._instanceContainers[instanceId]
 	if container then
 		local group = container.group
 		local entry = container.entries[authorGUID]
@@ -347,7 +347,7 @@ function LFGAnnouncementsUI:_removeEntryLabel(dungeonId, authorGUID)
 			local counter = group.counter - 1
 
 			if counter <= 0 then
-				self:_removeDungeonContainer(dungeonId)
+				self:_removeInstanceContainer(instanceId)
 			else
 				local containerName = group.name
 				group.counter = counter
@@ -396,32 +396,32 @@ function LFGAnnouncementsUI:_calculateSize(entry, group, newEntry)
 	entry.message:SetWidth(availableWidth)
 end
 
-function LFGAnnouncementsUI:OnDungeonActivated(event, dungeonId)
+function LFGAnnouncementsUI:OnInstanceActivated(event, instanceId)
 end
 
-function LFGAnnouncementsUI:OnDungeonDeactivated(event, dungeonId)
-	self:_removeDungeonContainer(dungeonId)
+function LFGAnnouncementsUI:OnInstanceDeactivated(event, instanceId)
+	self:_removeInstanceContainer(instanceId)
 end
 
-function LFGAnnouncementsUI:OnDungeonEntry(event, dungeonId, difficulty, message, time, authorGUID, reason)
+function LFGAnnouncementsUI:OnInstanceEntry(event, instanceId, difficulty, message, time, authorGUID, reason)
 	if self:IsShown() then
-		self:_createEntryLabel(dungeonId, difficulty, message, time, authorGUID, reason)
+		self:_createEntryLabel(instanceId, difficulty, message, time, authorGUID, reason)
 		-- self._scrollContainer:DoLayout()
 	end
 end
 
-function LFGAnnouncementsUI:OnRemoveDungeonEntry(event, dungeonId, authorGUID)
+function LFGAnnouncementsUI:OnRemoveInstanceEntry(event, instanceId, authorGUID)
 	if self:IsShown() then
-		self:_removeEntryLabel(dungeonId, authorGUID)
+		self:_removeEntryLabel(instanceId, authorGUID)
 		self._scrollContainer:DoLayout()
 	end
 end
 
-function LFGAnnouncementsUI:OnRemoveDungeons(event, dungeons)
-	for i = 1, #dungeons, 2 do
-		local dungeonId = dungeons[i]
-		local authorGUID = dungeons[i + 1]
-		self:_removeEntryLabel(dungeonId, authorGUID)
+function LFGAnnouncementsUI:OnRemoveInstances(event, instances)
+	for i = 1, #instances, 2 do
+		local instanceId = instances[i]
+		local authorGUID = instances[i + 1]
+		self:_removeEntryLabel(instanceId, authorGUID)
 	end
 
 	if self:IsShown() then

@@ -9,6 +9,7 @@ local min = min
 -- WoW APIs
 local UnitLevel = UnitLevel
 
+-- Vanilla
 local VanillaDungeons = {
 	Order = {
 		"RFC",
@@ -128,6 +129,7 @@ local VanillaDungeons = {
 	}
 }
 
+-- TBC
 local BurningCrusadeDungeons = {
 	Order = {
 		"RAMP",
@@ -250,51 +252,51 @@ local BurningCrusadeRaids = {
 	}
 }
 
-local dungeons = {}
+local Dungeons = {}
 
 local utils = LFGAnnouncements.Utils
-utils.tMergeRecursive(dungeons, VanillaDungeons)
-utils.tMergeRecursive(dungeons, BurningCrusadeDungeons)
+utils.tMergeRecursive(Dungeons, VanillaDungeons)
+utils.tMergeRecursive(Dungeons, BurningCrusadeDungeons)
 
-local raids = BurningCrusadeRaids
+local Raids = BurningCrusadeRaids
 
-local instances = {}
-utils.tMergeRecursive(instances, dungeons)
-utils.tMergeRecursive(instances, raids)
+local Instances = {}
+utils.tMergeRecursive(Instances, Dungeons)
+utils.tMergeRecursive(Instances, Raids)
 
 
-local LFGAnnouncementsDungeons = {}
+local LFGAnnouncementsInstances = {}
 local InstanceType = {
 	DUNGEON = "DUNGEON",
 	RAID = "RAID",
 }
-LFGAnnouncementsDungeons.InstanceType = InstanceType
+LFGAnnouncementsInstances.InstanceType = InstanceType
 
-function LFGAnnouncementsDungeons:OnInitialize()
-	self._activatedDungeons = {}
+function LFGAnnouncementsInstances:OnInitialize()
+	self._activatedInstances = {}
 	self._activeTags = {}
 
-	LFGAnnouncements.Dungeons = self
+	LFGAnnouncements.Instances = self
 end
 
-function LFGAnnouncementsDungeons:OnEnable()
+function LFGAnnouncementsInstances:OnEnable()
 	local db = LFGAnnouncements.DB
 	local initialized = db:GetCharacterData("initialized")
 
 	if not initialized then
 		local playerLevel = UnitLevel("player")
-		local dungeonsPerLevel = self:GetDungeonsByLevel(playerLevel)
-		for i = 1, #dungeonsPerLevel do
-			self:ActivateDungeon(dungeonsPerLevel[i])
+		local instancesPerLevel = self:GetInstancesByLevel(playerLevel)
+		for i = 1, #instancesPerLevel do
+			self:ActivateInstance(instancesPerLevel[i])
 		end
 
 		db:SetCharacterData("initialized", true)
 	else
-		local dungeons = db:GetCharacterData("dungeons", "activated")
-		for key, activated in pairs(dungeons) do
-			if instances.Names[key] then
+		local activatedInstances = db:GetCharacterData("dungeons", "activated")
+		for key, activated in pairs(activatedInstances) do
+			if Instances.Names[key] then
 				if activated then
-					self:ActivateDungeon(key)
+					self:ActivateInstance(key)
 				end
 			else
 				db:SetCharacterData(key, false, "dungeons", "activated")
@@ -303,32 +305,32 @@ function LFGAnnouncementsDungeons:OnEnable()
 	end
 end
 
-function LFGAnnouncementsDungeons:GetActivatedDungeons()
-	return self._activatedDungeons
+function LFGAnnouncementsInstances:GetActivatedInstances()
+	return self._activatedInstances
 end
 
-function LFGAnnouncementsDungeons:ActivateDungeon(id)
-	if self._activatedDungeons[id] then
+function LFGAnnouncementsInstances:ActivateInstance(id)
+	if self._activatedInstances[id] then
 		return
 	end
 
-	self._activatedDungeons[id] = true
+	self._activatedInstances[id] = true
 	LFGAnnouncements.DB:SetCharacterData(id, true, "dungeons", "activated")
 
-	local tags = instances.Tags[id]
+	local tags = Instances.Tags[id]
 	for i = 1, #tags do
 		self._activeTags[tags[i]] = id
 	end
 
-	self:SendMessage("OnDungeonActivated", id)
+	self:SendMessage("OnInstanceActivated", id)
 end
 
-function LFGAnnouncementsDungeons:DeactivateDungeon(id)
-	if not self._activatedDungeons[id] then
+function LFGAnnouncementsInstances:DeactivateInstance(id)
+	if not self._activatedInstances[id] then
 		return
 	end
 
-	self._activatedDungeons[id] = nil
+	self._activatedInstances[id] = nil
 	LFGAnnouncements.DB:SetCharacterData(id, false, "dungeons", "activated")
 
 	local activeTags = self._activeTags
@@ -338,49 +340,49 @@ function LFGAnnouncementsDungeons:DeactivateDungeon(id)
 		end
 	end
 
-	self:SendMessage("OnDungeonDeactivated", id)
+	self:SendMessage("OnInstanceDeactivated", id)
 end
 
-function LFGAnnouncementsDungeons:IsValid(instanceId)
-	return instances.Tags[instanceId] ~= nil
+function LFGAnnouncementsInstances:IsValid(instanceId)
+	return Instances.Tags[instanceId] ~= nil
 end
 
-function LFGAnnouncementsDungeons:IsActive(instanceId)
-	return self._activatedDungeons[instanceId] ~= nil
+function LFGAnnouncementsInstances:IsActive(instanceId)
+	return self._activatedInstances[instanceId] ~= nil
 end
 
-function LFGAnnouncementsDungeons:SetActivated(id, value)
+function LFGAnnouncementsInstances:SetActivated(id, value)
 	if value then
-		self:ActivateDungeon(id)
+		self:ActivateInstance(id)
 	else
-		self:DeactivateDungeon(id)
+		self:DeactivateInstance(id)
 	end
 end
 
-function LFGAnnouncementsDungeons:ActivateAll()
-	for id, _ in pairs(instances.Names) do
-		self:ActivateDungeon(id)
+function LFGAnnouncementsInstances:ActivateAll()
+	for id, _ in pairs(Instances.Names) do
+		self:ActivateInstance(id)
 	end
 end
 
-function LFGAnnouncementsDungeons:DisableAll()
-	for id, _ in pairs(instances.Names) do
-		self:DeactivateDungeon(id)
+function LFGAnnouncementsInstances:DisableAll()
+	for id, _ in pairs(Instances.Names) do
+		self:DeactivateInstance(id)
 	end
 end
 
-function LFGAnnouncementsDungeons:GetDungeonName(id)
-	return instances.Names[id]
+function LFGAnnouncementsInstances:GetInstanceName(id)
+	return Instances.Names[id]
 end
 
-function LFGAnnouncementsDungeons:GetLevelRange(id)
-	return instances.Levels[id]
+function LFGAnnouncementsInstances:GetLevelRange(id)
+	return Instances.Levels[id]
 end
 
-local dungeonsFound = {}
-function LFGAnnouncementsDungeons:GetDungeonsByLevel(level)
+local instancesFound = {}
+function LFGAnnouncementsInstances:GetInstancesByLevel(level)
 	local maxLevel = LFGAnnouncements.GameExpansion == "TBC" and 70 or 60
-	wipe(dungeonsFound)
+	wipe(instancesFound)
 
 	local minDiff, maxDiff
 	if level == maxLevel then
@@ -391,17 +393,17 @@ function LFGAnnouncementsDungeons:GetDungeonsByLevel(level)
 		maxDiff = min(level + 5, maxLevel)
 	end
 
-	for id, range in pairs(instances.Levels) do
+	for id, range in pairs(Instances.Levels) do
 		if range[1] >= minDiff and range[2] <= maxDiff then
-			dungeonsFound[#dungeonsFound+1] = id
+			instancesFound[#instancesFound+1] = id
 		end
 	end
 
-	return dungeonsFound
+	return instancesFound
 end
 
-function LFGAnnouncementsDungeons:GetDungeons(expansion)
-	wipe(dungeonsFound)
+function LFGAnnouncementsInstances:GetInstances(expansion)
+	wipe(instancesFound)
 	if expansion == "VANILLA" then
 		return VanillaDungeons.Order
 	end
@@ -409,27 +411,27 @@ function LFGAnnouncementsDungeons:GetDungeons(expansion)
 	return BurningCrusadeDungeons.Order
 end
 
-function LFGAnnouncementsDungeons:GetInstanceType(instanceId)
-	return dungeons.Names[instanceId] ~= nil and InstanceType.DUNGEON or InstanceType.RAID
+function LFGAnnouncementsInstances:GetInstanceType(instanceId)
+	return Instances.Names[instanceId] ~= nil and InstanceType.DUNGEON or InstanceType.RAID
 end
 
-function LFGAnnouncementsDungeons:GetRaids(expansion)
+function LFGAnnouncementsInstances:GetRaids(expansion)
 	return BurningCrusadeRaids.Order
 end
 
-function LFGAnnouncementsDungeons:FindDungeons(splitMessage)
-	wipe(dungeonsFound)
+function LFGAnnouncementsInstances:FindInstances(splitMessage)
+	wipe(instancesFound)
 
 	local found = false
 	for i = 1, #splitMessage do
 		local id = self._activeTags[splitMessage[i]]
 		if id then
 			found = true
-			dungeonsFound[id] = true
+			instancesFound[id] = true
 		end
 	end
 
-	return found and dungeonsFound
+	return found and instancesFound
 end
 
-LFGAnnouncements.Core:RegisterModule("Dungeons", LFGAnnouncementsDungeons, "AceEvent-3.0")
+LFGAnnouncements.Core:RegisterModule("Instances", LFGAnnouncementsInstances, "AceEvent-3.0")

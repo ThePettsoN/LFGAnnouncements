@@ -46,30 +46,30 @@ function LFGAnnouncementsCommands:hide()
 end
 
 function LFGAnnouncementsCommands:enable(nextPosition, args)
-	local dungeonId = self:GetArgs(args, 1, nextPosition)
-	if not dungeonId then
+	local instanceId = self:GetArgs(args, 1, nextPosition)
+	if not instanceId then
 		return
 	end
 
-	local module = LFGAnnouncements.Dungeons
-	if dungeonId == "all" then
+	local module = LFGAnnouncements.Instances
+	if instanceId == "all" then
 		module:ActivateAll()
-	elseif module:IsValid(dungeonId) then
-		module:SetActivated(dungeonId, true)
+	elseif module:IsValid(instanceId) then
+		module:SetActivated(instanceId, true)
 	end
 end
 
 function LFGAnnouncementsCommands:disable(nextPosition, args)
-	local dungeonId = self:GetArgs(args, 1, nextPosition)
-	if not dungeonId then
+	local instanceId = self:GetArgs(args, 1, nextPosition)
+	if not instanceId then
 		return
 	end
 
-	local module = LFGAnnouncements.Dungeons
-	if dungeonId == "all" then
+	local module = LFGAnnouncements.Instances
+	if instanceId == "all" then
 		module:DisableAll()
-	elseif module:IsValid(dungeonId) then
-		module:SetActivated(dungeonId, false)
+	elseif module:IsValid(instanceId) then
+		module:SetActivated(instanceId, false)
 	end
 end
 

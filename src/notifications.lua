@@ -19,19 +19,19 @@ local function onClickToaster(frame)
 	local ui = LFGAnnouncements.UI
 	ui:Show()
 	ui:CloseAll()
-	ui:OpenGroup(frame.dungeonId)
+	ui:OpenGroup(frame.instanceId)
 end
 
 local LFGAnnouncementsNotification = {}
 function LFGAnnouncementsNotification:OnInitialize()
 	LFGAnnouncements.Notifications = self
-	self:RegisterMessage("OnDungeonEntry", "OnDungeonEntry")
+	self:RegisterMessage("OnInstanceEntry", "OnInstanceEntry")
 end
 
 function LFGAnnouncementsNotification:OnEnable()
 	self:RegisterEvent("PLAYER_ENTERING_WORLD", "OnPlayerEnteringWorld")
 
-	self._dungeons = LFGAnnouncements.Dungeons
+	self._instances = LFGAnnouncements.Instances
 	self._db = LFGAnnouncements.DB
 
 	self._fontSettings = LFGAnnouncements.DB:GetProfileData("general", "font")
@@ -115,13 +115,13 @@ function LFGAnnouncementsNotification:_triggerSound()
 	end
 end
 
-function LFGAnnouncementsNotification:_triggerToaster(dungeonId, message)
+function LFGAnnouncementsNotification:_triggerToaster(instanceId, message)
 	self:_cancelToasterTimer()
 
-	self._button.dungeonId = dungeonId
+	self._button.instanceId = instanceId
 	self._label:SetText(message)
 
-	self._toaster:SetTitle(self._dungeons:GetDungeonName(dungeonId))
+	self._toaster:SetTitle(self._instances:GetInstanceName(instanceId))
 	self._toaster:Show()
 	self._toaster:SetAlpha(1)
 
@@ -186,7 +186,7 @@ function LFGAnnouncementsNotification:OnPlayerEnteringWorld(event, isInitialLogi
 	self._instanceType = instanceType == "none" and "world" or instanceType
 end
 
-function LFGAnnouncementsNotification:OnDungeonEntry(event, dungeonId, difficulty, message, time, authorGUID, reason)
+function LFGAnnouncementsNotification:OnInstanceEntry(event, instanceId, difficulty, message, time, authorGUID, reason)
 	if reason ~= LFGAnnouncements.Core.DUNGEON_ENTRY_REASON.NEW then
 		return
 	end
@@ -200,7 +200,7 @@ function LFGAnnouncementsNotification:OnDungeonEntry(event, dungeonId, difficult
 	-- end
 
 	if self._db:GetProfileData("notifications", "toaster", "enabled") then
-		self:_triggerToaster(dungeonId, message)
+		self:_triggerToaster(instanceId, message)
 	end
 
 	if self._db:GetProfileData("notifications", "sound", "enabled") then

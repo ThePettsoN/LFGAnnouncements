@@ -15,7 +15,7 @@ src/gui/AceGUIContainer-Toaster.lua
 src/utils.lua
 src/core.lua
 src/db.lua
-src/dungeons.lua
+src/instaces.lua
 src/ui.lua
 src/minimap_button.lua
 src/notifications.lua
