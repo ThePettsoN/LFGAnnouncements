@@ -55,7 +55,7 @@ function LFGAnnouncementsCommands:enable(nextPosition, args)
 	if instanceId == "all" then
 		module:ActivateAll()
 	elseif module:IsValid(instanceId) then
-		module:SetActivated(instanceId, true)
+		module:ActivateInstance(instanceId)
 	end
 end
 
@@ -69,7 +69,7 @@ function LFGAnnouncementsCommands:disable(nextPosition, args)
 	if instanceId == "all" then
 		module:DisableAll()
 	elseif module:IsValid(instanceId) then
-		module:SetActivated(instanceId, false)
+		module:DeactivateInstance(instanceId)
 	end
 end
 

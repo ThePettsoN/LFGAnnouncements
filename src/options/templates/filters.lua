@@ -26,7 +26,8 @@ local function createEntry(id, order)
 			return LFGAnnouncements.DB:GetCharacterData("dungeons", "activated", id)
 		end,
 		set = function(info, newValue)
-			UpdateData(LFGAnnouncements.Instances, "SetActivated", id, newValue)
+			local funcName = newValue and "ActivateInstance" or "DeactivateInstance"
+			UpdateData(LFGAnnouncements.Instances, funcName, id, newValue)
 		end,
 	}
 end
@@ -46,7 +47,7 @@ local function createGroup(args, instances)
 		func = function()
 			for i = 1, num do
 				local id = instances[i]
-				LFGAnnouncements.Instances:SetActivated(id, true)
+				LFGAnnouncements.Instances:ActivateInstance(id)
 			end
 		end,
 	}
@@ -58,7 +59,7 @@ local function createGroup(args, instances)
 		func = function()
 			for i = 1, num do
 				local id = instances[i]
-				LFGAnnouncements.Instances:SetActivated(id, false)
+				LFGAnnouncements.Instances:DeactivateInstance(id)
 			end
 		end,
 	}
@@ -128,11 +129,11 @@ local function optionsTemplate()
 	}
 
 	-- Vanilla Dungeons
-	local instances = instances:GetInstances("VANILLA")
+	local instances = instances:GetDungeons("VANILLA")
 	createGroup(vanilla_dungeons.args, instances)
 
 	-- TBC Dungeons
-	instances = instances:GetInstances("TBC")
+	instances = instances:GetDungeons("TBC")
 	createGroup(tbc_dungeons.args, instances)
 
 	-- TBC Raids

@@ -17,10 +17,17 @@ local ChatFrame_OpenChat = ChatFrame_OpenChat
 local AceGUI = LibStub("AceGUI-3.0", "AceEvent-3.0")
 
 local Instances
-local DifficultyTextLookup = {
+
+local EntryPrefix = {
 	NORMAL = " |cff00ff00[N]|r ",
 	HEROIC = " |cffff0000[H]|r ",
 	RAID = " |cff8000ff[R]|r ",
+	CUSTOM = "",
+}
+local TimeColorLookup = {
+	NEW = "|cff00ff00",
+	MEDIUM = "|cffeed202",
+	OLD = "|cffff0000",
 }
 
 
@@ -39,7 +46,6 @@ function LFGAnnouncementsUI:OnInitialize()
 end
 
 function LFGAnnouncementsUI:OnEnable()
-	-- Called on PLAYER_LOGIN event
 	Instances = LFGAnnouncements.Instances
 	self._ready = true
 
@@ -275,7 +281,7 @@ function LFGAnnouncementsUI:_createEntryLabel(instanceId, difficulty, message, t
 	local _,_,_, hex = GetClassColor(class)
 
 	local entry = container.entries[authorGUID]
-	local temp = false
+	local newEntry = false
 	if not entry then
 		local group = container.group
 		local onClick = function(widget, event, button) -- TODO: This is stupid. Should use one function instead of creating a new one every time
@@ -321,15 +327,15 @@ function LFGAnnouncementsUI:_createEntryLabel(instanceId, difficulty, message, t
 		local containerCounter = group.counter + 1
 		group.counter = containerCounter
 		group:SetTitle(stringformat("%s (%d)", containerName, containerCounter))
-		temp = true
+		newEntry = true
 	end
 
 	entry.name:SetText(stringformat("|c%s%s|r", hex, author))
-	entry.difficulty:SetText(DifficultyTextLookup[difficulty])
+	entry.difficulty:SetText(EntryPrefix[difficulty])
 	entry.message:SetText(message)
 	entry.time:SetText(self:_format_time(time))
 
-	self:_calculateSize(entry, container.group, temp)
+	self:_calculateSize(entry, container.group, newEntry)
 end
 
 function LFGAnnouncementsUI:_removeEntryLabel(instanceId, authorGUID)
@@ -357,11 +363,6 @@ function LFGAnnouncementsUI:_removeEntryLabel(instanceId, authorGUID)
 	end
 end
 
-local TimeColorLookup = {
-	NEW = "|cff00ff00",
-	MEDIUM = "|cffeed202",
-	OLD = "|cffff0000",
-}
 function LFGAnnouncementsUI:_format_time(time)
 	local time_visible_sec = LFGAnnouncements.DB:GetProfileData("general", "time_visible_sec") -- TODO: Might be slow. Cache?
 	local percentage = time / time_visible_sec

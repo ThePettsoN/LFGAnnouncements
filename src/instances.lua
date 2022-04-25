@@ -1,4 +1,5 @@
 local _, LFGAnnouncements = ...
+local LFGAnnouncementsInstances = {}
 
 -- Lua APIs
 local wipe = wipe
@@ -344,19 +345,11 @@ function LFGAnnouncementsInstances:DeactivateInstance(id)
 end
 
 function LFGAnnouncementsInstances:IsValid(instanceId)
-	return Instances.Tags[instanceId] ~= nil
+	return Instances.Names[instanceId] ~= nil
 end
 
 function LFGAnnouncementsInstances:IsActive(instanceId)
 	return self._activatedInstances[instanceId] ~= nil
-end
-
-function LFGAnnouncementsInstances:SetActivated(id, value)
-	if value then
-		self:ActivateInstance(id)
-	else
-		self:DeactivateInstance(id)
-	end
 end
 
 function LFGAnnouncementsInstances:ActivateAll()
@@ -402,7 +395,7 @@ function LFGAnnouncementsInstances:GetInstancesByLevel(level)
 	return instancesFound
 end
 
-function LFGAnnouncementsInstances:GetInstances(expansion)
+function LFGAnnouncementsInstances:GetDungeons(expansion)
 	wipe(instancesFound)
 	if expansion == "VANILLA" then
 		return VanillaDungeons.Order

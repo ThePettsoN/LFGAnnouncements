@@ -44,7 +44,6 @@ local DUNGEON_ENTRY_REASON = {
 	SHOW = 3,
 }
 
-
 local dprintf = function(s, ...)
 	if DEBUG then
 		print(stringformat(s, ...))
@@ -61,13 +60,6 @@ LFGAnnouncements.dprintf = dprintf
 
 function LFGAnnouncementsCore:OnInitialize()
 	self._modules = {}
-	self._enabledChannels = {
-		[1] = true,
-		[2] = true,
-		[3] = true,
-		[4] = true,
-		[5] = true,
-	}
 	self._instanceEntries = {}
 
 	LFGAnnouncements.GameExpansion = GetBuildInfo():sub(1,1) == '2' and "TBC" or "VANILLA"
@@ -193,6 +185,7 @@ end
 
 local module, i
 local splitMessage = {}
+local regex = "[^| /\\.{},+()]+"
 function LFGAnnouncementsCore:_parseMessage(message, authorGUID)
 	if #message < 3 then
 		return
@@ -201,7 +194,7 @@ function LFGAnnouncementsCore:_parseMessage(message, authorGUID)
 	wipe(splitMessage)
 	i = 1
 
-	for v in stringgmatch(strlower(message), "[^| /\\.{},+()]+") do
+	for v in stringgmatch(strlower(message), regex) do
 		splitMessage[i] = v
 		i = i + 1
 	end
