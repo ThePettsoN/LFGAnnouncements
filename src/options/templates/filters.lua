@@ -66,7 +66,7 @@ local function createGroup(args, instances)
 end
 
 local function optionsTemplate()
-	local instances = LFGAnnouncements.Instances
+	local instancesModule = LFGAnnouncements.Instances
 	local db = LFGAnnouncements.DB
 	local core = LFGAnnouncements.Core
 	local vanilla_dungeons = {
@@ -129,15 +129,15 @@ local function optionsTemplate()
 	}
 
 	-- Vanilla Dungeons
-	local instances = instances:GetDungeons("VANILLA")
+	local instances = instancesModule:GetDungeons("VANILLA")
 	createGroup(vanilla_dungeons.args, instances)
 
 	-- TBC Dungeons
-	instances = instances:GetDungeons("TBC")
+	instances = instancesModule:GetDungeons("TBC")
 	createGroup(tbc_dungeons.args, instances)
 
 	-- TBC Raids
-	instances = instances:GetRaids("TBC")
+	instances = instancesModule:GetRaids("TBC")
 	createGroup(tbc_raids.args, instances)
 
 	return {

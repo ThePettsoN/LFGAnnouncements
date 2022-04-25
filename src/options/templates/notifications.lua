@@ -70,7 +70,7 @@ local function optionsTemplate()
 					order = 3,
 					name = "Play",
 					func = function()
-						LFGAnnouncements.Notifications:_playSound()
+						LFGAnnouncements.Notifications:_triggerSound()
 					end
 				}
 			}
