@@ -9,6 +9,7 @@ local min = min
 
 -- WoW APIs
 local UnitLevel = UnitLevel
+local tContains = tContains
 
 -- Vanilla
 local VanillaDungeons = {
@@ -253,6 +254,13 @@ local BurningCrusadeRaids = {
 	}
 }
 
+local CustomInstances = {
+	Order = {},
+	Names = {},
+	Levels = {},
+	Tags = {},
+}
+
 local Dungeons = {}
 
 local utils = LFGAnnouncements.Utils
@@ -265,11 +273,10 @@ local Instances = {}
 utils.tMergeRecursive(Instances, Dungeons)
 utils.tMergeRecursive(Instances, Raids)
 
-
-local LFGAnnouncementsInstances = {}
 local InstanceType = {
 	DUNGEON = "DUNGEON",
 	RAID = "RAID",
+	CUSTOM = "CUSTOM",
 }
 LFGAnnouncementsInstances.InstanceType = InstanceType
 
@@ -278,6 +285,26 @@ function LFGAnnouncementsInstances:OnInitialize()
 	self._activeTags = {}
 
 	LFGAnnouncements.Instances = self
+end
+
+local customLevelRange = {0, 70}
+local function addCustom(tbl, id, name, tags)
+	tbl.Order[#tbl.Order+1] = id
+	tbl.Names[id] = name
+	tbl.Levels[id] = customLevelRange
+	tbl.Tags[id] = tags
+end
+
+local function removeCustom(tbl, id)
+	for i = 1, #tbl.Order do
+		if tbl.Order[i] == id then
+			tremove(tbl.Order, i)
+			break
+		end
+	end
+	tbl.Names[id] = nil
+	tbl.Levels[id] = nil
+	tbl.Tags[id] = nil
 end
 
 function LFGAnnouncementsInstances:OnEnable()
@@ -303,11 +330,47 @@ function LFGAnnouncementsInstances:OnEnable()
 				db:SetCharacterData(key, false, "dungeons", "activated")
 			end
 		end
+
+		local customInstances = db:GetCharacterData("dungeons", "custom_instances")
+		for id, entry in pairs(customInstances) do
+			addCustom(CustomInstances, id, entry.name, entry.tags)
+			addCustom(Instances, id, entry.name, entry.tags)
+		end
 	end
 end
 
 function LFGAnnouncementsInstances:GetActivatedInstances()
 	return self._activatedInstances
+end
+
+local random = math.random
+local function uuid()
+    local template ='xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'
+    return string.gsub(template, '[xy]', function (c)
+        local v = (c == 'x') and random(0, 0xf) or random(8, 0xb)
+        return string.format('%x', v)
+    end)
+end
+
+function LFGAnnouncementsInstances:AddCustomInstance(name)
+	local id = uuid()
+	local tags = {}
+	LFGAnnouncements.DB:SetCharacterData(id, {name = name, tags = tags, activated = true}, "dungeons", "custom_instances")
+
+	addCustom(CustomInstances, id, name, tags)
+	addCustom(Instances, id, name, tags)
+end
+
+function LFGAnnouncementsInstances:RemoveCustomInstance(id)
+	LFGAnnouncements.DB:SetCharacterData(id, nil, "dungeons", "custom_instances")
+	removeCustom(CustomInstances, id)
+	removeCustom(Instances, id)
+end
+
+function LFGAnnouncementsInstances:SetCustomTags(id, tags)
+	LFGAnnouncements.DB:SetCharacterData("tags", tags, "dungeons", "custom_instances", id)
+	CustomInstances.Tags[id] = tags
+	Instances.Tags[id] = tags
 end
 
 function LFGAnnouncementsInstances:ActivateInstance(id)
@@ -404,23 +467,44 @@ function LFGAnnouncementsInstances:GetDungeons(expansion)
 	return BurningCrusadeDungeons.Order
 end
 
-function LFGAnnouncementsInstances:GetInstanceType(instanceId)
-	return Instances.Names[instanceId] ~= nil and InstanceType.DUNGEON or InstanceType.RAID
-end
-
 function LFGAnnouncementsInstances:GetRaids(expansion)
 	return BurningCrusadeRaids.Order
+end
+
+function LFGAnnouncementsInstances:GetCustomInstances()
+	return CustomInstances
+end
+
+function LFGAnnouncementsInstances:GetInstanceType(instanceId)
+	if CustomInstances.Names[instanceId] then
+		return InstanceType.CUSTOM
+	end
+
+	if Instances.Names[instanceId] ~= nil then
+		return InstanceType.DUNGEON
+	end
+
+	return InstanceType.RAID
 end
 
 function LFGAnnouncementsInstances:FindInstances(splitMessage)
 	wipe(instancesFound)
 
 	local found = false
+	local customTags = CustomInstances.Tags
 	for i = 1, #splitMessage do
-		local id = self._activeTags[splitMessage[i]]
+		local word = splitMessage[i]
+		local id = self._activeTags[word]
 		if id then
 			found = true
 			instancesFound[id] = true
+		end
+
+		for id, tags in pairs(customTags) do
+			if tContains(tags, word) then --TODO: Create lookup table instead?
+				found = true
+				instancesFound[id] = true
+			end
 		end
 	end
 

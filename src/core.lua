@@ -213,9 +213,11 @@ function LFGAnnouncementsCore:_parseMessage(message, authorGUID)
 end
 
 function LFGAnnouncementsCore:_createInstanceEntry(instanceId, difficulty, message, authorGUID, isBoostEntry)
-	if self._instances:GetInstanceType(instanceId) == LFGAnnouncements.Instances.InstanceType.RAID then
+	local instanceType = self._instances:GetInstanceType(instanceId)
+	local types = LFGAnnouncements.Instances.InstanceType
+	if instanceType == types.RAID then
 		difficulty = DIFFICULTIES.RAID
-	elseif not self:_isAllowedDifficulty(difficulty) then
+	elseif instanceType ~= types.CUSTOM and not self:_isAllowedDifficulty(difficulty) then
 		return
 	end
 
@@ -233,6 +235,7 @@ function LFGAnnouncementsCore:_createInstanceEntry(instanceId, difficulty, messa
 		time = 0,
 		boost = isBoostEntry,
 	}
+
 
 	self:SendMessage("OnInstanceEntry", instanceId, difficulty, message, 0, authorGUID, newEntry and DUNGEON_ENTRY_REASON.NEW or DUNGEON_ENTRY_REASON.UPDATE)
 end

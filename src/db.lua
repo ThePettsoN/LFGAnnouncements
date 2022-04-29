@@ -66,7 +66,7 @@ local defaults = {
 		initialized = false,
 		dungeons = {
 			activated = {},
-			custom_tags = {},
+			custom_instances = {},
 		},
 		filters = {
 			difficulty = "ALL",

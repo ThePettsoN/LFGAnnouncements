@@ -292,9 +292,9 @@ function LFGAnnouncementsUI:_createEntryLabel(instanceId, difficulty, message, t
 			end
 		end
 
-		local difficultyLabel = AceGUI:Create("InteractiveLabel")
-		difficultyLabel:SetCallback("OnClick", onClick)
-		group:AddChild(difficultyLabel)
+		local prefixLabel = AceGUI:Create("InteractiveLabel")
+		prefixLabel:SetCallback("OnClick", onClick)
+		group:AddChild(prefixLabel)
 
 		local nameLabel = AceGUI:Create("InteractiveLabel")
 		nameLabel:SetCallback("OnClick", onClick)
@@ -315,7 +315,7 @@ function LFGAnnouncementsUI:_createEntryLabel(instanceId, difficulty, message, t
 
 		entry = {
 			name = nameLabel,
-			difficulty = difficultyLabel,
+			prefix = prefixLabel,
 			message = messageLabel,
 			time = timeLabel,
 		}
@@ -330,8 +330,11 @@ function LFGAnnouncementsUI:_createEntryLabel(instanceId, difficulty, message, t
 		newEntry = true
 	end
 
+	local instances = LFGAnnouncements.Instances
+	local prefix = instances:GetInstanceType(instanceId) == instances.InstanceType.CUSTOM and EntryPrefix.CUSTOM or difficulty
+
 	entry.name:SetText(stringformat("|c%s%s|r", hex, author))
-	entry.difficulty:SetText(EntryPrefix[difficulty])
+	entry.prefix:SetText(EntryPrefix[prefix])
 	entry.message:SetText(message)
 	entry.time:SetText(self:_format_time(time))
 
@@ -380,11 +383,11 @@ function LFGAnnouncementsUI:_format_time(time)
 end
 
 function LFGAnnouncementsUI:_calculateSize(entry, group, newEntry)
-	local diffWidth = entry.difficulty.label:GetStringWidth()
+	local diffWidth = entry.prefix.label:GetStringWidth()
 	local nameWidth, timeWidth = temp(self._fontSettings)
 
 	if newEntry then
-		entry.difficulty:SetWidth(diffWidth)
+		entry.prefix:SetWidth(diffWidth)
 		entry.name:SetWidth(nameWidth)
 		entry.time:SetWidth(timeWidth)
 	end
