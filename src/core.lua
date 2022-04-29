@@ -185,7 +185,7 @@ end
 
 local module, i
 local splitMessage = {}
-local regex = "[^| /\\.{},+()]+<>"
+local regex = "[^| /%.{},+()<>%[%]]+"
 function LFGAnnouncementsCore:_parseMessage(message, authorGUID)
 	if #message < 3 then
 		return
