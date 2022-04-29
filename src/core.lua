@@ -1,6 +1,7 @@
 local _, LFGAnnouncements = ...
 
 -- Lua APIs
+local stringgsub = string.gsub
 local stringformat = string.format
 local stringgmatch = string.gmatch
 local strlower = strlower
@@ -183,7 +184,7 @@ function LFGAnnouncementsCore:SetDuration(newDuration)
 	LFGAnnouncements.DB:SetProfileData("time_visible_sec", newDuration, "general")
 end
 
-local module, i
+local module, index
 local splitMessage = {}
 local regex = "[^| /%.{},+()<>%[%]]+"
 function LFGAnnouncementsCore:_parseMessage(message, authorGUID)
@@ -192,11 +193,12 @@ function LFGAnnouncementsCore:_parseMessage(message, authorGUID)
 	end
 
 	wipe(splitMessage)
-	i = 1
+	index = 1
 
-	for v in stringgmatch(strlower(message), regex) do
-		splitMessage[i] = v
-		i = i + 1
+	message = self:_formatMessage(strlower(message))
+	for v in stringgmatch(message, regex) do
+		splitMessage[index] = v
+		index = index + 1
 	end
 
 	module = self._instances
@@ -210,6 +212,47 @@ function LFGAnnouncementsCore:_parseMessage(message, authorGUID)
 			end
 		end
 	end
+end
+
+local formattedMessage
+local raidSymbols = {
+	"{star}",
+	"{circle}",
+	"{diamond}",
+	"{triangle}",
+	"{moon}",
+	"{square}",
+	"{cross}",
+	"{skull}",
+
+	"{rt1}",
+	"{rt2}",
+	"{rt3}",
+	"{rt4}",
+	"{rt5}",
+	"{rt6}",
+	"{rt7}",
+	"{rt8}",
+
+	"{gold}",
+	"{orange}",
+	"{purple}",
+	"{green}",
+	"{silver}",
+	"{blue}",
+	"{red}",
+	"{white}",
+}
+
+function LFGAnnouncementsCore:_formatMessage(message)
+	formattedMessage = message
+	if self._removeRaidSymbols then
+		for i = 1, #raidSymbols do
+			formattedMessage = stringgsub(formattedMessage, raidSymbols[i], "")
+		end
+	end
+
+	return formattedMessage
 end
 
 function LFGAnnouncementsCore:_createInstanceEntry(instanceId, difficulty, message, authorGUID, isBoostEntry)
