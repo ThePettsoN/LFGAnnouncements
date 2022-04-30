@@ -236,31 +236,31 @@ function LFGAnnouncementsCore:_parseMessage(message, authorGUID)
 end
 
 local formattedMessage
-local raidSymbols = {
-	"%s?{star}%s?",
-	"%s?{circle}%s?",
-	"%s?{diamond}%s?",
-	"%s?{triangle}%s?",
-	"%s?{moon}%s?",
-	"%s?{square}%s?",
-	"%s?{cross}%s?",
-	"%s?{skull}%s?",
-	"%s?{rt1}%s?",
-	"%s?{rt2}%s?",
-	"%s?{rt3}%s?",
-	"%s?{rt4}%s?",
-	"%s?{rt5}%s?",
-	"%s?{rt6}%s?",
-	"%s?{rt7}%s?",
-	"%s?{rt8}%s?",
-	"%s?{gold}%s?",
-	"%s?{orange}%s?",
-	"%s?{purple}%s?",
-	"%s?{green}%s?",
-	"%s?{silver}%s?",
-	"%s?{blue}%s?",
-	"%s?{red}%s?",
-	"%s?{white}%s?",
+local raidSymbols = { -- This is ugly, but since LUA can't do ignore case on pattern matching, and we don't want all messages to be in lowercase we have to check for all combinations with both upper and lower case letters
+	"{[Ss][Tt][Aa][Rr]}",
+	"{[Cc][ii][Rr][Cc][Ll][Ee]}",
+	"{[Dd][Ii][Aa][Mm][Oo][Nn][Dd]}",
+	"{[Tt][Rr][Ii][Aa][Nn][Gg][Ll][Ee]}",
+	"{[Mm][Oo][Oo][Nn]}",
+	"{[Ss][Qq][Uu][Aa][Rr][Ee]}",
+	"{[Cc][Rr][Oo][Ss][Ss]}",
+	"{[Ss][Kk][Uu][Ll][Ll]}",
+	"{[Rr][Tt]1}",
+	"{[Rr][Tt]2}",
+	"{[Rr][Tt]3}",
+	"{[Rr][Tt]4}",
+	"{[Rr][Tt]5}",
+	"{[Rr][Tt]6}",
+	"{[Rr][Tt]7}",
+	"{[Rr][Tt]8}",
+	"{[Gg][Oo][Ll][Dd]}",
+	"{[Oo][Rr][Aa][Nn][Gg][Ee]}",
+	"{[Pp][Uu][Rr][Pp][Ll][Ee]}",
+	"{[Gg][Rr][Ee][Ee][Nn]}",
+	"{[Ss][Ii][Ll][Vv][Ee][Rr]}",
+	"{[Bb][Ll][Uu][Ee]}",
+	"{[Rr][Ee][Dd]}",
+	"{[Ww][Hh][Ii][Tt][Ee]}",
 }
 
 function LFGAnnouncementsCore:_formatMessage(message)
@@ -274,7 +274,12 @@ function LFGAnnouncementsCore:_formatMessage(message)
 		end
 	end
 
-	return formattedMessage, changed
+	if changed then
+		-- Trim
+		return formattedMessage:match"^%s*(.*%S)", true
+	end
+
+	return formattedMessage, false
 end
 
 function LFGAnnouncementsCore:_createInstanceEntry(instanceId, difficulty, message, authorGUID, isBoostEntry)
