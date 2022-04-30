@@ -186,7 +186,7 @@ function LFGAnnouncementsNotification:OnPlayerEnteringWorld(event, isInitialLogi
 	self._instanceType = instanceType == "none" and "world" or instanceType
 end
 
-function LFGAnnouncementsNotification:OnInstanceEntry(event, instanceId, difficulty, message, time, authorGUID, reason)
+function LFGAnnouncementsNotification:OnInstanceEntry(event, instanceId, difficulty, message, time, totalTime, authorGUID, reason)
 	if reason ~= LFGAnnouncements.Core.DUNGEON_ENTRY_REASON.NEW then
 		return
 	end

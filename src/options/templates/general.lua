@@ -69,6 +69,18 @@ local function formatGroup(order, db)
 					LFGAnnouncements.Core:SetRaidMarkersFilter(newValue)
 				end,
 			},
+			show_total_time = {
+				type = "toggle",
+				width = "full",
+				order = 2,
+				name = "Show total time instead of time since last request",
+				get = function(info)
+					return db:GetProfileData("general", "format", "show_total_time")
+				end,
+				set = function(info, newValue)
+					LFGAnnouncements.UI:ShowTotalTime(newValue)
+				end,
+			},
 		}
 	}
 end

@@ -107,8 +107,10 @@ function LFGAnnouncementsCore:OnUpdate()
 				self._instanceEntries[instanceId][authorGUID] = nil
 			else
 				local time = entry.time + UpdateTime
+				local total_time = entry.total_time + UpdateTime
 				entry.time = time
-				self:SendMessage("OnInstanceEntry", instanceId, entry.difficulty, entry.message, time, authorGUID, DUNGEON_ENTRY_REASON.UPDATE) -- TOOD: Could group together and send at once
+				entry.total_time = total_time
+				self:SendMessage("OnInstanceEntry", instanceId, entry.difficulty, entry.message, time, total_time, authorGUID, DUNGEON_ENTRY_REASON.UPDATE) -- TOOD: Could group together and send at once
 			end
 		end
 	end
@@ -182,7 +184,7 @@ function LFGAnnouncementsCore:SetRaidMarkersFilter(enabled)
 					msg, changed = self:_formatMessage(entry.message)
 					if changed then
 						entry.message = msg
-						self:SendMessage("OnInstanceEntry", instanceId, entry.difficulty, msg, entry.time, authorGUID, DUNGEON_ENTRY_REASON.UPDATE) -- TOOD: Could group together and send at once
+						self:SendMessage("OnInstanceEntry", instanceId, entry.difficulty, msg, entry.time, entry.total_time, authorGUID, DUNGEON_ENTRY_REASON.UPDATE) -- TOOD: Could group together and send at once
 					end
 				end
 			end
@@ -297,17 +299,28 @@ function LFGAnnouncementsCore:_createInstanceEntry(instanceId, difficulty, messa
 		self._instanceEntries[instanceId] = instanceEntriesForId
 	end
 
-	local newEntry = not instanceEntriesForId[authorGUID]
-	instanceEntriesForId[authorGUID] = {
-		message = message,
-		difficulty = difficulty,
-		timestamp_to_remove = time() + self._timeToShow,
-		time = 0,
-		boost = isBoostEntry,
-	}
+	local entry = instanceEntriesForId[authorGUID]
+	local newEntry
+	if entry then
+		entry.message = message
+		entry.difficulty = difficulty
+		entry.timestamp_to_remove = time() + self._timeToShow
+		entry.time = 0
+		entry.boost = isBoostEntry
+	else
+		newEntry = true
+		entry = {
+			message = message,
+			difficulty = difficulty,
+			timestamp_to_remove = time() + self._timeToShow,
+			time = 0,
+			total_time = 0,
+			boost = isBoostEntry,
+		}
+		instanceEntriesForId[authorGUID] = entry
+	end
 
-
-	self:SendMessage("OnInstanceEntry", instanceId, difficulty, message, 0, authorGUID, newEntry and DUNGEON_ENTRY_REASON.NEW or DUNGEON_ENTRY_REASON.UPDATE)
+	self:SendMessage("OnInstanceEntry", instanceId, difficulty, message, 0, entry.total_time, authorGUID, newEntry and DUNGEON_ENTRY_REASON.NEW or DUNGEON_ENTRY_REASON.UPDATE)
 end
 
 function LFGAnnouncementsCore:_findDifficulty(tbl)
@@ -363,7 +376,7 @@ end
 function LFGAnnouncementsCore:OnShowUI(event)
 	for instanceId, data in pairs(self._instanceEntries) do
 		for authorGUID, entry in pairs(data) do
-			self:SendMessage("OnInstanceEntry", instanceId, entry.difficulty, entry.message, entry.time, authorGUID, DUNGEON_ENTRY_REASON.SHOW)
+			self:SendMessage("OnInstanceEntry", instanceId, entry.difficulty, entry.message, entry.time, entry.total_time, authorGUID, DUNGEON_ENTRY_REASON.SHOW)
 		end
 	end
 end

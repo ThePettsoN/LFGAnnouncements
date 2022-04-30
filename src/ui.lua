@@ -50,6 +50,7 @@ function LFGAnnouncementsUI:OnEnable()
 	self._ready = true
 
 	self._fontSettings = LFGAnnouncements.DB:GetProfileData("general", "font")
+	self._showTotalTime = LFGAnnouncements.DB:GetProfileData("general", "format", "show_total_time")
 end
 
 function LFGAnnouncementsUI:IsShown()
@@ -137,6 +138,13 @@ function LFGAnnouncementsUI:SetFont(font, size, flags)
 
 	if self._scrollContainer then
 		self._scrollContainer:DoLayout()
+	end
+end
+
+function LFGAnnouncementsUI:ShowTotalTime(show)
+	if self._showTotalTime ~= show then
+		self._showTotalTime = show
+		LFGAnnouncements.DB:SetProfileData("show_total_time", show, "general", "format")
 	end
 end
 
@@ -271,7 +279,7 @@ function LFGAnnouncementsUI:_setFont(entry)
 	end
 end
 
-function LFGAnnouncementsUI:_createEntryLabel(instanceId, difficulty, message, time, authorGUID, reason)
+function LFGAnnouncementsUI:_createEntryLabel(instanceId, difficulty, message, time, totalTime, authorGUID, reason)
 	local container = self._instanceContainers[instanceId]
 	if not container then
 		container = self:_createInstanceContainer(instanceId)
@@ -336,7 +344,7 @@ function LFGAnnouncementsUI:_createEntryLabel(instanceId, difficulty, message, t
 	entry.name:SetText(stringformat("|c%s%s|r", hex, author))
 	entry.prefix:SetText(EntryPrefix[prefix])
 	entry.message:SetText(message)
-	entry.time:SetText(self:_format_time(time))
+	entry.time:SetText(self:_formatTime(self._showTotalTime and totalTime or time))
 
 	self:_calculateSize(entry, container.group, newEntry)
 end
@@ -366,11 +374,11 @@ function LFGAnnouncementsUI:_removeEntryLabel(instanceId, authorGUID)
 	end
 end
 
-function LFGAnnouncementsUI:_format_time(time)
+function LFGAnnouncementsUI:_formatTime(time)
 	local time_visible_sec = LFGAnnouncements.DB:GetProfileData("general", "time_visible_sec") -- TODO: Might be slow. Cache?
 	local percentage = time / time_visible_sec
 	local color
-	if percentage < 0.33 then
+	if self._showTotalTime or percentage < 0.33 then
 		color = TimeColorLookup.NEW
 	elseif percentage < 0.66 then
 		color = TimeColorLookup.MEDIUM
@@ -407,9 +415,9 @@ function LFGAnnouncementsUI:OnInstanceDeactivated(event, instanceId)
 	self:_removeInstanceContainer(instanceId)
 end
 
-function LFGAnnouncementsUI:OnInstanceEntry(event, instanceId, difficulty, message, time, authorGUID, reason)
+function LFGAnnouncementsUI:OnInstanceEntry(event, instanceId, difficulty, message, time, totalTime, authorGUID, reason)
 	if self:IsShown() then
-		self:_createEntryLabel(instanceId, difficulty, message, time, authorGUID, reason)
+		self:_createEntryLabel(instanceId, difficulty, message, time, totalTime, authorGUID, reason)
 		-- self._scrollContainer:DoLayout()
 	end
 end
