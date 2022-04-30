@@ -84,7 +84,7 @@ function LFGAnnouncementsCore:OnEnable()
 	self._timeToShow = db:GetProfileData("general", "time_visible_sec")
 	self._difficultyFilter = db:GetCharacterData("filters", "difficulty")
 	self._boostFilter = db:GetCharacterData("filters", "boost")
-	self._removeRaidMarkers = db:GetCharacterData("filters", "raid_markers")
+	self._removeRaidMarkers = db:GetProfileData("general", "format", "remove_raid_markers")
 end
 
 function LFGAnnouncementsCore:OnDisable()
@@ -173,7 +173,7 @@ end
 function LFGAnnouncementsCore:SetRaidMarkersFilter(enabled)
 	if self._removeRaidMarkers ~= enabled then
 		self._removeRaidMarkers = enabled
-		LFGAnnouncements.DB:SetCharacterData("raid_markers", enabled, "filters")
+		LFGAnnouncements.DB:SetProfileData("remove_raid_markers", enabled, "general", "format")
 
 		if enabled then
 			local msg, changed

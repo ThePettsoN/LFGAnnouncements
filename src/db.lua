@@ -19,7 +19,11 @@ local defaults = {
 				path = "Fonts\\FRIZQT__.TTF",
 				size = 12,
 				flags = "",
-			}
+			},
+			format = {
+				remove_raid_markers = false,
+				show_total_time = false,
+			},
 		},
 		minimap = {
 			hide = false,
@@ -71,7 +75,6 @@ local defaults = {
 		filters = {
 			difficulty = "ALL",
 			boost = false,
-			raid_markers = false,
 			level_range = false,
 		}
 	}
