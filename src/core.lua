@@ -50,6 +50,8 @@ local dprintf = function(s, ...)
 		print(stringformat(s, ...))
 	end
 end
+local tbl = {}
+local index = 1
 
 LFGAnnouncementsCore.DUNGEON_ENTRY_REASON = DUNGEON_ENTRY_REASON
 
@@ -82,51 +84,51 @@ function LFGAnnouncementsCore:OnEnable()
 	self._timeToShow = db:GetProfileData("general", "time_visible_sec")
 	self._difficultyFilter = db:GetCharacterData("filters", "difficulty")
 	self._boostFilter = db:GetCharacterData("filters", "boost")
+	self._removeRaidMarkers = db:GetCharacterData("filters", "raid_markers")
 end
 
 function LFGAnnouncementsCore:OnDisable()
 end
 
-local instancesToRemove = {}
 local removeInstances, currentTime
 function LFGAnnouncementsCore:OnUpdate()
-	wipe(instancesToRemove)
 	removeInstances = false
 	currentTime = time()
+	wipe(tbl)
 
-	local index = 1
+	index = 1
 	for instanceId, data in pairs(self._instanceEntries) do
 		for authorGUID, entry in pairs(data) do
 			if currentTime >= entry.timestamp_to_remove then
-				instancesToRemove[index] = instanceId
-				instancesToRemove[index + 1] = authorGUID
+				tbl[index] = instanceId
+				tbl[index + 1] = authorGUID
 				index = index + 2
 				removeInstances = true
 				self._instanceEntries[instanceId][authorGUID] = nil
 			else
 				local time = entry.time + UpdateTime
 				entry.time = time
-				self:SendMessage("OnInstanceEntry", instanceId, entry.difficulty, entry.message, time, authorGUID, DUNGEON_ENTRY_REASON.UPDATE)
+				self:SendMessage("OnInstanceEntry", instanceId, entry.difficulty, entry.message, time, authorGUID, DUNGEON_ENTRY_REASON.UPDATE) -- TOOD: Could group together and send at once
 			end
 		end
 	end
 
 	if removeInstances then
-		self:SendMessage("OnRemoveInstances", instancesToRemove)
+		self:SendMessage("OnRemoveInstances", tbl)
 	end
 end
 
 function LFGAnnouncementsCore:UpdateInvalidEntries()
 	local instancesModule = self._instances
 	removeInstances = false
-	wipe(instancesToRemove)
+	index = 1
+	wipe(tbl)
 
-	local index = 1
 	for instanceId, data in pairs(self._instanceEntries) do
 		if not instancesModule:IsActive(instanceId) then
 			for authorGUID, _ in pairs(data) do
-				instancesToRemove[index] = instanceId
-				instancesToRemove[index + 1] = authorGUID
+				tbl[index] = instanceId
+				tbl[index + 1] = authorGUID
 				index = index + 2
 			end
 			removeInstances = true
@@ -136,8 +138,8 @@ function LFGAnnouncementsCore:UpdateInvalidEntries()
 				local difficulty = entry.difficulty
 				if not self:_isAllowedDifficulty(difficulty) or (self._boostFilter and entry.boost) then
 					data[authorGUID] = nil
-					instancesToRemove[index] = instanceId
-					instancesToRemove[index + 1] = authorGUID
+					tbl[index] = instanceId
+					tbl[index + 1] = authorGUID
 					index = index + 2
 					removeInstances = true
 				end
@@ -146,7 +148,7 @@ function LFGAnnouncementsCore:UpdateInvalidEntries()
 	end
 
 	if removeInstances then
-		self:SendMessage("OnRemoveInstances", instancesToRemove)
+		self:SendMessage("OnRemoveInstances", tbl)
 	end
 end
 
@@ -168,6 +170,26 @@ function LFGAnnouncementsCore:SetBoostFilter(enabled)
 	end
 end
 
+function LFGAnnouncementsCore:SetRaidMarkersFilter(enabled)
+	if self._removeRaidMarkers ~= enabled then
+		self._removeRaidMarkers = enabled
+		LFGAnnouncements.DB:SetCharacterData("raid_markers", enabled, "filters")
+
+		if enabled then
+			local msg, changed
+			for instanceId, data in pairs(self._instanceEntries) do
+				for authorGUID, entry in pairs(data) do
+					msg, changed = self:_formatMessage(entry.message)
+					if changed then
+						entry.message = msg
+						self:SendMessage("OnInstanceEntry", instanceId, entry.difficulty, msg, entry.time, authorGUID, DUNGEON_ENTRY_REASON.UPDATE) -- TOOD: Could group together and send at once
+					end
+				end
+			end
+		end
+	end
+end
+
 function LFGAnnouncementsCore:SetDuration(newDuration)
 	local diff = self._timeToShow - newDuration
 	if diff == 0 then
@@ -184,28 +206,27 @@ function LFGAnnouncementsCore:SetDuration(newDuration)
 	LFGAnnouncements.DB:SetProfileData("time_visible_sec", newDuration, "general")
 end
 
-local module, index
-local splitMessage = {}
+local module
 local regex = "[^| /%.{},+()<>%[%]]+"
 function LFGAnnouncementsCore:_parseMessage(message, authorGUID)
 	if #message < 3 then
 		return
 	end
 
-	wipe(splitMessage)
+	wipe(tbl)
 	index = 1
 
-	message = self:_formatMessage(strlower(message))
-	for v in stringgmatch(message, regex) do
-		splitMessage[index] = v
+	message = self:_formatMessage(message)
+	for v in stringgmatch(strlower(message), regex) do
+		tbl[index] = v
 		index = index + 1
 	end
 
 	module = self._instances
-	local foundInstances = module:FindInstances(splitMessage)
+	local foundInstances = module:FindInstances(tbl)
 	if foundInstances then
-		local difficulty = self:_findDifficulty(splitMessage)
-		local isBoostEntry = self:_isBoostEntry(splitMessage)
+		local difficulty = self:_findDifficulty(tbl)
+		local isBoostEntry = self:_isBoostEntry(tbl)
 		if not self._boostFilter or not isBoostEntry then
 			for instanceId, _ in pairs(foundInstances) do
 				self:_createInstanceEntry(instanceId, difficulty, message, authorGUID, isBoostEntry)
@@ -216,43 +237,44 @@ end
 
 local formattedMessage
 local raidSymbols = {
-	"{star}",
-	"{circle}",
-	"{diamond}",
-	"{triangle}",
-	"{moon}",
-	"{square}",
-	"{cross}",
-	"{skull}",
-
-	"{rt1}",
-	"{rt2}",
-	"{rt3}",
-	"{rt4}",
-	"{rt5}",
-	"{rt6}",
-	"{rt7}",
-	"{rt8}",
-
-	"{gold}",
-	"{orange}",
-	"{purple}",
-	"{green}",
-	"{silver}",
-	"{blue}",
-	"{red}",
-	"{white}",
+	"%s?{star}%s?",
+	"%s?{circle}%s?",
+	"%s?{diamond}%s?",
+	"%s?{triangle}%s?",
+	"%s?{moon}%s?",
+	"%s?{square}%s?",
+	"%s?{cross}%s?",
+	"%s?{skull}%s?",
+	"%s?{rt1}%s?",
+	"%s?{rt2}%s?",
+	"%s?{rt3}%s?",
+	"%s?{rt4}%s?",
+	"%s?{rt5}%s?",
+	"%s?{rt6}%s?",
+	"%s?{rt7}%s?",
+	"%s?{rt8}%s?",
+	"%s?{gold}%s?",
+	"%s?{orange}%s?",
+	"%s?{purple}%s?",
+	"%s?{green}%s?",
+	"%s?{silver}%s?",
+	"%s?{blue}%s?",
+	"%s?{red}%s?",
+	"%s?{white}%s?",
 }
 
 function LFGAnnouncementsCore:_formatMessage(message)
 	formattedMessage = message
-	if self._removeRaidSymbols then
+	local changed
+	if self._removeRaidMarkers then
+		local count
 		for i = 1, #raidSymbols do
-			formattedMessage = stringgsub(formattedMessage, raidSymbols[i], "")
+			formattedMessage, count = stringgsub(formattedMessage, raidSymbols[i], "")
+			changed = changed or count > 0
 		end
 	end
 
-	return formattedMessage
+	return formattedMessage, changed
 end
 
 function LFGAnnouncementsCore:_createInstanceEntry(instanceId, difficulty, message, authorGUID, isBoostEntry)
@@ -283,9 +305,9 @@ function LFGAnnouncementsCore:_createInstanceEntry(instanceId, difficulty, messa
 	self:SendMessage("OnInstanceEntry", instanceId, difficulty, message, 0, authorGUID, newEntry and DUNGEON_ENTRY_REASON.NEW or DUNGEON_ENTRY_REASON.UPDATE)
 end
 
-function LFGAnnouncementsCore:_findDifficulty(splitMessage)
-	for i = 1, #splitMessage do
-		local difficulty = DIFFICULTY_TAGS[splitMessage[i]]
+function LFGAnnouncementsCore:_findDifficulty(tbl)
+	for i = 1, #tbl do
+		local difficulty = DIFFICULTY_TAGS[tbl[i]]
 		if difficulty then
 			return difficulty
 		end
@@ -294,9 +316,9 @@ function LFGAnnouncementsCore:_findDifficulty(splitMessage)
 	return DIFFICULTIES.NORMAL
 end
 
-function LFGAnnouncementsCore:_isBoostEntry(splitMessage)
-	for i = 1, #splitMessage do
-		if BOOST_TAGS[splitMessage[i]] then
+function LFGAnnouncementsCore:_isBoostEntry(tbl)
+	for i = 1, #tbl do
+		if BOOST_TAGS[tbl[i]] then
 			return true
 		end
 	end

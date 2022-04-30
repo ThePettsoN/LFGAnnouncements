@@ -210,6 +210,18 @@ local function optionsTemplate()
 				UpdateData(core, "SetBoostFilter", newValue)
 			end,
 		},
+		raid_marker_filter= {
+			type = "toggle",
+			width = "full",
+			order = 4,
+			name = "Remove raid markers from messages",
+			get = function(info)
+				return db:GetCharacterData("filters", "raid_markers")
+			end,
+			set = function(info, newValue)
+				UpdateData(core, "SetRaidMarkersFilter", newValue)
+			end,
+		},
 		vanilla_dungeons = vanilla_dungeons,
 		tbc_dungeons = tbc_dungeons,
 		tbc_raids = tbc_raids,

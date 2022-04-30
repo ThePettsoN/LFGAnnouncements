@@ -71,6 +71,7 @@ local defaults = {
 		filters = {
 			difficulty = "ALL",
 			boost = false,
+			raid_markers = false,
 			level_range = false,
 		}
 	}
