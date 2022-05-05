@@ -294,9 +294,11 @@ function LFGAnnouncementsUI:_createEntryLabel(instanceId, difficulty, message, t
 		local group = container.group
 		local onClick = function(widget, event, button) -- TODO: This is stupid. Should use one function instead of creating a new one every time
 			if button == "LeftButton" then
-				ChatFrame_OpenChat(stringformat("/w %s ", author))
-			elseif button == "RightButton" then
-				C_FriendList.SendWho(author)
+				if IsShiftKeyDown() then
+					C_FriendList.SendWho(author)
+				else
+					ChatFrame_OpenChat(stringformat("/w %s ", author))
+				end
 			end
 		end
 
