@@ -209,10 +209,11 @@ function LFGAnnouncementsCore:SetDuration(newDuration)
 end
 
 local module
-local regex = "[^| /%.{},+()<>%[%]]+"
+local regex = "[%w]+"
 function LFGAnnouncementsCore:_parseMessage(message, authorGUID)
 	if #message < 3 then
-		return
+		LFGAnnouncements.dprintf("Ignoring message '%s' due to message length", message)
+		return false
 	end
 
 	wipe(tbl)
@@ -233,8 +234,13 @@ function LFGAnnouncementsCore:_parseMessage(message, authorGUID)
 			for instanceId, _ in pairs(foundInstances) do
 				self:_createInstanceEntry(instanceId, difficulty, message, authorGUID, isBoostEntry)
 			end
+			return true
+		else
+			LFGAnnouncements.dprintf("Ignoring message '%s' due to boosting filter", message)
 		end
 	end
+
+	return false
 end
 
 local formattedMessage
@@ -357,16 +363,15 @@ end
 
 
 --Events
-
 function LFGAnnouncementsCore:OnChatMsgChannel(event, message, _, _, _, playerName, _, _, channelIndex, _, _, _, guid)
-	self:_parseMessage(message, guid)
+	return self:_parseMessage(message, guid)
 end
 
 function LFGAnnouncementsCore:OnChatMsgGuild(event, message, author, language, lineId, senderGUID)
 end
 
 function LFGAnnouncementsCore:OnChatMsgSay(event, message, _, _, _, playerName, _, _, _, _, _, _, guid)
-	self:_parseMessage(message, guid)
+	return self:_parseMessage(message, guid)
 end
 
 function LFGAnnouncementsCore:OnInstanceDeactivated(event, instanceId)
