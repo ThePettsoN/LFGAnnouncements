@@ -286,6 +286,14 @@ function LFGAnnouncementsUI:_createEntryLabel(instanceId, difficulty, message, t
 	end
 
 	local _, class, _, _, _, author = GetPlayerInfoByGUID(authorGUID)
+	if LFGAnnouncements.DEBUG then
+		if not class then
+			class = "WARLOCK"
+		end
+		if not author then
+			author = authorGUID
+		end
+	end
 	local _,_,_, hex = GetClassColor(class)
 
 	local entry = container.entries[authorGUID]

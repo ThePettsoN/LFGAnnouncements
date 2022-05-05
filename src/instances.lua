@@ -378,6 +378,8 @@ function LFGAnnouncementsInstances:ActivateInstance(id)
 		return
 	end
 
+	LFGAnnouncements.dprintf("Activate instance '%s'", id)
+
 	self._activatedInstances[id] = true
 	LFGAnnouncements.DB:SetCharacterData(id, true, "dungeons", "activated")
 
@@ -393,6 +395,8 @@ function LFGAnnouncementsInstances:DeactivateInstance(id)
 	if not self._activatedInstances[id] then
 		return
 	end
+
+	LFGAnnouncements.dprintf("Deactivated instance '%s'", id)
 
 	self._activatedInstances[id] = nil
 	LFGAnnouncements.DB:SetCharacterData(id, false, "dungeons", "activated")
@@ -435,6 +439,10 @@ function LFGAnnouncementsInstances:GetLevelRange(id)
 	return Instances.Levels[id]
 end
 
+function LFGAnnouncementsInstances:GetInstanceTags(id)
+	return Instances.Tags[id]
+end
+
 local instancesFound = {}
 function LFGAnnouncementsInstances:GetInstancesByLevel(level)
 	local maxLevel = LFGAnnouncements.GameExpansion == "TBC" and 70 or 60
@@ -469,6 +477,10 @@ end
 
 function LFGAnnouncementsInstances:GetRaids(expansion)
 	return BurningCrusadeRaids.Order
+end
+
+function LFGAnnouncementsInstances:GetInstances()
+	return BurningCrusadeDungeons.Order
 end
 
 function LFGAnnouncementsInstances:GetCustomInstances()

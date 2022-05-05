@@ -154,6 +154,22 @@ function LFGAnnouncementsCore:UpdateInvalidEntries()
 	end
 end
 
+function LFGAnnouncementsCore:DeleteAllEntries()
+	index = 1
+	wipe(tbl)
+
+	for instanceId, data in pairs(self._instanceEntries) do
+		for authorGUID, entry in pairs(data) do
+			data[authorGUID] = nil
+			tbl[index] = instanceId
+			tbl[index + 1] = authorGUID
+			index = index + 2
+		end
+	end
+
+	self:SendMessage("OnRemoveInstances", tbl)
+end
+
 function LFGAnnouncementsCore:RegisterModule(name, module, ...)
 	self:NewModule(name, module, ...)
 end
