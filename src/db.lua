@@ -40,7 +40,7 @@ local defaults = {
 				},
 			},
 			toaster = {
-				enabled = true,
+				enabled = false,
 				duration = 1,
 				position = {
 					x = 0,
@@ -53,7 +53,7 @@ local defaults = {
 				}
 			},
 			sound = {
-				enabled = true,
+				enabled = false,
 				id = 3081,
 				path = "",
 			},
