@@ -56,7 +56,6 @@ function LFGAnnouncementsNotification:_cancelToasterTimer()
 	end
 end
 
-
 function LFGAnnouncementsNotification:_createUI()
 	local size = self._db:GetProfileData("notifications", "toaster", "size")
 

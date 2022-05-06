@@ -51,6 +51,8 @@ function LFGAnnouncementsUI:OnEnable()
 
 	self._fontSettings = LFGAnnouncements.DB:GetProfileData("general", "font")
 	self._showTotalTime = LFGAnnouncements.DB:GetProfileData("general", "format", "show_total_time")
+	self._contextMenu = LFGAnnouncements.ContextMenu
+	self._contextMenu:Init(self._fontSettings)
 end
 
 function LFGAnnouncementsUI:IsShown()
@@ -139,6 +141,8 @@ function LFGAnnouncementsUI:SetFont(font, size, flags)
 	if self._scrollContainer then
 		self._scrollContainer:DoLayout()
 	end
+
+	self._contextMenu:SetFont(font, size, flags)
 end
 
 function LFGAnnouncementsUI:ShowTotalTime(show)
@@ -176,6 +180,7 @@ function LFGAnnouncementsUI:_createUI()
 	settingsButton:SetText("Settings")
 	settingsButton:SetCallback("OnClick", function(widget, event, button)
 		if button == "LeftButton" then
+			LFGAnnouncements.ContextMenu:Hide()
 			LFGAnnouncements.Options.Toggle()
 		end
 	end)
@@ -260,7 +265,7 @@ local function onTooltipEnter(widget, event)
 		local tooltip = AceGUI.tooltip
 		tooltip:SetOwner(widget.frame, "ANCHOR_NONE")
 		tooltip:SetPoint(getAnchors(widget.frame))
-		tooltip:SetText(widget.label:GetText() or "", 1, .82, 0, true)
+		tooltip:SetText(widget.label:GetText() or "", 1, 1, 1, true)
 		tooltip:Show()
 	end
 end
@@ -307,6 +312,8 @@ function LFGAnnouncementsUI:_createEntryLabel(instanceId, difficulty, message, t
 				else
 					ChatFrame_OpenChat(stringformat("/w %s ", author))
 				end
+			elseif button == "RightButton" then
+				self._contextMenu:Show(author, nil)
 			end
 		end
 

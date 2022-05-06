@@ -12,6 +12,8 @@
 embeds.xml
 src/gui/AceGUIContainer-CollapsableInlineGroup.lua
 src/gui/AceGUIContainer-Toaster.lua
+src/gui/AceGUILayout-OffsetList.lua
+
 src/utils.lua
 src/core.lua
 src/db.lua
@@ -20,6 +22,7 @@ src/ui.lua
 src/minimap_button.lua
 src/notifications.lua
 src/commands.lua
+src/context_menu.lua
 
 src/options/main.lua
 src/options/templates/general.lua
