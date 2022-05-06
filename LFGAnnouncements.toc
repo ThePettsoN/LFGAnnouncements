@@ -2,7 +2,7 @@
 ## Title: LFG Announcements
 ## Notes: 
 ## Author: ThePettsoN
-## Version: 1.5.0
+## Version: 1.6.0
 ## DefaultState: Enabled
 ## LoadOnDemand: 0
 ## SavedVariables: LFGAnnouncementsDB
