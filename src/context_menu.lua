@@ -110,9 +110,10 @@ function LFGAnnouncementsContextMenu:SetFont(font, size, flags)
 	-- Update Size of frame
 	local whisperLabel = self._whisper.label
 
-	local requiredWidth = whisperLabel:GetStringWidth()
+	local requiredWidth = whisperLabel:GetStringWidth() + 4
 	local contentWidth = self._frame.content:GetWidth()
 	local frameWidth = self._frame.frame:GetWidth()
+
 	self._frame.frame:SetWidth(math.max(200, (frameWidth - contentWidth) + requiredWidth))
 
 	local requiredHeight = whisperLabel:GetHeight() * 5 + 40
