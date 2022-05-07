@@ -35,7 +35,7 @@ end
 local function OnClickUrl(widget, event, button)
 	local self = widget.parent.menu
 	if self._urlLink then
-		ChatFrame_OpenChat(stringformat("/w %s", self._urlLink))
+		ChatFrame_OpenChat(stringformat("%s", self._urlLink))
 	end
 	self._frame:Hide()
 end
@@ -79,6 +79,18 @@ function LFGAnnouncementsContextMenu:_createUI()
 	self._frame:AddChild(self._url)
 end
 
+local URL_PATTERNS = {
+	"(%a+://%S+%s?)",
+	"(www%.[_A-Za-z0-9-]+%.%S+%s?)",
+}
+
+function LFGAnnouncementsContextMenu:_parseUrl(message)
+	for i = 1, #URL_PATTERNS do
+		local _, _, match = string.find(message, URL_PATTERNS[i])
+		return match
+	end
+end
+
 function LFGAnnouncementsContextMenu:SetFont(font, size, flags)
 	local settings = self._fontSettings or {}
 	settings.path = font and font or settings.path
@@ -109,7 +121,7 @@ function LFGAnnouncementsContextMenu:SetFont(font, size, flags)
 	self._frame.frame:SetHeight(requiredHeight + frameHeight - contentHeight)
 end
 
-function LFGAnnouncementsContextMenu:Show(author, url)
+function LFGAnnouncementsContextMenu:Show(author, message)
 	local created
 	if not self._frame then
 		created = true
@@ -129,6 +141,7 @@ function LFGAnnouncementsContextMenu:Show(author, url)
 
 	self._author = author
 
+	local url = self:_parseUrl(message)
 	if url then
 		self._urlLink = url
 		self._url:SetDisabled(false)
