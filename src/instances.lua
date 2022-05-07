@@ -416,7 +416,7 @@ function LFGAnnouncementsInstances:IsValid(instanceId)
 end
 
 function LFGAnnouncementsInstances:IsActive(instanceId)
-	return self._activatedInstances[instanceId] ~= nil
+	return self._activatedInstances[instanceId] ~= nil or Instances.Tags[instanceId] ~= nil
 end
 
 function LFGAnnouncementsInstances:ActivateAll()

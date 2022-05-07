@@ -88,7 +88,6 @@ local function createCustomFilters(args, customEntries)
 					set = function(info, newValue)
 						local tags = {}
 						for tag in string.gmatch(strlower(newValue), "[^ ]+") do
-							print(tag)
 							tags[#tags+1] = tag
 						end
 						UpdateData(LFGAnnouncements.Instances, 'SetCustomTags', id, tags)
