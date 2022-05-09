@@ -24,6 +24,13 @@ local defaults = {
 				remove_raid_markers = false,
 				show_total_time = false,
 			},
+			enable_in_instance = {
+				world = true,
+				party = true,
+				raid = true,
+				arena = true,
+				pvp = true,
+			},
 		},
 		minimap = {
 			hide = false,

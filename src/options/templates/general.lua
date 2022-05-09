@@ -18,6 +18,18 @@ local function fontGroup(order, db)
 		order = order,
 		inline = true,
 		args = {
+			
+		}
+	}
+end
+
+local function formatGroup(order, db)
+	return {
+		type = "group",
+		name = "Messages Formatting",
+		order = order,
+		inline = true,
+		args = {
 			name = {
 				type = "select",
 				order = 1,
@@ -45,22 +57,11 @@ local function fontGroup(order, db)
 					LFGAnnouncements.UI:SetFont(nil, newSize, nil)
 					LFGAnnouncements.Notifications:SetFont(nil, newSize, nil)
 				end
-			}
-		}
-	}
-end
-
-local function formatGroup(order, db)
-	return {
-		type = "group",
-		name = "Request Formatting",
-		order = order,
-		inline = true,
-		args = {
+			},
 			raid_marker_filter= {
 				type = "toggle",
 				width = "full",
-				order = 1,
+				order = 3,
 				name = "Remove raid markers from messages",
 				get = function(info)
 					return db:GetProfileData("general", "format", "remove_raid_markers")
@@ -72,7 +73,7 @@ local function formatGroup(order, db)
 			show_total_time = {
 				type = "toggle",
 				width = "full",
-				order = 2,
+				order = 4,
 				name = "Show total time instead of time since last request",
 				get = function(info)
 					return db:GetProfileData("general", "format", "show_total_time")
@@ -148,7 +149,21 @@ local function optionsTemplate()
 			end
 		},
 
-		font = fontGroup(3, db),
+		enable_in_areas = {
+			name = "Enable addon in areas",
+			type = "multiselect",
+			width = "full",
+			order = 3,
+			values = db.instanceTypes,
+			get = function(info, key)
+				return db:GetProfileData("general", "enable_in_instance", key)
+			end,
+			set = function(info, key, newValue)
+				LFGAnnouncements.Core:SetEnabledInInstance(key, newValue)
+			end,
+		},
+
+		-- font = fontGroup(4, db),
 		format = formatGroup(4, db),
 		minimap = minimapGroup(5, db),
 	}

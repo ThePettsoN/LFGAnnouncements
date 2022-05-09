@@ -163,7 +163,6 @@ local function optionsTemplate()
 				},
 			}
 		},
-
 		show_in_areas = {
 			name = "Show notifications in areas",
 			type = "multiselect",

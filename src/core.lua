@@ -73,6 +73,7 @@ function LFGAnnouncementsCore:OnEnable()
 	self:RegisterEvent("CHAT_MSG_CHANNEL", "OnChatMsgChannel")
 	self:RegisterEvent("CHAT_MSG_GUILD", "OnChatMsgGuild")
 	self:RegisterEvent("CHAT_MSG_SAY", "OnChatMsgSay")
+	self:RegisterEvent("PLAYER_ENTERING_WORLD", "OnPlayerEnteringWorld")
 
 	self:RegisterMessage("OnInstanceDeactivated", "OnInstanceDeactivated")
 	self:RegisterMessage("OnShowUI", "OnShowUI")
@@ -85,6 +86,7 @@ function LFGAnnouncementsCore:OnEnable()
 	self._difficultyFilter = db:GetCharacterData("filters", "difficulty")
 	self._boostFilter = db:GetCharacterData("filters", "boost")
 	self._removeRaidMarkers = db:GetProfileData("general", "format", "remove_raid_markers")
+	self._enabledForInstanceTypes = db:GetProfileData("general", "enable_in_instance")
 end
 
 function LFGAnnouncementsCore:OnDisable()
@@ -224,12 +226,21 @@ function LFGAnnouncementsCore:SetDuration(newDuration)
 	LFGAnnouncements.DB:SetProfileData("time_visible_sec", newDuration, "general")
 end
 
+function LFGAnnouncementsCore:SetEnabledInInstance(key, value)
+	self._enabledForInstanceTypes[key] = value
+	LFGAnnouncements.DB:SetProfileData(key, value, "general", "enable_in_instance")
+end
+
 local module
 local regex = "[%w]+"
 function LFGAnnouncementsCore:_parseMessage(message, authorGUID)
 	if #message < 3 then
 		LFGAnnouncements.dprintf("Ignoring message '%s' due to message length", message)
 		return false
+	end
+
+	if not self._enabledForInstanceTypes[self._instanceType] then
+		return
 	end
 
 	wipe(tbl)
@@ -388,6 +399,11 @@ end
 
 function LFGAnnouncementsCore:OnChatMsgSay(event, message, _, _, _, playerName, _, _, _, _, _, _, guid)
 	return self:_parseMessage(message, guid)
+end
+
+function LFGAnnouncementsCore:OnPlayerEnteringWorld(event, isInitialLogin, isReloadingUi)
+	local _, instanceType = GetInstanceInfo()
+	self._instanceType = instanceType == "none" and "world" or instanceType
 end
 
 function LFGAnnouncementsCore:OnInstanceDeactivated(event, instanceId)
