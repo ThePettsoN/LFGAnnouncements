@@ -72,7 +72,8 @@ local UpdateTime = 1
 function LFGAnnouncementsCore:OnEnable()
 	self:RegisterEvent("CHAT_MSG_CHANNEL", "OnChatMsgChannel")
 	self:RegisterEvent("CHAT_MSG_GUILD", "OnChatMsgGuild")
-	self:RegisterEvent("CHAT_MSG_SAY", "OnChatMsgSay")
+	self:RegisterEvent("CHAT_MSG_SAY", "OnChatMsg")
+	self:RegisterEvent("CHAT_MSG_YELL", "OnChatMsg")
 	self:RegisterEvent("PLAYER_ENTERING_WORLD", "OnPlayerEnteringWorld")
 
 	self:RegisterMessage("OnInstanceDeactivated", "OnInstanceDeactivated")
@@ -235,7 +236,6 @@ local module
 local regex = "[%w]+"
 function LFGAnnouncementsCore:_parseMessage(message, authorGUID)
 	if #message < 3 then
-		LFGAnnouncements.dprintf("Ignoring message '%s' due to message length", message)
 		return false
 	end
 
@@ -320,7 +320,7 @@ end
 function LFGAnnouncementsCore:_createInstanceEntry(instanceId, difficulty, message, authorGUID, isBoostEntry)
 	local instanceType = self._instances:GetInstanceType(instanceId)
 	local types = LFGAnnouncements.Instances.InstanceType
-	dprintf("CreateInstanceEntry: instanceId: %q | difficulty: %q | instanceType: %q", instanceId, difficulty, instanceType)
+	dprintf("CreateInstanceEntry: instanceId: %q | difficulty: %q | instanceType: %q | Author: %q", instanceId, difficulty, instanceType, authorGUID)
 	if instanceType == types.RAID then
 		difficulty = DIFFICULTIES.RAID
 	elseif instanceType ~= types.CUSTOM and not self:_isAllowedDifficulty(difficulty) then
@@ -398,7 +398,8 @@ end
 function LFGAnnouncementsCore:OnChatMsgGuild(event, message, author, language, lineId, senderGUID)
 end
 
-function LFGAnnouncementsCore:OnChatMsgSay(event, message, _, _, _, playerName, _, _, _, _, _, _, guid)
+function LFGAnnouncementsCore:OnChatMsg(event, message, _, _, _, playerName, _, _, _, _, _, _, guid)
+	dprintf("OnChatMsg")
 	return self:_parseMessage(message, guid)
 end
 
