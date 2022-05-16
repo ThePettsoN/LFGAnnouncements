@@ -320,6 +320,7 @@ end
 function LFGAnnouncementsCore:_createInstanceEntry(instanceId, difficulty, message, authorGUID, isBoostEntry)
 	local instanceType = self._instances:GetInstanceType(instanceId)
 	local types = LFGAnnouncements.Instances.InstanceType
+	dprintf("CreateInstanceEntry: instanceId: %q | difficulty: %q | instanceType: %q", instanceId, difficulty, instanceType)
 	if instanceType == types.RAID then
 		difficulty = DIFFICULTIES.RAID
 	elseif instanceType ~= types.CUSTOM and not self:_isAllowedDifficulty(difficulty) then

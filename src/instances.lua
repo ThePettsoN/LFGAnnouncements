@@ -492,7 +492,7 @@ function LFGAnnouncementsInstances:GetInstanceType(instanceId)
 		return InstanceType.CUSTOM
 	end
 
-	if Instances.Names[instanceId] ~= nil then
+	if Dungeons.Names[instanceId] ~= nil then
 		return InstanceType.DUNGEON
 	end
 
