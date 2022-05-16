@@ -31,6 +31,15 @@ local tMergeRecursive = function(dest, source)
 	return dest
 end
 
+local tArrayFind = function(tbl, obj)
+	for i = 1, #tbl do
+		if tbl[i] == obj then
+			return tbl[i], i
+		end
+	end
+end
+
 LFGAnnouncements.Utils = {
 	tMergeRecursive = tMergeRecursive,
+	tArrayFind = tArrayFind,
 }

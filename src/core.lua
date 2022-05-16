@@ -320,7 +320,6 @@ end
 function LFGAnnouncementsCore:_createInstanceEntry(instanceId, difficulty, message, authorGUID, isBoostEntry)
 	local instanceType = self._instances:GetInstanceType(instanceId)
 	local types = LFGAnnouncements.Instances.InstanceType
-	dprintf("CreateInstanceEntry: instanceId: %q | difficulty: %q | instanceType: %q | Author: %q", instanceId, difficulty, instanceType, authorGUID)
 	if instanceType == types.RAID then
 		difficulty = DIFFICULTIES.RAID
 	elseif instanceType ~= types.CUSTOM and not self:_isAllowedDifficulty(difficulty) then
@@ -399,7 +398,6 @@ function LFGAnnouncementsCore:OnChatMsgGuild(event, message, author, language, l
 end
 
 function LFGAnnouncementsCore:OnChatMsg(event, message, _, _, _, playerName, _, _, _, _, _, _, guid)
-	dprintf("OnChatMsg")
 	return self:_parseMessage(message, guid)
 end
 

@@ -121,8 +121,8 @@ function LFGAnnouncementsCommands:debug(nextPosition, args)
 		local symbols = {"\"", "§", "½", "!", "\"", "#", "¤", "%", "&", "/", "(", ")", "=", "?", "`", "´", "@", "£", "$", "€", "{", "[", "]", "}", "\\", "¨", "'", "^", "*", "~", "-", ".", ",", ";", ":", "_", "<", ">", "|",}
 		local num_symbols = #symbols
 
-		local instances = LFGAnnouncements.Instances:GetInstances()
-		local instance = instances[1]
+		local order = LFGAnnouncements.Instances:GetInstancesOrder()
+		local instance = order[1]
 		LFGAnnouncements.Instances:ActivateInstance(instance)
 
 		local tags = LFGAnnouncements.Instances:GetInstanceTags(instance)

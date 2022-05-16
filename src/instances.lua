@@ -479,8 +479,8 @@ function LFGAnnouncementsInstances:GetRaids(expansion)
 	return BurningCrusadeRaids.Order
 end
 
-function LFGAnnouncementsInstances:GetInstances()
-	return BurningCrusadeDungeons.Order
+function LFGAnnouncementsInstances:GetInstancesOrder()
+	return Instances.Order
 end
 
 function LFGAnnouncementsInstances:GetCustomInstances()

@@ -53,6 +53,14 @@ function LFGAnnouncementsUI:OnEnable()
 	self._showTotalTime = LFGAnnouncements.DB:GetProfileData("general", "format", "show_total_time")
 	self._contextMenu = LFGAnnouncements.ContextMenu
 	self._contextMenu:Init(self._fontSettings)
+
+	local playerLevel = UnitLevel("player")
+	self._playerLevel = playerLevel
+
+	local maxLevel = MAX_PLAYER_LEVEL_TABLE[GetServerExpansionLevel()]
+	if playerLevel ~= maxLevel then
+		self:RegisterEvent("PLAYER_LEVEL_UP", "OnPlayerLevelUp")
+	end
 end
 
 function LFGAnnouncementsUI:IsShown()
@@ -190,6 +198,24 @@ function LFGAnnouncementsUI:_createUI()
 	self._scrollContainer = container
 end
 
+-- local gray = "ffaaaaaa"
+-- local red = "ffAF4134"
+-- local green = "ff00ff00"
+-- local default = "ffffd100"
+local function getGroupTitle(name, numEntries)
+	-- local color
+	-- if minLevel == 0 then
+	-- 	color = default
+	-- elseif maxLevel < playerLevel then
+	-- 	color = gray
+	-- elseif playerLevel < minLevel then
+	-- 	color = red
+	-- else
+	-- 	color = green
+	-- end
+	return stringformat("%s (%d)", name, numEntries)
+end
+
 function LFGAnnouncementsUI:_createInstanceContainer(instanceId)
 	local instances = Instances
 	local name = instances:GetInstanceName(instanceId)
@@ -208,16 +234,30 @@ function LFGAnnouncementsUI:_createInstanceContainer(instanceId)
 			end
 		end
 	end
-	group:SetTitle(stringformat("%s (0)", name))
+
+	group:SetTitle(getGroupTitle(name, 0))
 	group:SetTitleFont(self._fontSettings.path, self._fontSettings.size, self._fontSettings.flags)
 	group:Collapse()
 
-	self._scrollContainer:AddChild(group)
+	local order = instances:GetInstancesOrder()
+	local _, instanceOrder = LFGAnnouncements.Utils.tArrayFind(order, instanceId)
+
+	local nextGroup, nextOrder
+	for _, data in pairs(self._instanceContainers) do
+		local order = data.order
+		if instanceOrder < order and (not nextOrder or nextOrder > order) then
+			nextGroup = data.group
+			nextOrder = order
+		end
+	end
 
 	self._instanceContainers[instanceId] = {
 		group = group,
 		entries = {},
+		order = instanceOrder,
 	}
+
+	self._scrollContainer:AddChild(group, nextGroup)
 
 	group:SetCallback("Expand", function() self._scrollContainer:DoLayout() end)
 	group:SetCallback("Collapse", function() self._scrollContainer:DoLayout() end)
@@ -301,6 +341,7 @@ function LFGAnnouncementsUI:_createEntryLabel(instanceId, difficulty, message, t
 	end
 	local _,_,_, hex = GetClassColor(class)
 
+	local instances = LFGAnnouncements.Instances
 	local entry = container.entries[authorGUID]
 	local newEntry = false
 	if not entry then
@@ -351,11 +392,10 @@ function LFGAnnouncementsUI:_createEntryLabel(instanceId, difficulty, message, t
 		local containerName = group.name
 		local containerCounter = group.counter + 1
 		group.counter = containerCounter
-		group:SetTitle(stringformat("%s (%d)", containerName, containerCounter))
+		group:SetTitle(getGroupTitle(containerName, containerCounter))
 		newEntry = true
 	end
 
-	local instances = LFGAnnouncements.Instances
 	local prefix = instances:GetInstanceType(instanceId) == instances.InstanceType.CUSTOM and EntryPrefix.CUSTOM or difficulty
 
 	entry.name:SetText(stringformat("|c%s%s|r", hex, author))
@@ -456,6 +496,10 @@ function LFGAnnouncementsUI:OnRemoveInstances(event, instances)
 	if self:IsShown() then
 		self._scrollContainer:DoLayout()
 	end
+end
+
+function LFGAnnouncementsUI:OnPlayerLevelUp(event, newLevel)
+	self._playerLevel = newLevel
 end
 
 LFGAnnouncements.Core:RegisterModule("UI", LFGAnnouncementsUI, "AceEvent-3.0")
