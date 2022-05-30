@@ -499,23 +499,27 @@ function LFGAnnouncementsInstances:GetInstanceType(instanceId)
 	return InstanceType.RAID
 end
 
+local lookup = {}
 function LFGAnnouncementsInstances:FindInstances(splitMessage)
 	wipe(instancesFound)
+	wipe(lookup)
 
 	local found = false
 	local customTags = CustomInstances.Tags
 	for i = 1, #splitMessage do
 		local word = splitMessage[i]
 		local id = self._activeTags[word]
-		if id then
+		if id and not lookup[id] then
 			found = true
-			instancesFound[id] = true
+			instancesFound[#instancesFound + 1] = id
+			lookup[id] = true
 		end
 
 		for id, tags in pairs(customTags) do
-			if tContains(tags, word) then --TODO: Create lookup table instead?
+			if tContains(tags, word) and not lookup[id] then --TODO: Create lookup table instead?
 				found = true
-				instancesFound[id] = true
+				instancesFound[#instancesFound + 1] = id
+				lookup[id] = true
 			end
 		end
 	end

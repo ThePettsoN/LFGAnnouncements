@@ -86,6 +86,7 @@ function LFGAnnouncementsCore:OnEnable()
 	self._timeToShow = db:GetProfileData("general", "time_visible_sec")
 	self._difficultyFilter = db:GetCharacterData("filters", "difficulty")
 	self._boostFilter = db:GetCharacterData("filters", "boost")
+	self._fakeRequestFilterAmount = db:GetCharacterData("filters", "fake_amount")
 	self._removeRaidMarkers = db:GetProfileData("general", "format", "remove_raid_markers")
 	self._enabledForInstanceTypes = db:GetProfileData("general", "enable_in_instance")
 end
@@ -191,6 +192,13 @@ function LFGAnnouncementsCore:SetBoostFilter(enabled)
 	end
 end
 
+function LFGAnnouncementsCore:SetFakeFilter(amount)
+	if self._fakeRequestFilterAmount ~= amount then
+		self._fakeRequestFilterAmount = amount
+		LFGAnnouncements.DB:SetCharacterData("fake_amount", amount, "filters")
+	end
+end
+
 function LFGAnnouncementsCore:SetRaidMarkersFilter(enabled)
 	if self._removeRaidMarkers ~= enabled then
 		self._removeRaidMarkers = enabled
@@ -252,18 +260,40 @@ function LFGAnnouncementsCore:_parseMessage(message, authorGUID)
 		index = index + 1
 	end
 
+	local filter, isBoostEntry = self:_filterMessage(tbl)
+	if filter then
+		return
+	end
+
 	module = self._instances
 	local foundInstances = module:FindInstances(tbl)
 	if foundInstances then
 		local difficulty = self:_findDifficulty(tbl)
-		local isBoostEntry = self:_isBoostEntry(tbl)
-		if not self._boostFilter or not isBoostEntry then
-			for instanceId, _ in pairs(foundInstances) do
-				self:_createInstanceEntry(instanceId, difficulty, message, authorGUID, isBoostEntry)
+		for i = 1, #foundInstances do
+			if i <= self._fakeRequestFilterAmount then
+				self:_createInstanceEntry(foundInstances[i], difficulty, message, authorGUID, isBoostEntry)
 			end
+		end
+
+		return true
+	end
+
+	return false
+end
+
+function LFGAnnouncementsCore:_filterMessage(tbl, author)
+	local isBoostEntry = self:_isBoostEntry(tbl)
+	if self._boostFilter and isBoostEntry then
+		return true
+	end
+
+	return false, isBoostEntry
+end
+
+function LFGAnnouncementsCore:_isBoostEntry(tbl)
+	for i = 1, #tbl do
+		if BOOST_TAGS[tbl[i]] then
 			return true
-		else
-			LFGAnnouncements.dprintf("Ignoring message '%s' due to boosting filter", message)
 		end
 	end
 
@@ -365,15 +395,6 @@ function LFGAnnouncementsCore:_findDifficulty(tbl)
 	end
 
 	return DIFFICULTIES.NORMAL
-end
-
-function LFGAnnouncementsCore:_isBoostEntry(tbl)
-	for i = 1, #tbl do
-		if BOOST_TAGS[tbl[i]] then
-			return true
-		end
-	end
-	return false
 end
 
 function LFGAnnouncementsCore:_isAllowedDifficulty(difficulty)

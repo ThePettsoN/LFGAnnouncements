@@ -74,7 +74,7 @@ local function formatGroup(order, db)
 				type = "toggle",
 				width = "full",
 				order = 4,
-				name = "Show total time instead of time since last request",
+				name = "Show total time instead of current time since last request",
 				get = function(info)
 					return db:GetProfileData("general", "format", "show_total_time")
 				end,

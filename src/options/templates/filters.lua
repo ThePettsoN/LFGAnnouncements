@@ -151,28 +151,28 @@ local function optionsTemplate()
 	local vanilla_dungeons = {
 		type = "group",
 		name = "Vanilla Dungeons",
-		order = 4,
+		order = 5,
 		inline = false,
 		args = {}
 	}
 	local tbc_dungeons = {
 		type = "group",
 		name = "TBC Dungeons",
-		order = 5,
+		order = 6,
 		inline = false,
 		args = {}
 	}
 	local tbc_raids = {
 		type = "group",
 		name = "TBC Raids",
-		order = 6,
+		order = 7,
 		inline = false,
 		args = {}
 	}
 	local custom_instances = {
 		type = "group",
 		name = "Custom",
-		order = 7,
+		order = 8,
 		inline = false,
 		args = {},
 	}
@@ -189,6 +189,7 @@ local function optionsTemplate()
 			width = "full",
 			order = 2,
 			name = "Filter on dungeon difficulty",
+			desc = "Only show dungeons with the matched difficulty. Raids will always be shown.",
 			values = db.dungeonDifficulties,
 			get = function(info)
 				return db:GetCharacterData("filters", "difficulty")
@@ -201,13 +202,30 @@ local function optionsTemplate()
 			type = "toggle",
 			width = "full",
 			order = 3,
-			name = "Try filter boost requests",
+			name = "Filter boost requests",
+			desc = "Try filter requests where people are selling or promoting boost runs",
 			get = function(info)
 				return db:GetCharacterData("filters", "boost")
 			end,
 			set = function(info, newValue)
 				UpdateData(core, "SetBoostFilter", newValue)
 			end,
+		},
+		fake_filter_amount = {
+			type = "range",
+			width = "full",
+			order = 4,
+			name = "Only show the first " .. db:GetCharacterData("filters", "fake_amount") .. " matched instances from a message",
+			desc = "Try filter requests where people input multiple instances for visibility.",
+			min = 2,
+			max = 50,
+			step = 1,
+			get = function(info)
+				return db:GetCharacterData("filters", "fake_amount")
+			end,
+			set = function(info, newValue)
+				UpdateData(core, "SetFakeFilter", newValue)
+			end
 		},
 		vanilla_dungeons = vanilla_dungeons,
 		tbc_dungeons = tbc_dungeons,

@@ -83,6 +83,7 @@ local defaults = {
 			difficulty = "ALL",
 			boost = false,
 			level_range = false,
+			fake_amount = 50,
 		}
 	}
 }
