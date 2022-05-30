@@ -36,16 +36,12 @@ end
 
 local function createGroup(args, instances)
 	local num = #instances
-	for i = 1, num do
-		local id = instances[i]
-		args["instance_filter_" .. id] = createEntry(id, i)
-	end
 
 	args["enable_all"] = {
 		type = "execute",
 		name = "Enable All",
 		width = "normal",
-		order = num + 1,
+		order = 1,
 		func = function()
 			for i = 1, num do
 				local id = instances[i]
@@ -57,7 +53,7 @@ local function createGroup(args, instances)
 		type = "execute",
 		name = "Disable All",
 		width = "normal",
-		order = num + 2,
+		order = 2,
 		func = function()
 			for i = 1, num do
 				local id = instances[i]
@@ -65,6 +61,11 @@ local function createGroup(args, instances)
 			end
 		end,
 	}
+
+	for i = 1, num do
+		local id = instances[i]
+		args["instance_filter_" .. id] = createEntry(id, i + 2)
+	end
 end
 
 local newName = ""
