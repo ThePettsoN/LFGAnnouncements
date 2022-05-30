@@ -16,7 +16,7 @@ end
 
 local function OnClickWhisper(widget, event, button)
 	local self = widget.parent.menu
-	ChatFrame_OpenChat(stringformat("/w %s", self._author))
+	ChatFrame_OpenChat(stringformat("/w %s ", self._author))
 	self._frame:Hide()
 end
 
