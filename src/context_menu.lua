@@ -32,6 +32,12 @@ local function OnClickIgnore(widget, event, button)
 	self._frame:Hide()
 end
 
+local function OnClickBlacklist(widget, event, button)
+	local self = widget.parent.menu
+	LFGAnnouncements.Core:BlacklistPlayer(self._authorGUID, self._author)
+	self._frame:Hide()
+end
+
 local function OnClickUrl(widget, event, button)
 	local self = widget.parent.menu
 	if self._urlLink then
@@ -70,12 +76,14 @@ function LFGAnnouncementsContextMenu:_createUI()
 	self._whisper = CreateLabel("Whisper", OnClickWhisper)
 	self._invite = CreateLabel("Invite", OnClickInvite)
 	self._ignore = CreateLabel("Ignore", OnClickIgnore)
+	self._blacklist = CreateLabel("Blacklist", OnClickBlacklist)
 	self._url = CreateLabel("Copy URL", OnClickUrl)
 
 	self._frame:AddChild(self._who)
 	self._frame:AddChild(self._whisper)
 	self._frame:AddChild(self._invite)
 	self._frame:AddChild(self._ignore)
+	self._frame:AddChild(self._blacklist)
 	self._frame:AddChild(self._url)
 end
 
@@ -105,6 +113,7 @@ function LFGAnnouncementsContextMenu:SetFont(font, size, flags)
 	self._whisper:SetFont(settings.path, settings.size, settings.flags)
 	self._invite:SetFont(settings.path, settings.size, settings.flags)
 	self._ignore:SetFont(settings.path, settings.size, settings.flags)
+	self._blacklist:SetFont(settings.path, settings.size, settings.flags)
 	self._url:SetFont(settings.path, settings.size, settings.flags)
 
 	-- Update Size of frame
@@ -122,7 +131,7 @@ function LFGAnnouncementsContextMenu:SetFont(font, size, flags)
 	self._frame.frame:SetHeight(requiredHeight + frameHeight - contentHeight)
 end
 
-function LFGAnnouncementsContextMenu:Show(author, message)
+function LFGAnnouncementsContextMenu:Show(authorGUID, author, message)
 	local created
 	if not self._frame then
 		created = true
@@ -139,8 +148,10 @@ function LFGAnnouncementsContextMenu:Show(author, message)
 	self._whisper:SetText("Whisper " .. author)
 	self._invite:SetText("Invite " .. author)
 	self._ignore:SetText("Ignore " .. author)
+	self._blacklist:SetText("Blacklist " .. author)
 
 	self._author = author
+	self._authorGUID = authorGUID
 
 	local url = self:_parseUrl(message)
 	if url then

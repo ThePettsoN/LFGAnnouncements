@@ -84,6 +84,10 @@ local defaults = {
 			boost = false,
 			level_range = false,
 			fake_amount = 50,
+			blacklist = {
+				players = {},
+				words = {},
+			}
 		}
 	}
 }

@@ -354,7 +354,7 @@ function LFGAnnouncementsUI:_createEntryLabel(instanceId, difficulty, message, t
 					ChatFrame_OpenChat(stringformat("/w %s ", author))
 				end
 			elseif button == "RightButton" then
-				self._contextMenu:Show(author, message)
+				self._contextMenu:Show(authorGUID, author, message)
 			end
 		end
 

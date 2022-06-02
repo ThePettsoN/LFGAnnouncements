@@ -30,6 +30,8 @@ local DIFFICULTY_TAGS = {
 	heroic = DIFFICULTIES.HEROIC,
 }
 
+local WORD_SPLIT_REGEX = "[%w]+"
+
 local BOOST_TAGS = {
 	boost = true,
 	boosts = true,
@@ -87,6 +89,10 @@ function LFGAnnouncementsCore:OnEnable()
 	self._difficultyFilter = db:GetCharacterData("filters", "difficulty")
 	self._boostFilter = db:GetCharacterData("filters", "boost")
 	self._fakeRequestFilterAmount = db:GetCharacterData("filters", "fake_amount")
+
+	self._blacklistedPlayers = db:GetCharacterData("filters", "blacklist", "players")
+	self._blacklistedWords = db:GetCharacterData("filters", "blacklist", "words")
+
 	self._removeRaidMarkers = db:GetProfileData("general", "format", "remove_raid_markers")
 	self._enabledForInstanceTypes = db:GetProfileData("general", "enable_in_instance")
 end
@@ -130,6 +136,8 @@ function LFGAnnouncementsCore:UpdateInvalidEntries()
 	index = 1
 	wipe(tbl)
 
+	local msg_tbl = {}
+
 	for instanceId, data in pairs(self._instanceEntries) do
 		if not instancesModule:IsActive(instanceId) then
 			for authorGUID, _ in pairs(data) do
@@ -140,9 +148,16 @@ function LFGAnnouncementsCore:UpdateInvalidEntries()
 			removeInstances = true
 			wipe(data)
 		else
+			wipe(msg_tbl)
 			for authorGUID, entry in pairs(data) do
-				local difficulty = entry.difficulty
-				if not self:_isAllowedDifficulty(difficulty) or (self._boostFilter and entry.boost) then
+				local i = 1
+				for v in stringgmatch(strlower(entry.message), WORD_SPLIT_REGEX) do
+					msg_tbl[i] = v
+					i = i + 1
+				end
+
+				local filter = self:_filterMessage(msg_tbl, authorGUID)
+				if filter or not self:_isAllowedDifficulty(entry.difficulty) then
 					data[authorGUID] = nil
 					tbl[index] = instanceId
 					tbl[index + 1] = authorGUID
@@ -240,8 +255,19 @@ function LFGAnnouncementsCore:SetEnabledInInstance(key, value)
 	LFGAnnouncements.DB:SetProfileData(key, value, "general", "enable_in_instance")
 end
 
+function LFGAnnouncementsCore:BlacklistPlayer(guid, player)
+	self._blacklistedPlayers[guid] = player
+	LFGAnnouncements.DB:SetCharacterData("players", self._blacklistedPlayers, "filters", "blacklist")
+	self:UpdateInvalidEntries()
+end
+
+function LFGAnnouncementsCore:BlacklistWord(word)
+	self._blacklistedWords[word] = true
+	LFGAnnouncements.DB:SetCharacterData("words", self._blacklistedPlayers, "filters", "blacklist")
+	self:UpdateInvalidEntries()
+end
+
 local module
-local regex = "[%w]+"
 function LFGAnnouncementsCore:_parseMessage(message, authorGUID)
 	if #message < 3 then
 		return false
@@ -255,12 +281,12 @@ function LFGAnnouncementsCore:_parseMessage(message, authorGUID)
 	index = 1
 
 	message = self:_formatMessage(message)
-	for v in stringgmatch(strlower(message), regex) do
+	for v in stringgmatch(strlower(message), WORD_SPLIT_REGEX) do
 		tbl[index] = v
 		index = index + 1
 	end
 
-	local filter, isBoostEntry = self:_filterMessage(tbl)
+	local filter, isBoostEntry = self:_filterMessage(tbl, authorGUID)
 	if filter then
 		return
 	end
@@ -281,9 +307,17 @@ function LFGAnnouncementsCore:_parseMessage(message, authorGUID)
 	return false
 end
 
-function LFGAnnouncementsCore:_filterMessage(tbl, author)
+function LFGAnnouncementsCore:_filterMessage(tbl, authorGUID)
 	local isBoostEntry = self:_isBoostEntry(tbl)
 	if self._boostFilter and isBoostEntry then
+		return true
+	end
+
+	if self:_isBlacklistedAuthor(authorGUID) then
+		return true
+	end
+
+	if self:_isBlacklistedWord(tbl) then
 		return true
 	end
 
@@ -298,6 +332,20 @@ function LFGAnnouncementsCore:_isBoostEntry(tbl)
 	end
 
 	return false
+end
+
+function LFGAnnouncementsCore:_isBlacklistedWord(tbl)
+	for i = 1, #tbl do
+		if self._blacklistedWords[tbl[i]] then
+			return true
+		end
+	end
+
+	return false
+end
+
+function LFGAnnouncementsCore:_isBlacklistedAuthor(authorGUID)
+	return self._blacklistedPlayers[authorGUID]
 end
 
 local formattedMessage
@@ -411,14 +459,14 @@ end
 
 
 --Events
-function LFGAnnouncementsCore:OnChatMsgChannel(event, message, _, _, _, playerName, _, _, channelIndex, _, _, _, guid)
+function LFGAnnouncementsCore:OnChatMsgChannel(event, message, _, _, _, _, _, _, channelIndex, _, _, _, guid)
 	return self:_parseMessage(message, guid)
 end
 
 function LFGAnnouncementsCore:OnChatMsgGuild(event, message, author, language, lineId, senderGUID)
 end
 
-function LFGAnnouncementsCore:OnChatMsg(event, message, _, _, _, playerName, _, _, _, _, _, _, guid)
+function LFGAnnouncementsCore:OnChatMsg(event, message, _, _, _, _, _, _, _, _, _, _, guid)
 	return self:_parseMessage(message, guid)
 end
 
