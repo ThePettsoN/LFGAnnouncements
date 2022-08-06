@@ -218,8 +218,12 @@ end
 
 function LFGAnnouncementsUI:_createInstanceContainer(instanceId)
 	local instances = Instances
-	local name = instances:GetInstanceName(instanceId)
-
+	local instanceName = instances:GetInstanceName(instanceId)
+	local instanceLevelRange = instances:GetLevelRange(instanceId)
+	local name = instanceName
+	if getn(instanceLevelRange) == 2 then
+	    name = stringformat("%s (%d, %d)", instanceName, instanceLevelRange[0], instanceLevelRange[1])
+	end
 	local group = AceGUI:Create("CollapsableInlineGroup")
 	group.name = name
 	group.counter = 0
