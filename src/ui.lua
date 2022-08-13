@@ -107,7 +107,7 @@ function LFGAnnouncementsUI:OpenGroup(instanceId)
 	container.group:Expand()
 end
 
--- TODO - This is maybe not the best solution, but we give the max font width of a name
+-- TODO - This is maybe not the best solution, but we get the max font width of a name and the time
 local nameSize, timeSize
 local function temp(fontSettings)
 	if nameSize then

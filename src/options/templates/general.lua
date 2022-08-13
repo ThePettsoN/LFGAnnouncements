@@ -58,7 +58,7 @@ local function formatGroup(order, db)
 					LFGAnnouncements.Notifications:SetFont(nil, newSize, nil)
 				end
 			},
-			raid_marker_filter= {
+			raid_marker_filter = {
 				type = "toggle",
 				width = "full",
 				order = 3,
@@ -74,7 +74,7 @@ local function formatGroup(order, db)
 				type = "toggle",
 				width = "full",
 				order = 4,
-				name = "Show total time instead of current time since last request",
+				name = "Show the total time instead of current time since last request",
 				get = function(info)
 					return db:GetProfileData("general", "format", "show_total_time")
 				end,
