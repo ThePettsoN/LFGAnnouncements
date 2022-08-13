@@ -39,6 +39,10 @@ local BOOST_TAGS = {
 	-- selling = true,
 }
 
+local GDKP_TAGS = {
+	gdkp = true,
+}
+
 local DUNGEON_ENTRY_REASON = {
 	NEW = 1,
 	UPDATE = 2,
@@ -86,6 +90,7 @@ function LFGAnnouncementsCore:OnEnable()
 	self._timeToShow = db:GetProfileData("general", "time_visible_sec")
 	self._difficultyFilter = db:GetCharacterData("filters", "difficulty")
 	self._boostFilter = db:GetCharacterData("filters", "boost")
+	self._gdkpFilter = db:GetCharacterData("filters", "gdkp")
 	self._fakeRequestFilterAmount = db:GetCharacterData("filters", "fake_amount")
 	self._removeRaidMarkers = db:GetProfileData("general", "format", "remove_raid_markers")
 	self._enabledForInstanceTypes = db:GetProfileData("general", "enable_in_instance")
@@ -142,7 +147,7 @@ function LFGAnnouncementsCore:UpdateInvalidEntries()
 		else
 			for authorGUID, entry in pairs(data) do
 				local difficulty = entry.difficulty
-				if not self:_isAllowedDifficulty(difficulty) or (self._boostFilter and entry.boost) then
+				if not self:_isAllowedDifficulty(difficulty) or (self._boostFilter and entry.boost) or (self._gdkpFilter and entry.gdkp) then
 					data[authorGUID] = nil
 					tbl[index] = instanceId
 					tbl[index + 1] = authorGUID
@@ -189,6 +194,13 @@ function LFGAnnouncementsCore:SetBoostFilter(enabled)
 	if self._boostFilter ~= enabled then
 		self._boostFilter = enabled
 		LFGAnnouncements.DB:SetCharacterData("boost", enabled, "filters")
+	end
+end
+
+function LFGAnnouncementsCore:SetGdkpFilter(enabled)
+	if self._gdkpFilter ~= enabled then
+		self._gdkpFilter = enabled
+		LFGAnnouncements.DB:SetCharacterData("gdkp", enabled, "filters")
 	end
 end
 
@@ -260,7 +272,7 @@ function LFGAnnouncementsCore:_parseMessage(message, authorGUID)
 		index = index + 1
 	end
 
-	local filter, isBoostEntry = self:_filterMessage(tbl)
+	local filter, isBoostEntry, isGdkpEntry = self:_filterMessage(tbl)
 	if filter then
 		return
 	end
@@ -271,7 +283,7 @@ function LFGAnnouncementsCore:_parseMessage(message, authorGUID)
 		local difficulty = self:_findDifficulty(tbl)
 		for i = 1, #foundInstances do
 			if i <= self._fakeRequestFilterAmount then
-				self:_createInstanceEntry(foundInstances[i], difficulty, message, authorGUID, isBoostEntry)
+				self:_createInstanceEntry(foundInstances[i], difficulty, message, authorGUID, isBoostEntry, isGdkpEntry)
 			end
 		end
 
@@ -282,17 +294,22 @@ function LFGAnnouncementsCore:_parseMessage(message, authorGUID)
 end
 
 function LFGAnnouncementsCore:_filterMessage(tbl, author)
-	local isBoostEntry = self:_isBoostEntry(tbl)
+	local isBoostEntry = self:_checkFilterEntry(tbl, BOOST_TAGS)
 	if self._boostFilter and isBoostEntry then
 		return true
 	end
 
-	return false, isBoostEntry
+	local isGdkpEntry = self:_checkFilterEntry(tbl, GDKP_TAGS)
+	if self._gdkpFilter and isGdkpEntry then
+		return true
+	end
+
+	return false, isBoostEntry, isGdkpEntry
 end
 
-function LFGAnnouncementsCore:_isBoostEntry(tbl)
+function LFGAnnouncementsCore:_checkFilterEntry(tbl, filter)
 	for i = 1, #tbl do
-		if BOOST_TAGS[tbl[i]] then
+		if filter[tbl[i]] then
 			return true
 		end
 	end
@@ -347,7 +364,7 @@ function LFGAnnouncementsCore:_formatMessage(message)
 	return formattedMessage, false
 end
 
-function LFGAnnouncementsCore:_createInstanceEntry(instanceId, difficulty, message, authorGUID, isBoostEntry)
+function LFGAnnouncementsCore:_createInstanceEntry(instanceId, difficulty, message, authorGUID, isBoostEntry, isGdkpEntry)
 	local instanceType = self._instances:GetInstanceType(instanceId)
 	local types = LFGAnnouncements.Instances.InstanceType
 	if instanceType == types.RAID then
@@ -370,6 +387,7 @@ function LFGAnnouncementsCore:_createInstanceEntry(instanceId, difficulty, messa
 		entry.timestamp_to_remove = time() + self._timeToShow
 		entry.time = 0
 		entry.boost = isBoostEntry
+		entry.gdkp = isGdkpEntry
 	else
 		newEntry = true
 		entry = {
@@ -379,6 +397,7 @@ function LFGAnnouncementsCore:_createInstanceEntry(instanceId, difficulty, messa
 			time = 0,
 			total_time = 0,
 			boost = isBoostEntry,
+			gdkp = isGdkpEntry,
 		}
 		instanceEntriesForId[authorGUID] = entry
 	end

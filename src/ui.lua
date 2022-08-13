@@ -160,6 +160,10 @@ function LFGAnnouncementsUI:ShowTotalTime(show)
 	end
 end
 
+local function getGroupTitle(name, numEntries)
+	return stringformat("%s (%d)", name, numEntries)
+end
+
 function LFGAnnouncementsUI:_createUI()
 	local frame = AceGUI:Create("Frame")
 	frame:SetTitle(TOCNAME)
@@ -196,24 +200,6 @@ function LFGAnnouncementsUI:_createUI()
 
 	self._frame = frame
 	self._scrollContainer = container
-end
-
--- local gray = "ffaaaaaa"
--- local red = "ffAF4134"
--- local green = "ff00ff00"
--- local default = "ffffd100"
-local function getGroupTitle(name, numEntries)
-	-- local color
-	-- if minLevel == 0 then
-	-- 	color = default
-	-- elseif maxLevel < playerLevel then
-	-- 	color = gray
-	-- elseif playerLevel < minLevel then
-	-- 	color = red
-	-- else
-	-- 	color = green
-	-- end
-	return stringformat("%s (%d)", name, numEntries)
 end
 
 function LFGAnnouncementsUI:_createInstanceContainer(instanceId)
@@ -392,6 +378,7 @@ function LFGAnnouncementsUI:_createEntryLabel(instanceId, difficulty, message, t
 		local containerName = group.name
 		local containerCounter = group.counter + 1
 		group.counter = containerCounter
+
 		group:SetTitle(getGroupTitle(containerName, containerCounter))
 		newEntry = true
 	end

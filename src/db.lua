@@ -82,6 +82,7 @@ local defaults = {
 		filters = {
 			difficulty = "ALL",
 			boost = false,
+			gkpd = false,
 			level_range = false,
 			fake_amount = 50,
 		}

@@ -212,6 +212,19 @@ local function optionsTemplate()
 				UpdateData(core, "SetBoostFilter", newValue)
 			end,
 		},
+		gdkp_filter = {
+			type = "toggle",
+			width = "full",
+			order = 3,
+			name = "Filter gdkp requests",
+			desc = "Try filter gdkp runs",
+			get = function(info)
+				return db:GetCharacterData("filters", "gdkp")
+			end,
+			set = function(info, newValue)
+				UpdateData(core, "SetGdkpFilter", newValue)
+			end,
+		},
 		fake_filter_amount = {
 			type = "range",
 			width = "full",
