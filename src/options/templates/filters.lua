@@ -229,9 +229,9 @@ local function optionsTemplate()
 			type = "range",
 			width = "full",
 			order = 4,
-			name = "Only show the first " .. db:GetCharacterData("filters", "fake_amount") .. " matched instances from a message",
-			desc = "Try filter requests where people input multiple instances for visibility.",
-			min = 2,
+			name = "Filter requests with more than " .. db:GetCharacterData("filters", "fake_amount") .. " matched instances from a message",
+			desc = "Recommended to leave this a bit higher than desired due to false results (\"MT\" could mean \"Main Tank\" but would also trigger a hit for Mana-Tombs).",
+			min = 0,
 			max = 50,
 			step = 1,
 			get = function(info)

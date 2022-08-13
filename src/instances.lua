@@ -273,6 +273,13 @@ local Instances = {}
 utils.tMergeRecursive(Instances, Dungeons)
 utils.tMergeRecursive(Instances, Raids)
 
+local TagsLookup = {}
+for id, tags in pairs(Instances.Tags) do
+	for i = 1, #tags do
+		TagsLookup[tags[i]] = id
+	end
+end
+
 local InstanceType = {
 	DUNGEON = "DUNGEON",
 	RAID = "RAID",
@@ -500,12 +507,13 @@ function LFGAnnouncementsInstances:GetInstanceType(instanceId)
 end
 
 local lookup = {}
+local allInstancesFound = {}
 function LFGAnnouncementsInstances:FindInstances(splitMessage)
 	wipe(instancesFound)
 	wipe(lookup)
+	wipe(allInstancesFound)
 
 	local found = false
-	local customTags = CustomInstances.Tags
 	for i = 1, #splitMessage do
 		local word = splitMessage[i]
 		local id = self._activeTags[word]
@@ -515,6 +523,7 @@ function LFGAnnouncementsInstances:FindInstances(splitMessage)
 			lookup[id] = true
 		end
 
+		local customTags = CustomInstances.Tags
 		for id, tags in pairs(customTags) do
 			if tContains(tags, word) and not lookup[id] then --TODO: Create lookup table instead?
 				found = true
@@ -524,7 +533,18 @@ function LFGAnnouncementsInstances:FindInstances(splitMessage)
 		end
 	end
 
-	return found and instancesFound
+	if found then
+		local numTotalInstancesFound = 0
+		for i = 1, #splitMessage do
+			local word = splitMessage[i]
+			local id = TagsLookup[word]
+			if id and not allInstancesFound[id] then
+				numTotalInstancesFound = numTotalInstancesFound + 1
+			end
+		end
+
+		return instancesFound, numTotalInstancesFound
+	end
 end
 
 LFGAnnouncements.Core:RegisterModule("Instances", LFGAnnouncementsInstances, "AceEvent-3.0")

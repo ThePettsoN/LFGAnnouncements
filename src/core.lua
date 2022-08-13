@@ -278,13 +278,11 @@ function LFGAnnouncementsCore:_parseMessage(message, authorGUID)
 	end
 
 	module = self._instances
-	local foundInstances = module:FindInstances(tbl)
-	if foundInstances then
+	local foundInstances, numTotalInstancesFound = module:FindInstances(tbl)
+	if foundInstances and numTotalInstancesFound <= self._fakeRequestFilterAmount then
 		local difficulty = self:_findDifficulty(tbl)
 		for i = 1, #foundInstances do
-			if i <= self._fakeRequestFilterAmount then
-				self:_createInstanceEntry(foundInstances[i], difficulty, message, authorGUID, isBoostEntry, isGdkpEntry)
-			end
+			self:_createInstanceEntry(foundInstances[i], difficulty, message, authorGUID, isBoostEntry, isGdkpEntry)
 		end
 
 		return true
