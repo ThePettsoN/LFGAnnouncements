@@ -23,6 +23,7 @@ local defaults = {
 			format = {
 				remove_raid_markers = false,
 				show_total_time = false,
+				show_level_range = true,
 			},
 			enable_in_instance = {
 				world = true,

@@ -82,6 +82,18 @@ local function formatGroup(order, db)
 					LFGAnnouncements.UI:ShowTotalTime(newValue)
 				end,
 			},
+			show_level_range = {
+				type = "toggle",
+				width = "full",
+				order = 5,
+				name = "Show the level range for each instance type",
+				get = function(info)
+					return db:GetProfileData("general", "format", "show_level_range")
+				end,
+				set = function(info, newValue)
+					LFGAnnouncements.UI:ShowLevelRange(newValue)
+				end,
+			},
 		}
 	}
 end

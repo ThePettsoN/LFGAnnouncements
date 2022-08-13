@@ -51,6 +51,7 @@ function LFGAnnouncementsUI:OnEnable()
 
 	self._fontSettings = LFGAnnouncements.DB:GetProfileData("general", "font")
 	self._showTotalTime = LFGAnnouncements.DB:GetProfileData("general", "format", "show_total_time")
+	self._showLevelRange = LFGAnnouncements.DB:GetProfileData("general", "format", "show_level_range")
 	self._contextMenu = LFGAnnouncements.ContextMenu
 	self._contextMenu:Init(self._fontSettings)
 
@@ -160,8 +161,54 @@ function LFGAnnouncementsUI:ShowTotalTime(show)
 	end
 end
 
-local function getGroupTitle(name, numEntries)
+local gray = "ffaaaaaa"
+local red = "ffAF4134"
+local green = "ff00ff00"
+local default = "ffffd100"
+local function getGroupTitle(name, levelRange, numEntries, playerLevel)
+	if levelRange then
+		local minLevel = levelRange[1]
+		local maxLevel = levelRange[2]
+
+		local color
+		if minLevel == 0 then
+			color = default
+		elseif maxLevel < playerLevel then
+			color = gray
+		elseif playerLevel < minLevel then
+			color = red
+		else
+			color = green
+		end
+
+		return stringformat("|c%s[%d-%d]|r %s (%d)", color, minLevel, maxLevel, name, numEntries)
+	end
+
 	return stringformat("%s (%d)", name, numEntries)
+end
+
+function LFGAnnouncementsUI:ShowLevelRange(show)
+	if self._showLevelRange ~= show then
+		self._showLevelRange = show
+		LFGAnnouncements.DB:SetProfileData("show_level_range", show, "general", "format")
+
+		local containers = self._instanceContainers
+		local instances = Instances
+		if show then
+			local customInstanceType = instances.InstanceType.CUSTOM
+			for id, container in pairs(containers) do
+				local isCustomGroup = instances:GetInstanceType(id) == customInstanceType
+				local levelRange = not isCustomGroup and instances:GetLevelRange(id)
+				local group = container.group
+				group:SetTitle(getGroupTitle(group.name, levelRange, group.counter, self._playerLevel))
+			end
+		else
+			for _, container in pairs(containers) do
+				local group = container.group
+				group:SetTitle(getGroupTitle(group.name, nil, group.counter, self._playerLevel))
+			end
+		end
+	end
 end
 
 function LFGAnnouncementsUI:_createUI()
@@ -206,6 +253,9 @@ function LFGAnnouncementsUI:_createInstanceContainer(instanceId)
 	local instances = Instances
 	local name = instances:GetInstanceName(instanceId)
 
+	local isCustomGroup = instances:GetInstanceType(instanceId) == instances.InstanceType.CUSTOM
+	local levelRange = not isCustomGroup and self._showLevelRange and instances:GetLevelRange(instanceId)
+
 	local group = AceGUI:Create("CollapsableInlineGroup")
 	group.name = name
 	group.counter = 0
@@ -221,7 +271,7 @@ function LFGAnnouncementsUI:_createInstanceContainer(instanceId)
 		end
 	end
 
-	group:SetTitle(getGroupTitle(name, 0))
+	group:SetTitle(getGroupTitle(name, levelRange, 0, self._playerLevel))
 	group:SetTitleFont(self._fontSettings.path, self._fontSettings.size, self._fontSettings.flags)
 	group:Collapse()
 
@@ -330,6 +380,7 @@ function LFGAnnouncementsUI:_createEntryLabel(instanceId, difficulty, message, t
 	local instances = LFGAnnouncements.Instances
 	local entry = container.entries[authorGUID]
 	local newEntry = false
+	local isCustomGroup = instances:GetInstanceType(instanceId) == instances.InstanceType.CUSTOM
 	if not entry then
 		local group = container.group
 		local onClick = function(widget, event, button) -- TODO: This is stupid. Should use one function instead of creating a new one every time
@@ -375,15 +426,17 @@ function LFGAnnouncementsUI:_createEntryLabel(instanceId, difficulty, message, t
 
 		container.entries[authorGUID] = entry
 
+		local levelRange = not isCustomGroup and self._showLevelRange and instances:GetLevelRange(instanceId)
+
 		local containerName = group.name
 		local containerCounter = group.counter + 1
 		group.counter = containerCounter
 
-		group:SetTitle(getGroupTitle(containerName, containerCounter))
+		group:SetTitle(getGroupTitle(containerName, levelRange, containerCounter, self._playerLevel))
 		newEntry = true
 	end
 
-	local prefix = instances:GetInstanceType(instanceId) == instances.InstanceType.CUSTOM and EntryPrefix.CUSTOM or difficulty
+	local prefix = isCustomGroup and EntryPrefix.CUSTOM or difficulty
 
 	entry.name:SetText(stringformat("|c%s%s|r", hex, author))
 	entry.prefix:SetText(EntryPrefix[prefix])
@@ -410,9 +463,12 @@ function LFGAnnouncementsUI:_removeEntryLabel(instanceId, authorGUID)
 			if counter <= 0 then
 				self:_removeInstanceContainer(instanceId)
 			else
+				local instances = Instances
+				local isCustomGroup = instances:GetInstanceType(instanceId) == instances.InstanceType.CUSTOM
+				local levelRange = not isCustomGroup and self._showLevelRange and instances:GetLevelRange(instanceId)
 				local containerName = group.name
 				group.counter = counter
-				group:SetTitle(getGroupTitle(containerName, counter))
+				group:SetTitle(getGroupTitle(containerName, levelRange, counter, self._playerLevel))
 			end
 		end
 	end
