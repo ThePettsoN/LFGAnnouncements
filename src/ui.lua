@@ -412,7 +412,7 @@ function LFGAnnouncementsUI:_removeEntryLabel(instanceId, authorGUID)
 			else
 				local containerName = group.name
 				group.counter = counter
-				group:SetTitle(stringformat("%s (%d)", containerName, counter))
+				group:SetTitle(getGroupTitle(containerName, counter))
 			end
 		end
 	end
