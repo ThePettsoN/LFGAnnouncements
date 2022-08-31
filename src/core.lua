@@ -69,7 +69,17 @@ function LFGAnnouncementsCore:OnInitialize()
 	self._modules = {}
 	self._instanceEntries = {}
 
-	LFGAnnouncements.GameExpansion = GetBuildInfo():sub(1,1) == '2' and "TBC" or "VANILLA"
+	local expansion = GetBuildInfo():sub(1,1)
+	if expansion == "3" then
+		LFGAnnouncements.GameExpansion = "WOTLK"
+		LFGAnnouncements.GameExpansionId = 3
+	elseif expansion == "2" then
+		LFGAnnouncements.GameExpansion = "TBC"
+		LFGAnnouncements.GameExpansionId = 2
+	else
+		LFGAnnouncements.GameExpansion = "VANILLA"
+		LFGAnnouncements.GameExpansionId = 1
+	end
 end
 
 local UpdateTime = 1

@@ -156,27 +156,8 @@ local function optionsTemplate()
 		inline = false,
 		args = {}
 	}
-	local tbc_dungeons = {
-		type = "group",
-		name = "TBC Dungeons",
-		order = 6,
-		inline = false,
-		args = {}
-	}
-	local tbc_raids = {
-		type = "group",
-		name = "TBC Raids",
-		order = 7,
-		inline = false,
-		args = {}
-	}
-	local custom_instances = {
-		type = "group",
-		name = "Custom",
-		order = 8,
-		inline = false,
-		args = {},
-	}
+	local instances = instancesModule:GetDungeons("VANILLA")
+	createGroup(vanilla_dungeons.args, instances)
 
 	local args = {
 		header = {
@@ -242,22 +223,70 @@ local function optionsTemplate()
 			end
 		},
 		vanilla_dungeons = vanilla_dungeons,
-		tbc_dungeons = tbc_dungeons,
-		tbc_raids = tbc_raids,
 		custom_instances = custom_instances,
 	}
 
-	-- Vanilla Dungeons
-	local instances = instancesModule:GetDungeons("VANILLA")
-	createGroup(vanilla_dungeons.args, instances)
+	local order = 5
+	if LFGAnnouncements.GameExpansionId > 1 then
+		order = order + 1
+		local tbc_dungeons = {
+			type = "group",
+			name = "TBC Dungeons",
+			order = order,
+			inline = false,
+			args = {}
+		}
+		instances = instancesModule:GetDungeons("TBC")
+		createGroup(tbc_dungeons.args, instances)
+		args.tbc_dungeons = tbc_dungeons
 
-	-- TBC Dungeons
-	instances = instancesModule:GetDungeons("TBC")
-	createGroup(tbc_dungeons.args, instances)
+		order = order + 1
+		local tbc_raids = {
+			type = "group",
+			name = "TBC Raids",
+			order = order,
+			inline = false,
+			args = {}
+		}
+		instances = instancesModule:GetRaids("TBC")
+		createGroup(tbc_raids.args, instances)
+		args.tbc_raids = tbc_raids
+	end
 
-	-- TBC Raids
-	instances = instancesModule:GetRaids("TBC")
-	createGroup(tbc_raids.args, instances)
+	if LFGAnnouncements.GameExpansionId > 2 then
+		order = order + 1
+		local wotlk_dungeons = {
+			type = "group",
+			name = "WOTLK Dungeons",
+			order = order,
+			inline = false,
+			args = {}
+		}
+		instances = instancesModule:GetDungeons("WOTLK")
+		createGroup(wotlk_dungeons.args, instances)
+		args.wotlk_dungeons = wotlk_dungeons
+
+		order = order + 1
+		local wotlk_raids = {
+			type = "group",
+			name = "WOTLK Raids",
+			order = order,
+			inline = false,
+			args = {}
+		}
+		instances = instancesModule:GetRaids("WOTLK")
+		createGroup(wotlk_raids.args, instances)
+		args.wotlk_raids = wotlk_raids
+	end
+
+	order = order + 1
+	local custom_instances = {
+		type = "group",
+		name = "Custom",
+		order = order,
+		inline = false,
+		args = {},
+	}
 
 	createCustomFilters(custom_instances.args, instancesModule:GetCustomInstances())
 
