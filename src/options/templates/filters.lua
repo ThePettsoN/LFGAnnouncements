@@ -289,6 +289,7 @@ local function optionsTemplate()
 	}
 
 	createCustomFilters(custom_instances.args, instancesModule:GetCustomInstances())
+	args.custom_instances = custom_instances
 
 	return {
 		type = "group",
