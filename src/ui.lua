@@ -116,7 +116,7 @@ local function temp(fontSettings)
 	end
 
 	local frame = CreateFrame("Frame", nil, UIParent)
-	local s = frame:CreateFontString(frame, "BACKGROUND")
+	local s = frame:CreateFontString(nil, "BACKGROUND")
 	s:SetFont(fontSettings.path, fontSettings.size, fontSettings.flags)
 
 	s:SetText("XXXXXXXXXXXX")
