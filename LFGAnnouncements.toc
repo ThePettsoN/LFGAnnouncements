@@ -1,8 +1,8 @@
-## Interface: 30400
+## Interface: 30401
 ## Title: LFG Announcements
 ## Notes: 
 ## Author: ThePettsoN
-## Version: 1.11.1
+## Version: 1.11.2
 ## DefaultState: Enabled
 ## LoadOnDemand: 0
 ## SavedVariables: LFGAnnouncementsDB
