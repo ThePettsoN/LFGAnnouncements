@@ -1,5 +1,6 @@
 package-as: LFGAnnouncements
 enable-nolib-creation: no
+enable-toc-creation: yes
 
 externals:
     libs/LibStub:
