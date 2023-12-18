@@ -15,11 +15,14 @@ local FlashClientIcon = FlashClientIcon
 local AceGUI = LibStub("AceGUI-3.0", "AceEvent-3.0")
 local LSM = LibStub("LibSharedMedia-3.0")
 
-local function onClickToaster(frame)
+local MAX_TOASTERS = 1
+local NEXT_TOASTER = 1
+
+local function onClickToaster(toaster)
 	local ui = LFGAnnouncements.UI
 	ui:Show()
 	ui:CloseAll()
-	ui:OpenGroup(frame.instanceId)
+	ui:OpenGroup(toaster.instanceId)
 end
 
 local LFGAnnouncementsNotification = {}
@@ -44,66 +47,64 @@ function LFGAnnouncementsNotification:OnEnable()
 	self:_createUI()
 end
 
-function LFGAnnouncementsNotification:_scheduleToasterTimer()
-	self._toasterTimer = self:ScheduleTimer(function()
-		self._toaster:StartFadeOut()
-	end, self._toasterDuration)
+function LFGAnnouncementsNotification:OnStopMoving(toaster, event, x, y)
+	self._db:SetProfileData("x", floor(x + 0.5), "notifications", "toaster", "position")
+	self._db:SetProfileData("y", floor(y + 0.5), "notifications", "toaster", "position")
+	self._db:SetProfileData("stored", true, "notifications", "toaster", "position")
+
+	if toaster:IsShown() then
+		toaster:Trigger(self._toasterDuration)
+	end
 end
 
-function LFGAnnouncementsNotification:_cancelToasterTimer()
-	if self._toasterTimer then
-		self:CancelTimer(self._toasterTimer)
+function LFGAnnouncementsNotification:OnFadeOutComplete(toaster)
+	self._freeSlots[toaster.id] = true
+end
+
+local function SetPosition(toasters, x, y, offset, anchor)
+	local prevToaster = toasters[1]
+	prevToaster:ClearAllPoints()
+	prevToaster:SetPoint(anchor or "BOTTOMLEFT", x, y)
+
+	for i = 2, MAX_TOASTERS do
+		local toaster = toasters[i]
+		toaster:ClearAllPoints()
+		toaster:SetPoint("BOTTOMLEFT", prevToaster.frame, 0, 0 + offset)
+
+		prevToaster = toaster
 	end
 end
 
 function LFGAnnouncementsNotification:_createUI()
 	local size = self._db:GetProfileData("notifications", "toaster", "size")
 
-	self._toaster = AceGUI:Create("Toaster")
-	self._toaster:SetLayout("Fill")
-	self._toaster:SetWidth(size.width)
-	self._toaster:SetHeight(size.height)
-	self._toaster:SetTitle("LFGAnnouncements")
-	self._toaster.titletext:SetWordWrap(false)
-	self._toaster.titletext:SetNonSpaceWrap(false)
-	self._toaster:SetCallback("StopMoving", function (widget, event, x, y)
-		self._db:SetProfileData("x", floor(x + 0.5), "notifications", "toaster", "position")
-		self._db:SetProfileData("y", floor(y + 0.5), "notifications", "toaster", "position")
-		self._db:SetProfileData("stored", true, "notifications", "toaster", "position")
-
-		if self._toaster:IsShown() and self._toasterTimer then
-			self:_scheduleToasterTimer()
-		end
-
-	end)
-	self._toaster:SetCallback("StartMoving", function (widget, event)
-		self:_cancelToasterTimer()
-		self._toaster:SetAlpha(1)
-		self._toaster:StopFadeOut()
-	end)
 	self._toasterDuration = self._db:GetProfileData("notifications", "toaster", "duration")
 
-	local label = self._toaster.content:CreateFontString(nil, "BACKGROUND", "GameFontHighlightSmall")
-	label:ClearAllPoints()
-	label:SetPoint("TOPLEFT", 0, 0)
-	label:SetPoint("BOTTOMRIGHT", 0, 0)
-	label:SetJustifyH("LEFT")
-	label:SetJustifyV("TOP")
-	label:SetFont(self._fontSettings.path, self._fontSettings.size, self._fontSettings.flags)
-	label:Show()
-	self._label = label
+	self._freeSlots = {}
+	self._toasters = {}
+	for i = 1, MAX_TOASTERS do
+		local toaster = AceGUI:Create("Toaster")
+		toaster:SetSize(size.width, size.height)
+		toaster:SetTitle("LFGAnnouncements")
+		toaster:SetId(i)
+		toaster:SetLabelFontSettings(self._fontSettings.path, self._fontSettings.size, self._fontSettings.flags)
 
+		toaster:SetCallback("StopMoving", function(widget, event, x, y) self:OnStopMoving(widget, event, x, y) end)
+		toaster:SetCallback("FadeOutComplete", function(widget) self:OnFadeOutComplete(widget) end)
+		toaster:SetCallback("OnClickBody", onClickToaster)
+		toaster:Hide()
+		self._toasters[i] = toaster
+		self._freeSlots[i] = true
+	end
+	self._toasters[1]:SetIsMovable(true)
+
+	local offset = size.height + 2
 	local toasterPosition = self._db:GetProfileData("notifications", "toaster", "position")
 	if toasterPosition.stored then
-		self._toaster:ClearAllPoints()
-		self._toaster:SetPoint("BOTTOMLEFT", toasterPosition.x, toasterPosition.y)
+		SetPosition(self._toasters, toasterPosition.x, toasterPosition.y, offset)
+	else
+		SetPosition(self._toasters, 0, 0, offset, "CENTER")
 	end
-	self._toaster:Hide()
-
-	self._button = CreateFrame("Button", nil, self._toaster.frame)
-	self._button:SetPoint("TOPLEFT", 0, 0)
-	self._button:SetPoint("BOTTOMRIGHT", 0, 0)
-	self._button:SetScript("OnMouseDown", onClickToaster)
 end
 
 function LFGAnnouncementsNotification:_triggerSound()
@@ -115,18 +116,25 @@ function LFGAnnouncementsNotification:_triggerSound()
 end
 
 function LFGAnnouncementsNotification:_triggerToaster(instanceId, message)
-	self:_cancelToasterTimer()
-
-	self._button.instanceId = instanceId
-	self._label:SetText(message)
-
-	self._toaster:SetTitle(self._instances:GetInstanceName(instanceId))
-	self._toaster:Show()
-	self._toaster:SetAlpha(1)
-
-	if not self._toaster:IsMoving() then
-		self:_scheduleToasterTimer()
+	local index
+	for i = 1, #self._freeSlots do
+		if self._freeSlots[i] then
+			index = i
+			break
+		end
 	end
+
+	if not index then
+		return
+	end
+
+	local toaster = self._toasters[index]
+	toaster:SetInstanceId(instanceId)
+	toaster:SetText(message)
+	toaster:SetTitle(self._instances:GetInstanceName(instanceId))
+	toaster:Trigger(self._toasterDuration)
+
+	self._freeSlots[index] = false
 end
 
 function LFGAnnouncementsNotification:SetNotificationInInstance(key, value)
@@ -161,11 +169,15 @@ end
 
 function LFGAnnouncementsNotification:SetToasterSize(width, height)
 	if width then
-		self._toaster:SetWidth(width)
+		for i = 1, #self._toasters do
+			self._toasters[i]:SetWidth(width)
+		end
 		self._db:SetProfileData("width", width, "notifications", "toaster", "size")
 	end
 	if height then
-		self._toaster:SetHeight(height)
+		for i = 1, #self._toasters do
+			self._toasters[i]:SetHeight(height)
+		end
 		self._db:SetProfileData("height", height, "notifications", "toaster", "size")
 	end
 end
@@ -177,7 +189,9 @@ function LFGAnnouncementsNotification:SetFont(font, size, flags)
 	settings.flags = flags and flags or settings.flags
 	LFGAnnouncements.DB:SetProfileData("font", settings, "general") -- TODO: currently calling this twice in both UI and Notifications. Need to move any db save out of modules and into templates?
 
-	self._label:SetFont(settings.path, settings.size, settings.flags)
+	for i = 1, #self._toasters do
+		self._toasters[i].label:SetFont(settings.path, settings.size, settings.flags)
+	end
 end
 
 function LFGAnnouncementsNotification:OnPlayerEnteringWorld(event, isInitialLogin, isReloadingUi)
@@ -211,4 +225,4 @@ function LFGAnnouncementsNotification:OnInstanceEntry(event, instanceId, difficu
 	end
 end
 
-LFGAnnouncements.Core:RegisterModule("Notification", LFGAnnouncementsNotification, "AceEvent-3.0", "AceTimer-3.0")
+LFGAnnouncements.Core:RegisterModule("Notification", LFGAnnouncementsNotification, "AceEvent-3.0")
