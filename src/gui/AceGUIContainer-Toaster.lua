@@ -140,8 +140,15 @@ local function onMouseUpTitle(title)
 	self:Fire("StopMoving", status.left, status.top - status.height)
 end
 
+local function fadeFinishedFunction(self)
+	self:Hide()
+	self:Fire("FadeOutComplete")
+end
+
 local function onFadeOutComplete(self)
 	self.fadeInfo.fadeTimer = nil
+	self.fadeInfo.finishedFunc = fadeFinishedFunction
+
 	UIFrameFade(self.frame, self.fadeInfo)
 end
 
@@ -291,9 +298,9 @@ local function Constructor()
 		timeToFade = 1,
 		startAlpha = 1,
 		endAlpha = 0,
-		finishedFunc = function()
-			self:Hide()
-			self:Fire("FadeOutComplete")
+		finishedFunc = fadeFinishedFunction,
+		finishedArg1 = self,
+	}
 		end
 	}
 
