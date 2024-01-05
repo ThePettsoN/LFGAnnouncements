@@ -89,31 +89,19 @@ local function CreateLabel(self, frame)
 end
 
 local function CreateButton(self, frame)
-	local button = CreateFrame("Button", "ToasterWindowButton", frame)
-	button:SetPoint("TOPLEFT", self.title, "BOTTOMLEFT", 0, 0)
-	button:SetPoint("BOTTOMRIGHT", frame, 0, 0)
-	button:SetScript("OnMouseUp", onMouseUpFrameButton)
+	local button = CreateFrame("Button", "ToasterWindowButton", self.content)
+	button:SetPoint("TOPLEFT", self.content, "TOPLEFT", 0, 0)
+	button:SetPoint("BOTTOMRIGHT", self.content, "BOTTOMRIGHT", 0, 0)
 	button.obj = self
+
+	button:EnableMouse()
 	return button
-end
-
-local function CreateContainer(self, frame)
-	local content = CreateFrame("Frame", "ContainerFrame", frame)
-	content:SetPoint("TOPLEFT", frame, "TOPLEFT", 12, -32)
-	content:SetPoint("BOTTOMRIGHT", frame, "BOTTOMRIGHT", -12, 13)
-	content.obj = self
-
-	return content
 end
 
 -- Callbacks --
 local function onClickCloseButton(button)
 	PlaySound(799)
 	button.obj:Hide()
-end
-
-local function onMouseDownFrame(frame)
-	AceGUI:ClearFocus()
 end
 
 local function onShowFrame(frame)
@@ -321,9 +309,9 @@ local function Constructor()
 	self.button = CreateButton(self, frame)
 
 	-- Callbacks
-	frame:SetScript("OnMouseDown", onMouseDownFrame)
 	frame:SetScript("OnShow", onShowFrame)
 	frame:SetScript("OnHide", onHideFrame)
+	self.button:SetScript("OnMouseUp", onMouseUpFrameButton)
 
 	return self
 end
