@@ -299,6 +299,10 @@ function LFGAnnouncementsCore:_parseMessage(message, authorGUID)
 	index = 1
 
 	message = self:_formatMessage(message)
+	if not message then
+		return
+	end
+
 	for v in stringgmatch(strlower(message), regex) do
 		tbl[index] = v
 		index = index + 1
