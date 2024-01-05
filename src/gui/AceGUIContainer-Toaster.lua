@@ -45,16 +45,15 @@ local function CreateTitle(self, frame)
 	local titlebg = frame:CreateTexture(nil, "BACKGROUND")
 	titlebg:SetPoint("TOPLEFT", 0, 0)
 	titlebg:SetPoint("TOPRIGHT", frame, "TOPRIGHT", 0, 0)
-	titlebg:SetPoint("BOTTOMRIGHT", closeButton, "BOTTOMRIGHT", 10, 4)
+	titlebg:SetPoint("BOTTOMRIGHT", closeButton, "BOTTOMRIGHT", 10, 0)
 
 	local dialogbg = frame:CreateTexture(nil, "BACKGROUND")
 	dialogbg:SetPoint("TOPLEFT", titlebg, "BOTTOMLEFT", 0, 0)
 	dialogbg:SetPoint("BOTTOMRIGHT", 0, 0)
 
-	local titleText = frame:CreateFontString(nil, "ARTWORK")
-	titleText:SetFontObject(GameFontNormal)
-	titleText:SetPoint("TOPLEFT",12,0)
-	titleText:SetPoint("BOTTOMRIGHT", titlebg, "BOTTOMRIGHT", 0, 0)
+	local titleText = frame:CreateFontString(nil, "ARTWORK", "GameFontNormal")
+	titleText:SetPoint("TOPLEFT", 10, 0)
+	titleText:SetPoint("BOTTOMRIGHT", titlebg, "BOTTOMRIGHT", -10, 0)
 	titleText:SetJustifyH("LEFT")
 	titleText:SetWordWrap(false)
 	titleText:SetNonSpaceWrap(false)
@@ -66,11 +65,21 @@ local function CreateTitle(self, frame)
 	return title, titleText, closeButton
 end
 
+local function CreateContainer(self, frame)
+	local content = CreateFrame("Frame", "ContainerFrame", frame)
+	content:ClearAllPoints()
+	content:SetPoint("TOPLEFT", self.title, "BOTTOMLEFT", 0, 0)
+	content:SetPoint("BOTTOMRIGHT", frame, "BOTTOMRIGHT", 0, 0)
+	content.obj = self
+
+	return content
+end
+
 local function CreateLabel(self, frame)
-	local label = self.content:CreateFontString(nil, "BACKGROUND", "GameFontHighlightSmall")
+	local label = self.content:CreateFontString(nil, "ARTWORK", "GameFontHighlightSmall")
 	label:ClearAllPoints()
-	label:SetPoint("TOPLEFT", 0, 0)
-	label:SetPoint("BOTTOMRIGHT", 0, 0)
+	label:SetPoint("TOPLEFT", 10, 0)
+	label:SetPoint("BOTTOMRIGHT", -10, 0)
 	label:SetJustifyH("LEFT")
 	label:SetJustifyV("TOP")
 	label:Show()
@@ -301,15 +310,13 @@ local function Constructor()
 		finishedFunc = fadeFinishedFunction,
 		finishedArg1 = self,
 	}
-		end
-	}
 
 	-- Create Objects
+	self.title, self.titletext, self.closebutton = CreateTitle(self, frame)
 	self.content = CreateContainer(self, frame)
 	AceGUI:RegisterAsContainer(self)
 	self:SetLayout("Fill")
 
-	self.title, self.titletext, self.closebutton = CreateTitle(self, frame)
 	self.label = CreateLabel(self, frame)
 	self.button = CreateButton(self, frame)
 
