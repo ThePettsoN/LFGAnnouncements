@@ -36,6 +36,11 @@ local function CancelFadeout(frame, timer)
 	end
 end
 
+local function onClickCloseButton(button)
+	PlaySound(799)
+	button.obj:Hide()
+end
+
 local function CreateTitle(self, frame)
 	local closeButton = CreateFrame("Button", "CloseButtonFrame", frame, "UIPanelCloseButton")
 	closeButton:SetPoint("TOPRIGHT", 0, 0)
@@ -60,7 +65,7 @@ local function CreateTitle(self, frame)
 
 	local title = CreateFrame("Button", "TitleButtonFrame", frame)
 	title:SetPoint("TOPLEFT", titlebg)
-	title:SetPoint("BOTTOMRIGHT", titlebg)
+	title:SetPoint("BOTTOMRIGHT", closeButton, "BOTTOMLEFT", 0, 0)
 
 	return title, titleText, closeButton
 end
@@ -99,10 +104,6 @@ local function CreateButton(self, frame)
 end
 
 -- Callbacks --
-local function onClickCloseButton(button)
-	PlaySound(799)
-	button.obj:Hide()
-end
 
 local function onShowFrame(frame)
 	frame.obj:Fire("OnShow")
