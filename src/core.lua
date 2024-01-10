@@ -39,6 +39,15 @@ local BOOST_TAGS = {
 
 local LFM_TAGS = {
 	["lf[0-9]*m"] = true,
+	["lf [0-9]*"] = true,
+	["lf [0-9 ]* tank[s]*"] = true,
+	["lf [0-9 ]* healer[s]*"] = true,
+	["lf [0-9 ]* dps"] = true,
+	["lf [0-9 ]* dd[s]*"] = true,
+	["need [0-9 ]* tank[s]*"] = true,
+	["need [0-9 ]* healer[s]*"] = true,
+	["need [0-9 ]* dps"] = true,
+	["need [0-9 ]* dd[s]*"] = true,
 }
 
 local LFG_TAGS = {
@@ -303,12 +312,18 @@ function LFGAnnouncementsCore:_parseMessage(message, authorGUID)
 		return
 	end
 
-	for v in stringgmatch(strlower(message), regex) do
+	local lowerMsg = strlower(message)
+	for v in stringgmatch(lowerMsg, regex) do
 		tbl[index] = v
 		index = index + 1
 	end
 
-	local filter, isBoostEntry, isGdkpEntry, isLFGEntry, isLFMEntry = self:_filterMessage(tbl)
+	local filter, isBoostEntry, isGdkpEntry = self:_filterMessage(tbl)
+	if filter then
+		return
+	end
+
+	local filter, isLfgEntry, isLfmEntry = self:_filterRegexMessage(lowerMsg)
 	if filter then
 		return
 	end
@@ -318,7 +333,7 @@ function LFGAnnouncementsCore:_parseMessage(message, authorGUID)
 	if foundInstances and numTotalInstancesFound <= self._fakeRequestFilterAmount then
 		local difficulty = self:_findDifficulty(tbl)
 		for i = 1, #foundInstances do
-			self:_createInstanceEntry(foundInstances[i], difficulty, message, authorGUID, isBoostEntry, isGdkpEntry, isLFGEntry, isLFMEntry)
+			self:_createInstanceEntry(foundInstances[i], difficulty, message, authorGUID, isBoostEntry, isGdkpEntry, isLfgEntry, isLfmEntry)
 		end
 
 		return true
@@ -338,30 +353,43 @@ function LFGAnnouncementsCore:_filterMessage(tbl, author)
 		return true
 	end
 
-	local isLFGEntry = self:_checkFilterEntry(tbl, LFG_TAGS, true)
-	if self._lfgFilter and isLFGEntry then
-		return true
-	end
-
-	local isLFMEntry = self:_checkFilterEntry(tbl, LFM_TAGS, true)
-	if self._lfmFilter and isLFMEntry then
-		return true
-	end
-
-	return false, isBoostEntry, isGdkpEntry, isLFGEntry, isLFMEntry
+	return false, isBoostEntry, isGdkpEntry, isLfgEntry, isLfmEntry
 end
 
-function LFGAnnouncementsCore:_checkFilterEntry(tbl, filter, regex)
-	if regex then
-		for i = 1, #tbl do
-			for pattern, _ in pairs(filter) do
-				if string.find(tbl[i], pattern) then
-					return true
-				end
-			end
+function LFGAnnouncementsCore:_filterRegexMessage(lowerMsg)
+	local isLfgEntry, isLfmEntry
+
+	for pattern, _ in pairs(LFG_TAGS) do
+		if string.find(lowerMsg, pattern) then
+			isLfgEntry = true
+			break
 		end
 	end
 
+	-- If we match the LFG filter then we assume there's no need to match LFM
+	-- Saves us from having to regex against the LFM as well
+	if isLfgEntry then
+		if self._lfgFilter then
+			return true, isLfgEntry, isLfmEntry
+		end
+		return false, isLfgEntry, isLfmEntry
+	end
+
+	for pattern, _ in pairs(LFM_TAGS) do
+		if string.find(lowerMsg, pattern) then
+			isLfmEntry = true
+			break
+		end
+	end
+
+	if self._lfmFilter and isLfmEntry then
+		return true, isLfgEntry, isLfmEntry
+	end
+
+	return false, isLfgEntry, isLfmEntry
+end
+
+function LFGAnnouncementsCore:_checkFilterEntry(tbl, filter)
 	for i = 1, #tbl do
 		if filter[tbl[i]] then
 			return true
@@ -418,7 +446,7 @@ function LFGAnnouncementsCore:_formatMessage(message)
 	return formattedMessage, false
 end
 
-function LFGAnnouncementsCore:_createInstanceEntry(instanceId, difficulty, message, authorGUID, isBoostEntry, isGdkpEntry, isLFGEntry, isLFMEntry)
+function LFGAnnouncementsCore:_createInstanceEntry(instanceId, difficulty, message, authorGUID, isBoostEntry, isGdkpEntry, isLfgEntry, isLfmEntry)
 	local instanceType = self._instances:GetInstanceType(instanceId)
 	local types = LFGAnnouncements.Instances.InstanceType
 	if instanceType == types.RAID then
@@ -442,8 +470,8 @@ function LFGAnnouncementsCore:_createInstanceEntry(instanceId, difficulty, messa
 		entry.time = 0
 		entry.boost = isBoostEntry
 		entry.gdkp = isGdkpEntry
-		entry.lfg = isLFGEntry
-		entry.lfm = isLFMEntry
+		entry.lfg = isLfgEntry
+		entry.lfm = isLfmEntry
 	else
 		newEntry = true
 		entry = {
@@ -454,8 +482,8 @@ function LFGAnnouncementsCore:_createInstanceEntry(instanceId, difficulty, messa
 			total_time = 0,
 			boost = isBoostEntry,
 			gdkp = isGdkpEntry,
-			lfg = isLFGEntry,
-			lfm = isLFMEntry,
+			lfg = isLfgEntry,
+			lfm = isLfmEntry,
 		}
 		instanceEntriesForId[authorGUID] = entry
 	end
