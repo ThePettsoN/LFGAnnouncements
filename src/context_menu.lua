@@ -40,6 +40,14 @@ local function OnClickUrl(widget, event, button)
 	self._frame:Hide()
 end
 
+local function OnClickArmory(widget, event, button)
+	local self = widget.parent.menu
+	if self._armoryLink then
+		ChatFrame_OpenChat(stringformat("%s", self._armoryLink))
+	end
+	self._frame:Hide()
+end
+
 function LFGAnnouncementsContextMenu:Init(fontSettings)
 	self._fontSettings = fontSettings
 end
@@ -71,12 +79,14 @@ function LFGAnnouncementsContextMenu:_createUI()
 	self._invite = CreateLabel("Invite", OnClickInvite)
 	self._ignore = CreateLabel("Ignore", OnClickIgnore)
 	self._url = CreateLabel("Copy URL", OnClickUrl)
+	self._armory = CreateLabel("Copy Armory URL", OnClickArmory)
 
 	self._frame:AddChild(self._who)
 	self._frame:AddChild(self._whisper)
 	self._frame:AddChild(self._invite)
 	self._frame:AddChild(self._ignore)
 	self._frame:AddChild(self._url)
+	self._frame:AddChild(self._armory)
 end
 
 local URL_PATTERNS = {
@@ -122,6 +132,29 @@ function LFGAnnouncementsContextMenu:SetFont(font, size, flags)
 	self._frame.frame:SetHeight(requiredHeight + frameHeight - contentHeight)
 end
 
+local function getArmoryLink(author)
+	-- TODO: Cache this in the future
+
+	local region
+	local regionId = GetCurrentRegion()
+	if regionId == 1 then
+		region = "us"
+	elseif regionId == 3 then
+		region = "eu"
+	end
+	local realmSlug = GetRealmName():gsub("[%p%c]", ""):gsub("[%s]", "-"):lower()
+
+	if region then
+		local realm = GetNormalizedRealmName()
+		local pos = realm:find("%u", 2)
+		if pos then
+			realm = realm:sub(1, pos - 1) .. "-" .. realm:sub(pos)
+		end
+
+		return string.format("https://classic-armory.org/character/%s/vanilla/%s/%s", region, strlower(realm), author)
+	end
+end
+
 function LFGAnnouncementsContextMenu:Show(author, message)
 	local created
 	if not self._frame then
@@ -150,6 +183,8 @@ function LFGAnnouncementsContextMenu:Show(author, message)
 		self._url:SetDisabled(true)
 		self._urlLink = ""
 	end
+
+	self._armoryLink = getArmoryLink(author)
 
 	self._frame:Show()
 
