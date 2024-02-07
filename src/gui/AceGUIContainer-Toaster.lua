@@ -1,4 +1,5 @@
 local AceGUI = LibStub("AceGUI-3.0")
+local AceTimer = LibStub("AceTimer-3.0")
 
 -- Lua APIs
 local pairs = pairs
@@ -15,253 +16,305 @@ local UIFrameFadeRemoveFrame = UIFrameFadeRemoveFrame
 local BackdropTemplateMixin = BackdropTemplateMixin
 local GameFontNormal = GameFontNormal
 
--- Global vars/functions that we don't upvalue since they might get hooked, or upgraded
--- List them here for Mikk's FindGlobals script
--- GLOBALS: GameFontNormal
+local Type = "Toaster"
+local Version = 2
+local AceContainerToast = {}
+local PaneBackdrop = {
+	edgeFile = "Interface\\AddOns\\LFGAnnouncements\\Media\\Textures\\White8x8",
+	bgFile = "Interface\\AddOns\\LFGAnnouncements\\Media\\Textures\\White8x8",
+	edgeSize = 1,
+}
 
-----------------
--- Main Frame --
-----------------
---[[
-	Events :
-		OnClose
-
-]]
-do
-	local Type = "Toaster"
-	local Version = 6
-
-	local function frameOnShow(this)
-		this.obj:Fire("OnShow")
+-- Private Functions --
+local function CancelFadeout(frame, timer)
+	if UIFrameIsFading(frame) then 
+		UIFrameFadeRemoveFrame(frame)
 	end
 
-	local function frameOnClose(this)
-		this.obj:Fire("OnClose")
+	if timer then
+		AceTimer:CancelTimer(timer)
 	end
+end
 
-	local function closeOnClick(this)
-		PlaySound(799) -- SOUNDKIT.GS_TITLE_OPTION_EXIT
-		this.obj:Hide()
+local function onClickCloseButton(button)
+	PlaySound(799)
+	button.obj:Hide()
+end
+
+local function CreateTitle(self, frame)
+	local closeButton = CreateFrame("Button", "CloseButtonFrame", frame, "UIPanelCloseButton")
+	closeButton:SetPoint("TOPRIGHT", 0, 0)
+	closeButton:SetScript("OnClick", onClickCloseButton)
+	closeButton.obj = self
+
+	local titlebg = frame:CreateTexture(nil, "BACKGROUND")
+	titlebg:SetPoint("TOPLEFT", 0, 0)
+	titlebg:SetPoint("TOPRIGHT", frame, "TOPRIGHT", 0, 0)
+	titlebg:SetPoint("BOTTOMRIGHT", closeButton, "BOTTOMRIGHT", 10, 0)
+
+	local dialogbg = frame:CreateTexture(nil, "BACKGROUND")
+	dialogbg:SetPoint("TOPLEFT", titlebg, "BOTTOMLEFT", 0, 0)
+	dialogbg:SetPoint("BOTTOMRIGHT", 0, 0)
+
+	local titleText = frame:CreateFontString(nil, "ARTWORK", "GameFontNormal")
+	titleText:SetPoint("TOPLEFT", 10, 0)
+	titleText:SetPoint("BOTTOMRIGHT", titlebg, "BOTTOMRIGHT", -10, 0)
+	titleText:SetJustifyH("LEFT")
+	titleText:SetWordWrap(false)
+	titleText:SetNonSpaceWrap(false)
+
+	local title = CreateFrame("Button", "TitleButtonFrame", frame)
+	title:SetPoint("TOPLEFT", titlebg)
+	title:SetPoint("BOTTOMRIGHT", closeButton, "BOTTOMLEFT", 0, 0)
+
+	return title, titleText, closeButton
+end
+
+local function CreateContainer(self, frame)
+	local content = CreateFrame("Frame", "ContainerFrame", frame)
+	content:ClearAllPoints()
+	content:SetPoint("TOPLEFT", self.title, "BOTTOMLEFT", 0, 0)
+	content:SetPoint("BOTTOMRIGHT", frame, "BOTTOMRIGHT", 0, 0)
+	content.obj = self
+
+	return content
+end
+
+local function CreateLabel(self, frame)
+	local label = self.content:CreateFontString(nil, "ARTWORK", "GameFontHighlightSmall")
+	label:ClearAllPoints()
+	label:SetPoint("TOPLEFT", 10, 0)
+	label:SetPoint("BOTTOMRIGHT", -10, 0)
+	label:SetJustifyH("LEFT")
+	label:SetJustifyV("TOP")
+	label:Show()
+	label.obj = self
+
+	return label
+end
+
+local function CreateButton(self, frame)
+	local button = CreateFrame("Button", "ToasterWindowButton", self.content)
+	button:SetPoint("TOPLEFT", self.content, "TOPLEFT", 0, 0)
+	button:SetPoint("BOTTOMRIGHT", self.content, "BOTTOMRIGHT", 0, 0)
+	button.obj = self
+
+	button:EnableMouse()
+	return button
+end
+
+-- Callbacks --
+
+local function onShowFrame(frame)
+	frame.obj:Fire("OnShow")
+end
+
+local function onHideFrame(frame)
+	frame.obj:Fire("OnClose")
+end
+
+local function onMouseDownTitle(title)
+	local frame = title:GetParent()
+	frame:StartMoving()
+	AceGUI:ClearFocus()
+
+	local self = frame.obj
+	self._isMoving = true
+	CancelFadeout(self)
+	self:Fire("StartMoving")
+end
+
+local function onMouseUpTitle(title)
+	local frame = title:GetParent()
+	frame:StopMovingOrSizing()
+	local self = frame.obj
+	local status = self.status or self.localstatus
+	status.width = frame:GetWidth()
+	status.height = frame:GetHeight()
+	status.top = frame:GetTop()
+	status.left = frame:GetLeft()
+
+	self._isMoving = false
+	self:Fire("StopMoving", status.left, status.top - status.height)
+end
+
+local function fadeFinishedFunction(self)
+	self:Hide()
+	self:Fire("FadeOutComplete")
+end
+
+local function onFadeOutComplete(self)
+	self.fadeInfo.fadeTimer = nil
+	self.fadeInfo.finishedFunc = fadeFinishedFunction
+
+	UIFrameFade(self.frame, self.fadeInfo)
+end
+
+local function onMouseUpFrameButton(button)
+	button.obj:Fire("OnClickBody")
+end
+
+-- AceGUI functions --
+function AceContainerToast:OnAcquire()
+	self.frame:SetParent(UIParent)
+	self.frame:SetFrameStrata("FULLSCREEN_DIALOG")
+	self:ApplyStatus()
+	self:Show()
+end
+
+function AceContainerToast:ApplyStatus()
+	local status = self.status or self.localstatus
+	local frame = self.frame
+	self:SetWidth(status.width or 300)
+	self:SetHeight(status.height or 50)
+	if status.top and status.left then
+		frame:SetPoint("TOP", UIParent,"BOTTOM", 0, status.top)
+		frame:SetPoint("LEFT", UIParent,"LEFT", status.left, 0)
+	else
+		frame:SetPoint("CENTER", UIParent, "CENTER")
 	end
+end
 
-	local function frameOnMouseDown(this)
-		AceGUI:ClearFocus()
+function AceContainerToast:Show()
+	self.frame:Show()
+end
+
+function AceContainerToast:Hide()
+	self.frame:Hide()
+end
+
+function AceContainerToast:OnRelease()
+	self.status = nil
+	for k in pairs(self.localstatus) do
+		self.localstatus[k] = nil
 	end
+end
 
-	local function titleOnMouseDown(this)
-		local frame = this:GetParent()
-		frame:StartMoving()
-		AceGUI:ClearFocus()
+function AceContainerToast:SetStatusTable(status)
+	assert(type(status) == "table")
+	self.status = status
+	self:ApplyStatus()
+end
 
-		local self = frame.obj
-		self:SetIsMoving(true)
-		self:Fire("StartMoving")
+function AceContainerToast:OnWidthSet(width)
+	local content = self.content
+	local contentwidth = width - 34
+	if contentwidth < 0 then
+		contentwidth = 0
 	end
+	content:SetWidth(contentwidth)
+	content.width = contentwidth
+end
 
-	local function frameOnMouseUp(this)
-		local frame = this:GetParent()
-		frame:StopMovingOrSizing()
-		local self = frame.obj
-		local status = self.status or self.localstatus
-		status.width = frame:GetWidth()
-		status.height = frame:GetHeight()
-		status.top = frame:GetTop()
-		status.left = frame:GetLeft()
-
-		self:SetIsMoving(false)
-		self:Fire("StopMoving", status.left, status.top - status.height)
+function AceContainerToast:OnHeightSet(height)
+	local content = self.content
+	local contentheight = height - 57
+	if contentheight < 0 then
+		contentheight = 0
 	end
+	content:SetHeight(contentheight)
+	content.height = contentheight
+end
 
-	local function IsMoving(self)
-		return self._isMoving
+-- Public Functions --
+function AceContainerToast:SetTitle(title)
+	self.titletext:SetText(title)
+end
+
+function AceContainerToast:SetSize(width, height)
+	self:SetWidth(width)
+	self:SetHeight(height)
+end
+
+function AceContainerToast:SetIsMovable(isMovable)
+	if isMovable then
+		self.frame:SetMovable(true)
+		self.title:EnableMouse()
+		self.title:SetScript("OnMouseDown", onMouseDownTitle)
+		self.title:SetScript("OnMouseUp", onMouseUpTitle)
 	end
+end
 
-	local function SetIsMoving(self, isMoving)
-		self._isMoving = isMoving
-	end
+function AceContainerToast:SetId(id)
+	self.id = id
+end
 
-	local function SetTitle(self,title)
-		self.titletext:SetText(title)
-	end
+function AceContainerToast:SetAlpha(alpha)
+	self.frame:SetAlpha(alpha)
+end
 
-	local function Hide(self)
-		self.frame:Hide()
-	end
+function AceContainerToast:IsMoving()
+	return self._isMoving
+end
 
-	local function Show(self)
-		self.frame:Show()
-	end
+function AceContainerToast:SetFadeOutDuration(duration)
+	FadeInfo.timeToFade = duration
+end
 
-	local function SetAlpha(self, alpha)
-		self.frame:SetAlpha(alpha)
-	end
+function AceContainerToast:Trigger(duration)
+	self:Show()
+	self:SetAlpha(1)
 
-	local function OnAcquire(self)
-		self.frame:SetParent(UIParent)
-		self.frame:SetFrameStrata("FULLSCREEN_DIALOG")
-		self:ApplyStatus()
-		self:Show()
-	end
+	CancelFadeout(self.frame, self.timer)
+	self.timer = AceTimer:ScheduleTimer(onFadeOutComplete, duration, self)
+end
 
-	local function OnRelease(self)
-		self.status = nil
-		for k in pairs(self.localstatus) do
-			self.localstatus[k] = nil
-		end
-	end
+function AceContainerToast:SetLabelFontSettings(path, size, flags)
+	self.label:SetFont(path, size, flags)
+end
 
-	-- called to set an external table to store status in
-	local function SetStatusTable(self, status)
-		assert(type(status) == "table")
-		self.status = status
-		self:ApplyStatus()
-	end
+function AceContainerToast:SetText(text)
+	self.label:SetText(text)
+end
 
-	local FadeInfo = {
+function AceContainerToast:SetInstanceId(instanceId)
+	self.instanceId = instanceId
+end
+
+-- Constructor --
+local function Constructor()
+	local self = AceContainerToast
+
+	local frame = CreateFrame("Frame", "ToasterFrame", UIParent, BackdropTemplateMixin and "BackdropTemplate" or nil)
+	self.type = "Toaster"
+	self.localstatus = {}
+	self.frame = frame
+	frame.obj = self
+
+	-- Default Values
+	frame:SetWidth(300)
+	frame:SetHeight(60)
+	frame:SetPoint("BOTTOMLEFT", UIParent, "CENTER", 0, 0)
+	frame:EnableMouse()
+	frame:SetFrameStrata("FULLSCREEN_DIALOG")
+	frame:SetBackdrop(PaneBackdrop)
+	frame:SetBackdropColor(0.1, 0.1, 0.1, 0.8)
+	frame:SetBackdropBorderColor(0, 0, 0)
+	frame:SetToplevel(true)
+	self.fadeInfo = {
 		mode = "OUT",
 		timeToFade = 1,
 		startAlpha = 1,
 		endAlpha = 0,
-		finishedFunc = function(frame)
-			frame:Hide()
-		end
+		finishedFunc = fadeFinishedFunction,
+		finishedArg1 = self,
 	}
 
-	local function SetFadeOutDuration(self, duration)
-		FadeInfo.timeToFade = duration
-	end
+	-- Create Objects
+	self.title, self.titletext, self.closebutton = CreateTitle(self, frame)
+	self.content = CreateContainer(self, frame)
+	AceGUI:RegisterAsContainer(self)
+	self:SetLayout("Fill")
 
-	local function StartFadeOut(self)
-		UIFrameFade(self.frame, CopyTable(FadeInfo, true)) -- We copy to make sure the original isn't overwritten and we're able to restart the fadeOut whenever we want
-	end
+	self.label = CreateLabel(self, frame)
+	self.button = CreateButton(self, frame)
 
-	local function StopFadeOut(self)
-		UIFrameFadeRemoveFrame(self.frame)
-	end
+	-- Callbacks
+	frame:SetScript("OnShow", onShowFrame)
+	frame:SetScript("OnHide", onHideFrame)
+	self.button:SetScript("OnMouseUp", onMouseUpFrameButton)
 
-	local function ApplyStatus(self)
-		local status = self.status or self.localstatus
-		local frame = self.frame
-		self:SetWidth(status.width or 300)
-		self:SetHeight(status.height or 50)
-		if status.top and status.left then
-			frame:SetPoint("TOP",UIParent,"BOTTOM",0,status.top)
-			frame:SetPoint("LEFT",UIParent,"LEFT",status.left,0)
-		else
-			frame:SetPoint("CENTER",UIParent,"CENTER")
-		end
-	end
-
-	local function OnWidthSet(self, width)
-		local content = self.content
-		local contentwidth = width - 34
-		if contentwidth < 0 then
-			contentwidth = 0
-		end
-		content:SetWidth(contentwidth)
-		content.width = contentwidth
-	end
-
-	local function OnHeightSet(self, height)
-		local content = self.content
-		local contentheight = height - 57
-		if contentheight < 0 then
-			contentheight = 0
-		end
-		content:SetHeight(contentheight)
-		content.height = contentheight
-	end
-
-	-- TODO: Move this into a general place where UI can use it as well
-	local PaneBackdrop = {
-		edgeFile = "Interface\\AddOns\\LFGAnnouncements\\Media\\Textures\\White8x8",
-		bgFile = "Interface\\AddOns\\LFGAnnouncements\\Media\\Textures\\White8x8",
-		edgeSize = 1,
-	}
-
-	local function Constructor()
-		local frame = CreateFrame("Frame", nil, UIParent, BackdropTemplateMixin and "BackdropTemplate" or nil)
-		local self = {}
-		self.type = "Window"
-
-		FadeInfo.finishedArg1 = frame
-
-		self.Hide = Hide
-		self.Show = Show
-		self.SetTitle =  SetTitle
-		self.OnRelease = OnRelease
-		self.OnAcquire = OnAcquire
-		self.SetStatusTable = SetStatusTable
-		self.ApplyStatus = ApplyStatus
-		self.OnWidthSet = OnWidthSet
-		self.OnHeightSet = OnHeightSet
-		self.SetFadeOutDuration = SetFadeOutDuration
-		self.SetAlpha = SetAlpha
-		self.StartFadeOut = StartFadeOut
-		self.StopFadeOut = StopFadeOut
-		self.IsMoving = IsMoving
-		self.SetIsMoving = SetIsMoving
-
-		self.localstatus = {}
-
-		self.frame = frame
-		frame.obj = self
-		frame:SetWidth(300)
-		frame:SetHeight(60)
-		frame:SetPoint("BOTTOMLEFT",UIParent, "CENTER", 0, 0)
-		frame:EnableMouse()
-		frame:SetMovable(true)
-		frame:SetFrameStrata("FULLSCREEN_DIALOG")
-		frame:SetScript("OnMouseDown", frameOnMouseDown)
-
-		frame:SetScript("OnShow",frameOnShow)
-		frame:SetScript("OnHide",frameOnClose)
-		frame:SetToplevel(true)
-
-		frame:SetBackdrop(PaneBackdrop)
-		frame:SetBackdropColor(0.1, 0.1, 0.1, 0.8)
-		frame:SetBackdropBorderColor(0, 0, 0)
-
-		local titlebg = frame:CreateTexture(nil, "BACKGROUND")
-		titlebg:SetPoint("TOPLEFT", 0, 0)
-		titlebg:SetPoint("TOPRIGHT", frame, "TOPRIGHT", 0, 0)
-
-		local dialogbg = frame:CreateTexture(nil, "BACKGROUND")
-		dialogbg:SetPoint("TOPLEFT", titlebg, "BOTTOMLEFT", 0, 0)
-		dialogbg:SetPoint("BOTTOMRIGHT", 0, 0)
-
-		local close = CreateFrame("Button", nil, frame, "UIPanelCloseButton")
-		close:SetPoint("TOPRIGHT", 0, 0)
-		close:SetScript("OnClick", closeOnClick)
-		self.closebutton = close
-		close.obj = self
-		titlebg:SetPoint("BOTTOMRIGHT", close, "BOTTOMRIGHT", 10, 4)
-
-		local titletext = frame:CreateFontString(nil, "ARTWORK")
-		titletext:SetFontObject(GameFontNormal)
-		titletext:SetPoint("TOPLEFT",12,0)
-		titletext:SetPoint("BOTTOMRIGHT", titlebg, "BOTTOMRIGHT", 0, 0)
-		titletext:SetJustifyH("LEFT")
-		self.titletext = titletext
-
-		local title = CreateFrame("Button", nil, frame)
-		title:SetPoint("TOPLEFT", titlebg)
-		title:SetPoint("BOTTOMRIGHT", titlebg)
-		title:EnableMouse()
-		title:SetScript("OnMouseDown",titleOnMouseDown)
-		title:SetScript("OnMouseUp", frameOnMouseUp)
-		self.title = title
-
-		--Container Support
-		local content = CreateFrame("Frame",nil,frame)
-		self.content = content
-		content.obj = self
-		content:SetPoint("TOPLEFT",frame,"TOPLEFT",12,-32)
-		content:SetPoint("BOTTOMRIGHT",frame,"BOTTOMRIGHT",-12,13)
-
-		AceGUI:RegisterAsContainer(self)
-		return self
-	end
-
-	AceGUI:RegisterWidgetType(Type,Constructor,Version)
+	return self
 end
+
+AceGUI:RegisterWidgetType(Type, Constructor, Version)

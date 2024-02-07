@@ -35,8 +35,23 @@ local BOOST_TAGS = {
 	boosts = true,
 	wts = true,
 	wst = true,
-	-- sell = true,
-	-- selling = true,
+}
+
+local LFM_TAGS = {
+	["lf[0-9]*m"] = true,
+	["lf [0-9]*"] = true,
+	["lf [0-9 ]* tank[s]*"] = true,
+	["lf [0-9 ]* healer[s]*"] = true,
+	["lf [0-9 ]* dps"] = true,
+	["lf [0-9 ]* dd[s]*"] = true,
+	["need [0-9 ]* tank[s]*"] = true,
+	["need [0-9 ]* healer[s]*"] = true,
+	["need [0-9 ]* dps"] = true,
+	["need [0-9 ]* dd[s]*"] = true,
+}
+
+local LFG_TAGS = {
+	["lf[0-9]*g"] = true,
 }
 
 local GDKP_TAGS = {
@@ -101,6 +116,8 @@ function LFGAnnouncementsCore:OnEnable()
 	self._difficultyFilter = db:GetCharacterData("filters", "difficulty")
 	self._boostFilter = db:GetCharacterData("filters", "boost")
 	self._gdkpFilter = db:GetCharacterData("filters", "gdkp")
+	self._lfgFilter = db:GetCharacterData("filters", "lfg")
+	self._lfmFilter = db:GetCharacterData("filters", "lfm")
 	self._fakeRequestFilterAmount = db:GetCharacterData("filters", "fake_amount")
 	self._removeRaidMarkers = db:GetProfileData("general", "format", "remove_raid_markers")
 	self._enabledForInstanceTypes = db:GetProfileData("general", "enable_in_instance")
@@ -157,7 +174,7 @@ function LFGAnnouncementsCore:UpdateInvalidEntries()
 		else
 			for authorGUID, entry in pairs(data) do
 				local difficulty = entry.difficulty
-				if not self:_isAllowedDifficulty(difficulty) or (self._boostFilter and entry.boost) or (self._gdkpFilter and entry.gdkp) then
+				if not self:_isAllowedDifficulty(difficulty) or (self._boostFilter and entry.boost) or (self._gdkpFilter and entry.gdkp) or (self._lfgFilter and entry.lfg) or (self._lfmFilter and entry.lfm) then
 					data[authorGUID] = nil
 					tbl[index] = instanceId
 					tbl[index + 1] = authorGUID
@@ -211,6 +228,20 @@ function LFGAnnouncementsCore:SetGdkpFilter(enabled)
 	if self._gdkpFilter ~= enabled then
 		self._gdkpFilter = enabled
 		LFGAnnouncements.DB:SetCharacterData("gdkp", enabled, "filters")
+	end
+end
+
+function LFGAnnouncementsCore:SetLFGFilter(enabled)
+	if self._lfgFilter ~= enabled then
+		self._lfgFilter = enabled
+		LFGAnnouncements.DB:SetCharacterData("lfg", enabled, "filters")
+	end
+end
+
+function LFGAnnouncementsCore:SetLFMFilter(enabled)
+	if self._lfmFilter ~= enabled then
+		self._lfmFilter = enabled
+		LFGAnnouncements.DB:SetCharacterData("lfm", enabled, "filters")
 	end
 end
 
@@ -277,7 +308,12 @@ function LFGAnnouncementsCore:_parseMessage(message, authorGUID)
 	index = 1
 
 	message = self:_formatMessage(message)
-	for v in stringgmatch(strlower(message), regex) do
+	if not message then
+		return
+	end
+
+	local lowerMsg = strlower(message)
+	for v in stringgmatch(lowerMsg, regex) do
 		tbl[index] = v
 		index = index + 1
 	end
@@ -287,12 +323,17 @@ function LFGAnnouncementsCore:_parseMessage(message, authorGUID)
 		return
 	end
 
+	local filter, isLfgEntry, isLfmEntry = self:_filterRegexMessage(lowerMsg)
+	if filter then
+		return
+	end
+
 	module = self._instances
 	local foundInstances, numTotalInstancesFound = module:FindInstances(tbl)
 	if foundInstances and numTotalInstancesFound <= self._fakeRequestFilterAmount then
 		local difficulty = self:_findDifficulty(tbl)
 		for i = 1, #foundInstances do
-			self:_createInstanceEntry(foundInstances[i], difficulty, message, authorGUID, isBoostEntry, isGdkpEntry)
+			self:_createInstanceEntry(foundInstances[i], difficulty, message, authorGUID, isBoostEntry, isGdkpEntry, isLfgEntry, isLfmEntry)
 		end
 
 		return true
@@ -312,7 +353,40 @@ function LFGAnnouncementsCore:_filterMessage(tbl, author)
 		return true
 	end
 
-	return false, isBoostEntry, isGdkpEntry
+	return false, isBoostEntry, isGdkpEntry, isLfgEntry, isLfmEntry
+end
+
+function LFGAnnouncementsCore:_filterRegexMessage(lowerMsg)
+	local isLfgEntry, isLfmEntry
+
+	for pattern, _ in pairs(LFG_TAGS) do
+		if string.find(lowerMsg, pattern) then
+			isLfgEntry = true
+			break
+		end
+	end
+
+	-- If we match the LFG filter then we assume there's no need to match LFM
+	-- Saves us from having to regex against the LFM as well
+	if isLfgEntry then
+		if self._lfgFilter then
+			return true, isLfgEntry, isLfmEntry
+		end
+		return false, isLfgEntry, isLfmEntry
+	end
+
+	for pattern, _ in pairs(LFM_TAGS) do
+		if string.find(lowerMsg, pattern) then
+			isLfmEntry = true
+			break
+		end
+	end
+
+	if self._lfmFilter and isLfmEntry then
+		return true, isLfgEntry, isLfmEntry
+	end
+
+	return false, isLfgEntry, isLfmEntry
 end
 
 function LFGAnnouncementsCore:_checkFilterEntry(tbl, filter)
@@ -372,7 +446,7 @@ function LFGAnnouncementsCore:_formatMessage(message)
 	return formattedMessage, false
 end
 
-function LFGAnnouncementsCore:_createInstanceEntry(instanceId, difficulty, message, authorGUID, isBoostEntry, isGdkpEntry)
+function LFGAnnouncementsCore:_createInstanceEntry(instanceId, difficulty, message, authorGUID, isBoostEntry, isGdkpEntry, isLfgEntry, isLfmEntry)
 	local instanceType = self._instances:GetInstanceType(instanceId)
 	local types = LFGAnnouncements.Instances.InstanceType
 	if instanceType == types.RAID then
@@ -396,6 +470,8 @@ function LFGAnnouncementsCore:_createInstanceEntry(instanceId, difficulty, messa
 		entry.time = 0
 		entry.boost = isBoostEntry
 		entry.gdkp = isGdkpEntry
+		entry.lfg = isLfgEntry
+		entry.lfm = isLfmEntry
 	else
 		newEntry = true
 		entry = {
@@ -406,6 +482,8 @@ function LFGAnnouncementsCore:_createInstanceEntry(instanceId, difficulty, messa
 			total_time = 0,
 			boost = isBoostEntry,
 			gdkp = isGdkpEntry,
+			lfg = isLfgEntry,
+			lfm = isLfmEntry,
 		}
 		instanceEntriesForId[authorGUID] = entry
 	end

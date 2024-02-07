@@ -206,6 +206,32 @@ local function optionsTemplate()
 				UpdateData(core, "SetGdkpFilter", newValue)
 			end,
 		},
+		lfg_filter = {
+			type = "toggle",
+			width = "full",
+			order = 3,
+			name = "Filter LFG requests",
+			desc = "Try filter LFG runs",
+			get = function(info)
+				return db:GetCharacterData("filters", "lfg")
+			end,
+			set = function(info, newValue)
+				UpdateData(core, "SetLFGFilter", newValue)
+			end,
+		},
+		lfm_filter = {
+			type = "toggle",
+			width = "full",
+			order = 3,
+			name = "Filter LFM requests",
+			desc = "Try filter LFM runs",
+			get = function(info)
+				return db:GetCharacterData("filters", "lfm")
+			end,
+			set = function(info, newValue)
+				UpdateData(core, "SetLFMFilter", newValue)
+			end,
+		},
 		fake_filter_amount = {
 			type = "range",
 			width = "full",
