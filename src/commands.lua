@@ -79,16 +79,6 @@ function LFGAnnouncementsCommands:settings()
 	module.Toggle()
 end
 
-
-local random = math.random
-local function uuid()
-    local template ='Player-xxx-xxxxxxxx'
-    return string.gsub(template, '[x]', function (c)
-        return string.format('%x', random(0, 0xf))
-    end)
-end
-
-
 function LFGAnnouncementsCommands:test(nextPosition, args)
 	local command = self:GetArgs(args, 1, nextPosition)
 	if not command then
@@ -109,7 +99,7 @@ function LFGAnnouncementsCommands:test(nextPosition, args)
 			local tags = LFGAnnouncements.Instances:GetInstanceTags(id)
 			for i = 1, #tags do
 				total = total + 1
-				if LFGAnnouncements.Core:OnChatMsgChannel(nil, tags[i], nil, nil, nil, nil, nil, nil, 1, nil, nil, nil, uuid()) then
+				if LFGAnnouncements.Core:OnChatMsgChannel(nil, tags[i], nil, nil, nil, nil, nil, nil, 1, nil, nil, nil, Utils.string.uuid("Player-xxx-xxxxxxxx")) then
 					found = found + 1
 				else
 					self:debug("Failed to find dungeon from tag: %s", tags[i])
@@ -135,7 +125,7 @@ function LFGAnnouncementsCommands:test(nextPosition, args)
 			for j = 1, num_symbols do
 				local endSymbol = symbols[j]
 				local message = string.format("%s%s%s", startSymbol, tag, endSymbol)
-				if LFGAnnouncements.Core:OnChatMsgChannel(nil, string.format("%s%s%s", startSymbol, tag, endSymbol), nil, nil, nil, nil, nil, nil, 1, nil, nil, nil, uuid()) then
+				if LFGAnnouncements.Core:OnChatMsgChannel(nil, string.format("%s%s%s", startSymbol, tag, endSymbol), nil, nil, nil, nil, nil, nil, 1, nil, nil, nil, Utils.string.uuid("Player-xxx-xxxxxxxx")) then
 					found = found + 1
 				else
 					self:debug("Failed to find dungeon from message: %s", message)
