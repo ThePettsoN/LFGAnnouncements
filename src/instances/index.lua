@@ -120,17 +120,8 @@ function LFGAnnouncementsInstances:GetActivatedInstances()
 	return self._activatedInstances
 end
 
-local random = math.random
-local function uuid()
-	local template ='xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'
-	return string.gsub(template, '[xy]', function (c)
-		local v = (c == 'x') and random(0, 0xf) or random(8, 0xb)
-		return string.format('%x', v)
-	end)
-end
-
 function LFGAnnouncementsInstances:AddCustomInstance(name)
-	local id = uuid()
+	local id = Utils.string.uuid("xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx")
 	local tags = {}
 	LFGAnnouncements.DB:SetCharacterData(id, {name = name, tags = tags, activated = true}, "dungeons", "custom_instances")
 	
