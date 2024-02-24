@@ -5,7 +5,6 @@ local stringgsub = string.gsub
 local stringformat = string.format
 local stringgmatch = string.gmatch
 local strlower = strlower
-local print = print
 local wipe = wipe
 local time = time
 local pairs = pairs

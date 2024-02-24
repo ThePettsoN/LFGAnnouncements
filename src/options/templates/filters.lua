@@ -157,7 +157,7 @@ local function optionsTemplate()
 		inline = false,
 		args = {}
 	}
-	local instances = instancesModule:GetDungeons("VANILLA")
+	local instances = instancesModule:GetDungeons(Utils.game.GameExpansionLookup.Vanilla)
 	createGroup(vanilla_dungeons.args, instances)
 
 	local args = {
@@ -254,56 +254,82 @@ local function optionsTemplate()
 	}
 
 	local order = 5
-	if Utils.game.compareGameExpansion(Utils.game.GameExpansionLookup.Tbc) <= 0 then
-		order = order + 1
-		local tbc_dungeons = {
+	instances = instancesModule:GetRaids(Utils.game.GameExpansionLookup.Vanilla)
+	if instances then
+		local vanilla_raids = {
 			type = "group",
-			name = "TBC Dungeons",
+			name = "Vanilla Raids",
 			order = order,
 			inline = false,
 			args = {}
 		}
-		instances = instancesModule:GetDungeons("TBC")
-		createGroup(tbc_dungeons.args, instances)
-		args.tbc_dungeons = tbc_dungeons
 
-		order = order + 1
-		local tbc_raids = {
-			type = "group",
-			name = "TBC Raids",
-			order = order,
-			inline = false,
-			args = {}
-		}
-		instances = instancesModule:GetRaids("TBC")
-		createGroup(tbc_raids.args, instances)
-		args.tbc_raids = tbc_raids
+		createGroup(vanilla_raids.args, instances)
+		args.vanilla_raids = vanilla_raids
+	end
+
+	if Utils.game.compareGameExpansion(Utils.game.GameExpansionLookup.Tbc) <= 0 then
+		instances = instancesModule:GetDungeons(Utils.game.GameExpansionLookup.Tbc)
+		if instances then
+			order = order + 1
+			local tbc_dungeons = {
+				type = "group",
+				name = "TBC Dungeons",
+				order = order,
+				inline = false,
+				args = {}
+			}
+
+			createGroup(tbc_dungeons.args, instances)
+			args.tbc_dungeons = tbc_dungeons
+		end
+
+		instances = instancesModule:GetRaids(Utils.game.GameExpansionLookup.Tbc)
+		if instances then
+			order = order + 1
+			local tbc_raids = {
+				type = "group",
+				name = "TBC Raids",
+				order = order,
+				inline = false,
+				args = {}
+			}
+
+			createGroup(tbc_raids.args, instances)
+			args.tbc_raids = tbc_raids
+		end
 	end
 
 	if Utils.game.compareGameExpansion(Utils.game.GameExpansionLookup.Wotlk) <= 0 then
-		order = order + 1
-		local wotlk_dungeons = {
-			type = "group",
-			name = "WOTLK Dungeons",
-			order = order,
-			inline = false,
-			args = {}
-		}
-		instances = instancesModule:GetDungeons("WOTLK")
-		createGroup(wotlk_dungeons.args, instances)
-		args.wotlk_dungeons = wotlk_dungeons
+		instances = instancesModule:GetDungeons(Utils.game.GameExpansionLookup.Wotlk)
+		if instances then
+			order = order + 1
+			local wotlk_dungeons = {
+				type = "group",
+				name = "WOTLK Dungeons",
+				order = order,
+				inline = false,
+				args = {}
+			}
 
-		order = order + 1
-		local wotlk_raids = {
-			type = "group",
-			name = "WOTLK Raids",
-			order = order,
-			inline = false,
-			args = {}
-		}
-		instances = instancesModule:GetRaids("WOTLK")
-		createGroup(wotlk_raids.args, instances)
-		args.wotlk_raids = wotlk_raids
+			createGroup(wotlk_dungeons.args, instances)
+			args.wotlk_dungeons = wotlk_dungeons
+		end
+
+		instances = instancesModule:GetRaids(Utils.game.GameExpansionLookup.Wotlk)
+		if instances then
+			order = order + 1
+			local wotlk_raids = {
+				type = "group",
+				name = "WOTLK Raids",
+				order = order,
+				inline = false,
+				args = {}
+			}
+
+			createGroup(wotlk_raids.args, instances)
+			args.wotlk_raids = wotlk_raids
+		end
 	end
 
 	order = order + 1

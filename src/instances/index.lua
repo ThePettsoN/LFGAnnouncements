@@ -75,9 +75,11 @@ function LFGAnnouncementsInstances:OnEnable()
 			assert(false, "Invalid instanceType")
 		end
 		
-		Utils.table.mergeRecursive(group, data.instances)
+		local perExpansion = group[data.expansionId] or {}
+		Utils.table.mergeRecursive(perExpansion, data.instances)
 		Utils.table.mergeRecursive(Instances, data.instances)
-		
+		group[data.expansionId] = perExpansion
+
 		for id, tags in pairs(data.instances.Tags) do
 			for i = 1, #tags do
 				TagsLookup[tags[i]] = id
@@ -251,19 +253,16 @@ function LFGAnnouncementsInstances:GetInstancesByLevel(level)
 	return instancesFound
 end
 
-function LFGAnnouncementsInstances:GetDungeons(expansion)
+local instance
+function LFGAnnouncementsInstances:GetDungeons(expansionIndex)
 	wipe(instancesFound)
-	return Dungeons.Order
+	instance = Dungeons[expansionIndex]
+	return instance and instance.Order
 end
 
-function LFGAnnouncementsInstances:GetRaids(expansion)
-	if expansion == "VANILLA" then
-		return {}
-	elseif  expansion == "TBC" then
-		return BurningCrusadeRaids.Order
-	end
-	
-	return WrathRaids.Order
+function LFGAnnouncementsInstances:GetRaids(expansionIndex)
+	instance = Raids[expansionIndex]
+	return instance and instance.Order
 end
 
 function LFGAnnouncementsInstances:GetInstancesOrder()
@@ -278,9 +277,11 @@ function LFGAnnouncementsInstances:GetInstanceType(instanceId)
 	if CustomInstances.Names[instanceId] then
 		return InstanceType.CUSTOM
 	end
-	
-	if Dungeons.Names[instanceId] ~= nil then
-		return InstanceType.DUNGEON
+
+	for k, v in pairs(Dungeons) do
+		if v.Names[instanceId] then
+			return InstanceType.DUNGEON
+		end
 	end
 	
 	return InstanceType.RAID
