@@ -62,27 +62,25 @@ end
 function LFGAnnouncementsInstances:OnEnable()
 	for i = 1, #Modules do
 		local data = Modules[i]
-		if Utils.game.compareGameExpansion(data.expansionId) > 0 then
-			return
-		end
-		
-		local group
-		if data.instanceType == "RAIDS" then
-			group = Raids
-		elseif data.instanceType == "DUNGEONS" then
-			group = Dungeons
-		else
-			assert(false, "Invalid instanceType")
-		end
-		
-		local perExpansion = group[data.expansionId] or {}
-		Utils.table.mergeRecursive(perExpansion, data.instances)
-		Utils.table.mergeRecursive(Instances, data.instances)
-		group[data.expansionId] = perExpansion
+		if Utils.game.compareGameExpansion(data.expansionId) <= 0 then
+			local group
+			if data.instanceType == "RAIDS" then
+				group = Raids
+			elseif data.instanceType == "DUNGEONS" then
+				group = Dungeons
+			else
+				assert(false, "Invalid instanceType")
+			end
+			
+			local perExpansion = group[data.expansionId] or {}
+			Utils.table.mergeRecursive(perExpansion, data.instances)
+			Utils.table.mergeRecursive(Instances, data.instances)
+			group[data.expansionId] = perExpansion
 
-		for id, tags in pairs(data.instances.Tags) do
-			for i = 1, #tags do
-				TagsLookup[tags[i]] = id
+			for id, tags in pairs(data.instances.Tags) do
+				for i = 1, #tags do
+					TagsLookup[tags[i]] = id
+				end
 			end
 		end
 	end
