@@ -1,5 +1,6 @@
 local _, LFGAnnouncements = ...
 
+local Utils = LFGAnnouncements.Utils
 local COMMANDS_LOOKUP = {
 		show = "show",
 		open = "show",
@@ -88,15 +89,14 @@ local function uuid()
 end
 
 
-
-
-function LFGAnnouncementsCommands:debug(nextPosition, args)
+function LFGAnnouncementsCommands:test(nextPosition, args)
 	local command = self:GetArgs(args, 1, nextPosition)
 	if not command then
 		return
 	end
 
-	LFGAnnouncements.DEBUG = true
+	local currentSeverity = self:getSeverity()
+	self:setSeverity(Utils.debug.Severities.Debug)
 	LFGAnnouncements.Instances:DisableAll()
 	local total = 0
 	local found = 0
@@ -112,7 +112,7 @@ function LFGAnnouncementsCommands:debug(nextPosition, args)
 				if LFGAnnouncements.Core:OnChatMsgChannel(nil, tags[i], nil, nil, nil, nil, nil, nil, 1, nil, nil, nil, uuid()) then
 					found = found + 1
 				else
-					LFGAnnouncements.dprintf("Failed to find dungeon from tag: %s", tags[i])
+					self:debug("Failed to find dungeon from tag: %s", tags[i])
 				end
 			end
 		end
@@ -138,7 +138,7 @@ function LFGAnnouncementsCommands:debug(nextPosition, args)
 				if LFGAnnouncements.Core:OnChatMsgChannel(nil, string.format("%s%s%s", startSymbol, tag, endSymbol), nil, nil, nil, nil, nil, nil, 1, nil, nil, nil, uuid()) then
 					found = found + 1
 				else
-					LFGAnnouncements.dprintf("Failed to find dungeon from message: %s", message)
+					self:debug("Failed to find dungeon from message: %s", message)
 				end
 			end
 		end
@@ -146,7 +146,8 @@ function LFGAnnouncementsCommands:debug(nextPosition, args)
 		LFGAnnouncements.Core:DeleteAllEntries()
 	end
 
-	LFGAnnouncements.dprintf("Expected to find: %d. Found: %d. Diff: %d", total, found, total - found)
+	self:debug("Expected to find: %d. Found: %d. Diff: %d", total, found, total - found)
+	self:setSeverity(currentSeverity)
 end
 
 LFGAnnouncements.Core:RegisterModule("Commands", LFGAnnouncementsCommands, "AceConsole-3.0")

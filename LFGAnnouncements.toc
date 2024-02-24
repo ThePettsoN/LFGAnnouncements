@@ -17,7 +17,6 @@ src/gui/AceGUIContainer-CollapsableInlineGroup.lua
 src/gui/AceGUIContainer-Toaster.lua
 src/gui/AceGUILayout-OffsetList.lua
 
-src/utils.lua
 src/core.lua
 src/db.lua
 src/ui.lua

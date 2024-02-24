@@ -14,7 +14,8 @@ local pairs = pairs
 local GetBuildInfo = GetBuildInfo
 
 local LFGAnnouncementsCore = LibStub("AceAddon-3.0"):NewAddon("LFGAnnouncementsCore", "AceEvent-3.0", "AceTimer-3.0")
-local DEBUG = false
+local Utils = LibStub:GetLibrary("PUtils-1.0")
+LFGAnnouncements.Utils = Utils
 
 local DIFFICULTIES = {
 	NORMAL = "NORMAL",
@@ -64,11 +65,6 @@ local DUNGEON_ENTRY_REASON = {
 	SHOW = 3,
 }
 
-local dprintf = function(s, ...)
-	if DEBUG then
-		print(stringformat(s, ...))
-	end
-end
 local tbl = {}
 local index = 1
 
@@ -77,54 +73,11 @@ LFGAnnouncementsCore.DUNGEON_ENTRY_REASON = DUNGEON_ENTRY_REASON
 LFGAnnouncementsCore.DIFFICULTIES = DIFFICULTIES
 
 LFGAnnouncements.Core = LFGAnnouncementsCore
-LFGAnnouncements.DEBUG = DEBUG
-LFGAnnouncements.dprintf = dprintf
-LFGAnnouncements.GameExpansionLookup = {
-	VANILLA = 1,
-	TBC = 2,
-	WOTLK = 3,
-	[1] = "VANILLA",
-	[2] = "TBC",
-	[3] = "WOTLK",
-}
-local GameVersionLookup = {
-	SeasonOfDiscovery = 1,
-	Hardcore = 2,
-	Retail = 3,
-	Wrath = 4,
-}
-
-local function DetermineGameVersion()
-	if not C_Engraving then
-		LFGAnnouncements.GameVersion = GameVersionLookup.Retail
-	elseif C_Console then
-		LFGAnnouncements.GameVersion = GameVersionLookup.Wrath
-	elseif C_GameRules.IsHardcoreActive() then
-		LFGAnnouncements.GameVersion = GameVersionLookup.Hardcore
-	else
-		LFGAnnouncements.GameVersion = GameVersionLookup.SeasonOfDiscovery
-	end
-end
-
 function LFGAnnouncementsCore:OnInitialize()
+	Utils.debug:initialize("LFGAnnouncements")
+
 	self._modules = {}
 	self._instanceEntries = {}
-
-	local expansion = GetBuildInfo():sub(1,1)
-	if expansion == "3" then
-		LFGAnnouncements.GameExpansion = "WOTLK"
-		LFGAnnouncements.GameExpansionId = 3
-	elseif expansion == "2" then
-		LFGAnnouncements.GameExpansion = "TBC"
-		LFGAnnouncements.GameExpansionId = 2
-	else
-		LFGAnnouncements.GameExpansion = "VANILLA"
-		LFGAnnouncements.GameExpansionId = 1
-	end
-
-	if not LFGAnnouncements.GameVersion then
-		DetermineGameVersion()
-	end
 end
 
 local UpdateTime = 1
@@ -239,6 +192,7 @@ end
 function LFGAnnouncementsCore:RegisterModule(name, module, ...)
 	local mod = self:NewModule(name, module, ...)
 	LFGAnnouncements[name] = mod
+	Utils.debug.initialize(mod, name)
 end
 
 function LFGAnnouncementsCore:SetDifficultyFilter(difficulty)

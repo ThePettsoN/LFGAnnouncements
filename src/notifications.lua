@@ -224,4 +224,4 @@ function LFGAnnouncementsNotification:OnInstanceEntry(event, instanceId, difficu
 	end
 end
 
-LFGAnnouncements.Core:RegisterModule("Notification", LFGAnnouncementsNotification, "AceEvent-3.0")
+LFGAnnouncements.Core:RegisterModule("Notifications", LFGAnnouncementsNotification, "AceEvent-3.0")

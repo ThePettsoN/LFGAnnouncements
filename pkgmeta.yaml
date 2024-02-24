@@ -55,6 +55,10 @@ externals:
         url: https://repos.curseforge.com/wow/ace3/trunk/AceDBOptions-3.0
         tag: latest
 
+    libs/PUtils:
+        url: https://github.com/ThePettsoN/PUtils
+        tag: latest
+
 ignore:
     - .git
     - .gitignore

@@ -1,4 +1,5 @@
 local _, LFGAnnouncements = ...
+Utils = LFGAnnouncements.Utils
 
 -- Lua APIs
 local wipe = wipe
@@ -130,4 +131,4 @@ local Dungeons = {
 	}
 }
 
-LFGAnnouncements.Instances.Register("DUNGEONS", LFGAnnouncements.GameExpansionLookup.VANILLA, Dungeons)
+LFGAnnouncements.Instances.Register("DUNGEONS", Utils.game.GameExpansionLookup.Vanilla, Dungeons)
