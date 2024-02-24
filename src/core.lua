@@ -79,6 +79,34 @@ LFGAnnouncementsCore.DIFFICULTIES = DIFFICULTIES
 LFGAnnouncements.Core = LFGAnnouncementsCore
 LFGAnnouncements.DEBUG = DEBUG
 LFGAnnouncements.dprintf = dprintf
+LFGAnnouncements.GameExpansionLookup = {
+	VANILLA = 1,
+	TBC = 2,
+	WOTLK = 3,
+	[1] = "VANILLA",
+	[2] = "TBC",
+	[3] = "WOTLK",
+}
+local GameVersionLookup = {
+	SeasonOfDiscovery = 1,
+	Hardcore = 2,
+	Retail = 3,
+	Wrath = 4,
+}
+
+Test = LFGAnnouncements.GameExpansionLookup
+
+local function DetermineGameVersion()
+	if not C_Engraving then
+		LFGAnnouncements.GameVersion = GameVersionLookup.Retail
+	elseif C_Console then
+		LFGAnnouncements.GameVersion = GameVersionLookup.Wrath
+	elseif C_GameRules.IsHardcoreActive() then
+		LFGAnnouncements.GameVersion = GameVersionLookup.Hardcore
+	else
+		LFGAnnouncements.GameVersion = GameVersionLookup.SeasonOfDiscovery
+	end
+end
 
 function LFGAnnouncementsCore:OnInitialize()
 	self._modules = {}
@@ -94,6 +122,10 @@ function LFGAnnouncementsCore:OnInitialize()
 	else
 		LFGAnnouncements.GameExpansion = "VANILLA"
 		LFGAnnouncements.GameExpansionId = 1
+	end
+
+	if not LFGAnnouncements.GameVersion then
+		DetermineGameVersion()
 	end
 end
 

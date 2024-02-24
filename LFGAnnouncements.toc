@@ -20,12 +20,16 @@ src/gui/AceGUILayout-OffsetList.lua
 src/utils.lua
 src/core.lua
 src/db.lua
-src/instances.lua
 src/ui.lua
 src/minimap_button.lua
 src/notifications.lua
 src/commands.lua
 src/context_menu.lua
+
+src/instances/index.lua
+src/instances/vanilla.lua
+src/instances/tbc.lua
+src/instances/wotlk.lua
 
 src/options/main.lua
 src/options/templates/general.lua
