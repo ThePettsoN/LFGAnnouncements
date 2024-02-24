@@ -32,18 +32,22 @@ local function OnClickIgnore(widget, event, button)
 	self._frame:Hide()
 end
 
+local popup_data = {}
 local function OnClickUrl(widget, event, button)
 	local self = widget.parent.menu
 	if self._urlLink then
-		ChatFrame_OpenChat(stringformat("%s", self._urlLink))
+		popup_data.url = stringformat("%s", self._urlLink)
+		StaticPopup_Show("CLICK_LINK_CLICKURL", "", "", popup_data)
 	end
 	self._frame:Hide()
 end
 
+local data = {}
 local function OnClickArmory(widget, event, button)
 	local self = widget.parent.menu
 	if self._armoryLink then
-		ChatFrame_OpenChat(stringformat("%s", self._armoryLink))
+		popup_data.url = stringformat("%s", self._armoryLink)
+		StaticPopup_Show("CLICK_LINK_CLICKURL", "", "", popup_data)
 	end
 	self._frame:Hide()
 end
