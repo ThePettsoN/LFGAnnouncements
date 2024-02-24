@@ -15,7 +15,7 @@ local FlashClientIcon = FlashClientIcon
 local AceGUI = LibStub("AceGUI-3.0", "AceEvent-3.0")
 local LSM = LibStub("LibSharedMedia-3.0")
 
-local MAX_TOASTERS = 1
+local MAX_TOASTERS = 10
 local NEXT_TOASTER = 1
 
 local function onClickToaster(toaster)
@@ -38,6 +38,7 @@ function LFGAnnouncementsNotification:OnEnable()
 
 	self._fontSettings = LFGAnnouncements.DB:GetProfileData("general", "font")
 	self._enabledForInstanceTypes = self._db:GetProfileData("notifications", "general", "enable_in_instance")
+	self._numAllowedToasters = self._db:GetProfileData("notifications", "toaster", "num_toasters")
 
 	local soundId = self._db:GetProfileData("notifications", "sound", "id")
 	local soundPath = self._db:GetProfileData("notifications", "sound", "path")
@@ -117,6 +118,10 @@ end
 function LFGAnnouncementsNotification:_triggerToaster(instanceId, message)
 	local index
 	for i = 1, #self._freeSlots do
+		if i > self._numAllowedToasters then
+			return
+		end
+
 		if self._freeSlots[i] then
 			index = i
 			break
@@ -179,6 +184,11 @@ function LFGAnnouncementsNotification:SetToasterSize(width, height)
 		end
 		self._db:SetProfileData("height", height, "notifications", "toaster", "size")
 	end
+end
+
+function LFGAnnouncementsNotification:SetNumToasters(num)
+	self._numAllowedToasters = num
+	self._db:SetProfileData("num_toasters", num, "notifications", "toaster")
 end
 
 function LFGAnnouncementsNotification:SetFont(font, size, flags)
