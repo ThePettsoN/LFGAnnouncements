@@ -140,6 +140,21 @@ local function optionsTemplate()
 						LFGAnnouncements.Notifications:SetToasterSize(nil, newHeight)
 					end
 				},
+				num_toasters = {
+					type = "range",
+					width = "full",
+					order = 5,
+					name = "Number of toasters that can be shown at once",
+					min = 1,
+					max = 10,
+					step = 1,
+					get = function(info)
+						return db:GetProfileData("notifications", "toaster", "num_toasters")
+					end,
+					set = function(info, newValue)
+						LFGAnnouncements.Notifications:SetNumToasters(newValue)
+					end
+				},
 			}
 		},
 
