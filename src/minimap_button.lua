@@ -4,7 +4,6 @@ local libIcon = LibStub("LibDBIcon-1.0")
 
 local LFGAnnouncementsMinimap = {}
 function LFGAnnouncementsMinimap:OnInitialize()
-	LFGAnnouncements.MinimapButton = self
 end
 
 function LFGAnnouncementsMinimap:OnEnable()

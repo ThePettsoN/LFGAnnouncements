@@ -27,7 +27,6 @@ end
 
 local LFGAnnouncementsNotification = {}
 function LFGAnnouncementsNotification:OnInitialize()
-	LFGAnnouncements.Notifications = self
 	self:RegisterMessage("OnInstanceEntry", "OnInstanceEntry")
 end
 

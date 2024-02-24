@@ -36,8 +36,6 @@ LFGAnnouncements.Instances = LFGAnnouncementsInstances
 function LFGAnnouncementsInstances:OnInitialize()
 	self._activatedInstances = {}
 	self._activeTags = {}
-
-	LFGAnnouncements.Instances = self
 end
 
 local customLevelRange = {0, 70}

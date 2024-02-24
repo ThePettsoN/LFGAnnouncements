@@ -33,8 +33,6 @@ local TimeColorLookup = {
 
 local LFGAnnouncementsUI = {}
 function LFGAnnouncementsUI:OnInitialize()
-	LFGAnnouncements.UI = self
-
 	self._instanceContainers = {}
 	self._frame = nil
 

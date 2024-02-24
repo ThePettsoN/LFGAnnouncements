@@ -94,8 +94,6 @@ local GameVersionLookup = {
 	Wrath = 4,
 }
 
-Test = LFGAnnouncements.GameExpansionLookup
-
 local function DetermineGameVersion()
 	if not C_Engraving then
 		LFGAnnouncements.GameVersion = GameVersionLookup.Retail
@@ -239,7 +237,8 @@ function LFGAnnouncementsCore:DeleteAllEntries()
 end
 
 function LFGAnnouncementsCore:RegisterModule(name, module, ...)
-	self:NewModule(name, module, ...)
+	local mod = self:NewModule(name, module, ...)
+	LFGAnnouncements[name] = mod
 end
 
 function LFGAnnouncementsCore:SetDifficultyFilter(difficulty)

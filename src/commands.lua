@@ -15,7 +15,6 @@ local COMMANDS_LOOKUP = {
 
 local LFGAnnouncementsCommands = {}
 function LFGAnnouncementsCommands:OnInitialize()
-	LFGAnnouncements.Commands = self
 end
 
 function LFGAnnouncementsCommands:OnEnable()
