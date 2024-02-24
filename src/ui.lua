@@ -1,4 +1,5 @@
 local TOCNAME, LFGAnnouncements = ...
+local Utils = LFGAnnouncements.Utils
 
 -- Lua APIs
 local pairs = pairs
@@ -274,7 +275,7 @@ function LFGAnnouncementsUI:_createInstanceContainer(instanceId)
 	group:Collapse()
 
 	local order = instances:GetInstancesOrder()
-	local _, instanceOrder = LFGAnnouncements.Utils.tArrayFind(order, instanceId)
+	local _, instanceOrder = Utils.table.find(order, instanceId)
 
 	local nextGroup, nextOrder
 	for _, data in pairs(self._instanceContainers) do

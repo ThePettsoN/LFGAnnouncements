@@ -1,4 +1,5 @@
 local _, LFGAnnouncements = ...
+local Utils = LFGAnnouncements.Utils
 
 -- Lua APIs
 local stringformat = string.format
@@ -253,7 +254,7 @@ local function optionsTemplate()
 	}
 
 	local order = 5
-	if LFGAnnouncements.GameExpansionId > 1 then
+	if Utils.game.compareGameExpansion(Utils.game.GameExpansionLookup.Tbc) <= 0 then
 		order = order + 1
 		local tbc_dungeons = {
 			type = "group",
@@ -279,7 +280,7 @@ local function optionsTemplate()
 		args.tbc_raids = tbc_raids
 	end
 
-	if LFGAnnouncements.GameExpansionId > 2 then
+	if Utils.game.compareGameExpansion(Utils.game.GameExpansionLookup.Wotlk) <= 0 then
 		order = order + 1
 		local wotlk_dungeons = {
 			type = "group",
