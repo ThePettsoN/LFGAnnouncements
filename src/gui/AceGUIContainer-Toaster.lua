@@ -40,6 +40,7 @@ end
 local function onClickCloseButton(button)
 	PlaySound(799)
 	button.obj:Hide()
+	button.obj:Fire("FadeOutComplete")
 end
 
 local function CreateTitle(self, frame)
