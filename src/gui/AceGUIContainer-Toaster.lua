@@ -1,6 +1,6 @@
 local AceGUI = LibStub("AceGUI-3.0")
 local AceTimer = LibStub("AceTimer-3.0")
-local Utils = LibStub:GetLibrary("PUtils-1.0")
+local Utils = LibStub:GetLibrary("PUtils-1.3")
 
 -- Lua APIs
 local pairs = pairs
