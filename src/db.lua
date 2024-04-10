@@ -80,6 +80,7 @@ local defaults = {
 		dungeons = {
 			activated = {},
 			custom_instances = {},
+			blacklist = {}
 		},
 		filters = {
 			difficulty = "ALL",

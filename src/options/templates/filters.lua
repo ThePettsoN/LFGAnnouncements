@@ -83,7 +83,7 @@ local function createCustomFilters(args, customEntries)
 					name = "Tags",
 					desc = "Custom tags separated by spaces",
 					width = "double",
-					order = 2,
+					order = 1,
 					get = function()
 						return strjoin(" ", unpack(customEntries.Tags[id]))
 					end,
@@ -99,7 +99,7 @@ local function createCustomFilters(args, customEntries)
 					type = "execute",
 					name = "Remove",
 					width = "half",
-					order = 3,
+					order = 2,
 					func = function()
 						UpdateData(LFGAnnouncements.Instances, 'RemoveCustomInstance', id)
 					end
@@ -112,7 +112,7 @@ local function createCustomFilters(args, customEntries)
 
 	args.new = {
 		type = "group",
-		name = "New",
+		name = "New Custom Filter",
 		order = 2,
 		inline = true,
 		args = {
@@ -142,6 +142,35 @@ local function createCustomFilters(args, customEntries)
 					newName = nil
 				end
 			},
+		}
+	}
+end
+
+local function createBlacklistFilters(args, existingBlacklist)
+	local blacklist = Utils.table.keys(existingBlacklist)
+	args.blacklist = {
+		type = "group",
+		name = "",
+		order = order,
+		inline = true,
+		args = {
+			tags = {
+				type = "input",
+				name = "Blacklisted words",
+				desc = "Blacklisted words separated by spaces",
+				width = "double",
+				order = 1,
+				get = function()
+					return strjoin(" ", unpack(blacklist))
+				end,
+				set = function(info, newValue)
+					local tags = {}
+					for tag in string.gmatch(strlower(newValue), "[^ ]+") do
+						tags[tag] = true
+					end
+					UpdateData(LFGAnnouncements.Instances, 'SetBlacklist', tags)
+				end,
+			}
 		}
 	}
 end
@@ -335,14 +364,24 @@ local function optionsTemplate()
 	order = order + 1
 	local custom_instances = {
 		type = "group",
-		name = "Custom",
+		name = "Custom Filters",
 		order = order,
 		inline = false,
 		args = {},
 	}
-
 	createCustomFilters(custom_instances.args, instancesModule:GetCustomInstances())
 	args.custom_instances = custom_instances
+
+	order = order + 1
+	local blacklist = {
+		type = "group",
+		name = "Blacklist",
+		order = order,
+		inline = false,
+		args = {},
+	}
+	createBlacklistFilters(blacklist.args, instancesModule:GetBlacklist())
+	args.blacklist = blacklist
 
 	return {
 		type = "group",

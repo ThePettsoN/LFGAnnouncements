@@ -64,6 +64,8 @@ local DUNGEON_ENTRY_REASON = {
 	SHOW = 3,
 }
 
+local BLACKLIST
+
 local tbl = {}
 local index = 1
 
@@ -73,7 +75,7 @@ LFGAnnouncementsCore.DIFFICULTIES = DIFFICULTIES
 
 LFGAnnouncements.Core = LFGAnnouncementsCore
 function LFGAnnouncementsCore:OnInitialize()
-	Utils.debug:initialize("LFGAnnouncements")
+	Utils.debug.initialize(self, "LFGAnnouncements")
 
 	self._modules = {}
 	self._instanceEntries = {}
@@ -300,6 +302,13 @@ function LFGAnnouncementsCore:_parseMessage(message, authorGUID)
 	for v in stringgmatch(lowerMsg, regex) do
 		tbl[index] = v
 		index = index + 1
+	end
+
+	local blacklist = self._instances:GetBlacklist()
+	for i = 1, #tbl do
+		if blacklist[tbl[i]] then
+			return
+		end
 	end
 
 	local filter, isBoostEntry, isGdkpEntry = self:_filterMessage(tbl)

@@ -129,6 +129,11 @@ function LFGAnnouncementsInstances:AddCustomInstance(name)
 	addCustom(Instances, id, name, tags)
 end
 
+function LFGAnnouncementsInstances:SetBlacklist(blacklist)
+	LFGAnnouncements.DB:SetCharacterData("blacklist", blacklist, "dungeons")
+	BLACKLIST = blacklist
+end
+
 function LFGAnnouncementsInstances:RemoveCustomInstance(id)
 	LFGAnnouncements.DB:SetCharacterData(id, nil, "dungeons", "custom_instances")
 	removeCustom(CustomInstances, id)
@@ -260,6 +265,10 @@ end
 
 function LFGAnnouncementsInstances:GetCustomInstances()
 	return CustomInstances
+end
+
+function LFGAnnouncementsInstances:GetBlacklist()
+	return BLACKLIST or LFGAnnouncements.DB:GetCharacterData("dungeons", "blacklist")
 end
 
 function LFGAnnouncementsInstances:GetInstanceType(instanceId)
