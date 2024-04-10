@@ -25,6 +25,8 @@ local CustomInstances = {
 	Levels = {},
 	Tags = {},
 }
+local Blacklist
+local Whitelist
 
 local InstanceType = {
 	DUNGEON = "DUNGEON",
@@ -131,7 +133,12 @@ end
 
 function LFGAnnouncementsInstances:SetBlacklist(blacklist)
 	LFGAnnouncements.DB:SetCharacterData("blacklist", blacklist, "dungeons")
-	BLACKLIST = blacklist
+	Blacklist = blacklist
+end
+
+function LFGAnnouncementsInstances:SetWhitelist(whitelist)
+	LFGAnnouncements.DB:SetCharacterData("whitelist", whitelist, "dungeons")
+	Whitelist = whitelist
 end
 
 function LFGAnnouncementsInstances:RemoveCustomInstance(id)
@@ -268,7 +275,11 @@ function LFGAnnouncementsInstances:GetCustomInstances()
 end
 
 function LFGAnnouncementsInstances:GetBlacklist()
-	return BLACKLIST or LFGAnnouncements.DB:GetCharacterData("dungeons", "blacklist")
+	return Blacklist or LFGAnnouncements.DB:GetCharacterData("dungeons", "blacklist")
+end
+
+function LFGAnnouncementsInstances:GetWhitelist()
+	return Whitelist or LFGAnnouncements.DB:GetCharacterData("dungeons", "whitelist")
 end
 
 function LFGAnnouncementsInstances:GetInstanceType(instanceId)

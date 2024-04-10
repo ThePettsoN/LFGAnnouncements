@@ -311,6 +311,21 @@ function LFGAnnouncementsCore:_parseMessage(message, authorGUID)
 		end
 	end
 
+	local whitelist = self._instances:GetWhitelist()
+	if next(whitelist) then
+		local whitelistFound = false
+		for i = 1, #tbl do
+			if whitelist[tbl[i]] then
+				whitelistFound = true
+				break
+			end
+		end
+
+		if not whitelistFound then
+			return
+		end
+	end
+
 	local filter, isBoostEntry, isGdkpEntry = self:_filterMessage(tbl)
 	if filter then
 		return

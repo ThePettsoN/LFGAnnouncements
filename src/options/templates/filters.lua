@@ -175,6 +175,35 @@ local function createBlacklistFilters(args, existingBlacklist)
 	}
 end
 
+local function createWhitelistFilters(args, existingWhitelist)
+	local whitelist = Utils.table.keys(existingWhitelist)
+	args.whitelist = {
+		type = "group",
+		name = "",
+		order = order,
+		inline = true,
+		args = {
+			tags = {
+				type = "input",
+				name = "Whitelisted words",
+				desc = "Whitelisted words separated by spaces",
+				width = "double",
+				order = 1,
+				get = function()
+					return strjoin(" ", unpack(whitelist))
+				end,
+				set = function(info, newValue)
+					local tags = {}
+					for tag in string.gmatch(strlower(newValue), "[^ ]+") do
+						tags[tag] = true
+					end
+					UpdateData(LFGAnnouncements.Instances, 'SetWhitelist', tags)
+				end,
+			}
+		}
+	}
+end
+
 local function optionsTemplate()
 	local instancesModule = LFGAnnouncements.Instances
 	local db = LFGAnnouncements.DB
@@ -376,12 +405,25 @@ local function optionsTemplate()
 	local blacklist = {
 		type = "group",
 		name = "Blacklist",
+		desc = "A blacklist of words filtering messages, displaying only those containing with none of the blacklisted words.",
 		order = order,
 		inline = false,
 		args = {},
 	}
 	createBlacklistFilters(blacklist.args, instancesModule:GetBlacklist())
 	args.blacklist = blacklist
+
+	order = order + 1
+	local whitelist = {
+		type = "group",
+		name = "Whitelist",
+		desc = "A whitelist of words filtering messages, displaying only those containing at least one of the whitelisted words.",
+		order = order,
+		inline = false,
+		args = {},
+	}
+	createWhitelistFilters(whitelist.args, instancesModule:GetWhitelist())
+	args.whitelist = whitelist
 
 	return {
 		type = "group",
