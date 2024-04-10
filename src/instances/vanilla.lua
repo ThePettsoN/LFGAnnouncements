@@ -20,7 +20,7 @@ local Dungeons = {
 		"SFK",
 		"STOCKS",
 		"RFK",
-		-- "SM",
+			-- "SM",
 		"SM_GY",
 		"SM_LIB",
 		"SM_ARM",
@@ -29,13 +29,12 @@ local Dungeons = {
 		"ULDA",
 		"ZF",
 		"MARA",
-		"ST",
 		"BRD",
 		"LBRS",
 		"UBRS",
 		"SCHOLO",
 		"STRAT",
-		-- "DIRE_MAUL",
+			-- "DIRE_MAUL",
 		"DIRE_MAUL_E",
 		"DIRE_MAUL_N",
 		"DIRE_MAUL_W",
@@ -56,7 +55,6 @@ local Dungeons = {
 		ULDA 			= "Uldaman",
 		ZF 				= "Zul'Farrak",
 		MARA 			= "Maraudon",
-		ST 				= "The Temple of Atal'Hakkar",
 		BRD 			= "Blackrock Depths",
 		LBRS 			= "Lower Blackrock Spire",
 		UBRS 			= "Upper Blackrock Spire",
@@ -83,7 +81,6 @@ local Dungeons = {
 		ULDA			= { 42, 52, },
 		ZF				= { 44, 54, },
 		MARA			= { 46, 55, },
-		ST				= { 50, 60, },
 		BRD				= { 52, 60, },
 		LBRS			= { 55, 60, },
 		UBRS			= { 58, 60, },
@@ -110,7 +107,6 @@ local Dungeons = {
 		ULDA			= { "uld", "ulda", "uldaman", "ulduman", "uldman", "uldama", "udaman", },
 		ZF				= { "zf", "farrak", "zulfarrak", "zulfarak", "zulfa", "zulf", },
 		MARA			= { "mar", "mara", "maraudon", "mauradon", "mauro", "maurodon", "princessrun", "maraudin", "maura", "marau", "mauraudon" },
-		ST				= { "sunken", "atal", },
 		BRD				= { "brd", "emp", "arenarun", "angerforge", "blackrockdepth", },
 		LBRS			= { "lbrs", "lrbs", },
 		UBRS			= { "ubrs", "urbs", "rend", },
@@ -147,16 +143,29 @@ if Utils.game.compareGameVersion(Utils.game.GameVersionLookup.SeasonOfDiscovery)
 	Raids.Levels.GNOMER = { 40, 40, }
 	Raids.Tags.GNOMER = { "gno", "gnom", "gnomeregan", "gnomeragan", "gnome", "gnomregan", "gnomragan", "gnomer" }
 
+	-- Sunken Temple
+	Raids.Order[#Raids.Order + 1] = "ST"
+	Raids.Names.ST = "The Temple of Atal'Hakkar (Sunken Temple)"
+	Raids.Levels.ST = { 50, 50, }
+	Raids.Tags.ST = { "sunken", "atal", "st" }
 else
+	-- BFD
 	table.insert(Dungeons.Order, 6, "BFD")
 	Dungeons.Names.BFD = "Blackfathom Deeps"
 	Dungeons.Levels.BFD = { 24, 32, }
 	Dungeons.Tags.BFD = { "bfd", "fathom", "blackfathom", }
 
+	-- Gnomeregan
 	table.insert(Dungeons.Order, 7, "GNOMER")
 	Dungeons.Names.GNOMER = "Gnomeregan"
 	Dungeons.Levels.GNOMER = { 29, 38, }
 	Dungeons.Tags.GNOMER = { "gno", "gnom", "gnomeregan", "gnomeragan", "gnome", "gnomregan", "gnomragan", "gnomer" }
+
+	-- Sunken Temple
+	table.insert(Dungeons.Order, 17, "ST")
+	Dungeons.Names.ST = "The Temple of Atal'Hakkar (Sunken Temple)"
+	Dungeons.Levels.ST = { 50, 60, }
+	Dungeons.Tags.ST = { "sunken", "atal", "st" }
 end
 
 LFGAnnouncements.Instances.Register("DUNGEONS", Utils.game.GameExpansionLookup.Vanilla, Dungeons)
