@@ -332,6 +332,38 @@ local function optionsTemplate()
 		end
 	end
 
+	if Utils.game.compareGameExpansion(Utils.game.GameExpansionLookup.Cataclysm) <= 0 then
+		instances = instancesModule:GetDungeons(Utils.game.GameExpansionLookup.Cataclysm)
+		if instances then
+			order = order + 1
+			local cataclysm_dungeons = {
+				type = "group",
+				name = "Cataclysm Dungeons",
+				order = order,
+				inline = false,
+				args = {}
+			}
+
+			createGroup(cataclysm_dungeons.args, instances)
+			args.cataclysm_dungeons = cataclysm_dungeons
+		end
+
+		instances = instancesModule:GetRaids(Utils.game.GameExpansionLookup.Cataclysm)
+		if instances then
+			order = order + 1
+			local cataclysm_raids = {
+				type = "group",
+				name = "Cataclysm Raids",
+				order = order,
+				inline = false,
+				args = {}
+			}
+
+			createGroup(cataclysm_raids.args, instances)
+			args.cataclysm_raids = cataclysm_raids
+		end
+	end
+
 	order = order + 1
 	local custom_instances = {
 		type = "group",
