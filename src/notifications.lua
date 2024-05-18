@@ -219,13 +219,13 @@ function LFGAnnouncementsNotification:OnPlayerEnteringWorld(event, isInitialLogi
 end
 
 function LFGAnnouncementsNotification:OnInstanceEntry(event, instanceId, difficulty, message, time, totalTime, authorGUID, reason)
-	 if reason ~= LFGAnnouncements.Core.DUNGEON_ENTRY_REASON.NEW then
-	 	return
-	 end
+	if reason ~= LFGAnnouncements.Core.DUNGEON_ENTRY_REASON.NEW then
+		return
+	end
  
-	 if not self._enabledForInstanceTypes[self._instanceType] then
-	 	return
-	 end
+	if not self._enabledForInstanceTypes[self._instanceType] then
+		return
+	end
 
 	-- if self._db:GetProfileData("notifications", "chat") then
 		-- print(message)
