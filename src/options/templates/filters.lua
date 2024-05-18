@@ -255,7 +255,7 @@ local function optionsTemplate()
 
 	local order = 5
 	instances = instancesModule:GetRaids(Utils.game.GameExpansionLookup.Vanilla)
-	if instances then
+	if instances and next(instances) ~= nil then
 		local vanilla_raids = {
 			type = "group",
 			name = "Vanilla Raids",
@@ -270,7 +270,7 @@ local function optionsTemplate()
 
 	if Utils.game.compareGameExpansion(Utils.game.GameExpansionLookup.Tbc) <= 0 then
 		instances = instancesModule:GetDungeons(Utils.game.GameExpansionLookup.Tbc)
-		if instances then
+		if instances  and next(instances) ~= nil then
 			order = order + 1
 			local tbc_dungeons = {
 				type = "group",
@@ -285,7 +285,7 @@ local function optionsTemplate()
 		end
 
 		instances = instancesModule:GetRaids(Utils.game.GameExpansionLookup.Tbc)
-		if instances then
+		if instances  and next(instances) ~= nil then
 			order = order + 1
 			local tbc_raids = {
 				type = "group",
@@ -302,7 +302,7 @@ local function optionsTemplate()
 
 	if Utils.game.compareGameExpansion(Utils.game.GameExpansionLookup.Wotlk) <= 0 then
 		instances = instancesModule:GetDungeons(Utils.game.GameExpansionLookup.Wotlk)
-		if instances then
+		if instances  and next(instances) ~= nil then
 			order = order + 1
 			local wotlk_dungeons = {
 				type = "group",
@@ -317,7 +317,7 @@ local function optionsTemplate()
 		end
 
 		instances = instancesModule:GetRaids(Utils.game.GameExpansionLookup.Wotlk)
-		if instances then
+		if instances  and next(instances) ~= nil then
 			order = order + 1
 			local wotlk_raids = {
 				type = "group",
@@ -334,7 +334,7 @@ local function optionsTemplate()
 
 	if Utils.game.compareGameExpansion(Utils.game.GameExpansionLookup.Cataclysm) <= 0 then
 		instances = instancesModule:GetDungeons(Utils.game.GameExpansionLookup.Cataclysm)
-		if instances then
+		if instances  and next(instances) ~= nil then
 			order = order + 1
 			local cataclysm_dungeons = {
 				type = "group",
@@ -349,7 +349,7 @@ local function optionsTemplate()
 		end
 
 		instances = instancesModule:GetRaids(Utils.game.GameExpansionLookup.Cataclysm)
-		if instances then
+		if instances  and next(instances) ~= nil then
 			order = order + 1
 			local cataclysm_raids = {
 				type = "group",
