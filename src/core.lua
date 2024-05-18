@@ -33,6 +33,7 @@ local DIFFICULTY_TAGS = {
 local BOOST_TAGS = {
 	boost = true,
 	boosts = true,
+	boosting = true,
 	wts = true,
 	wst = true,
 }
