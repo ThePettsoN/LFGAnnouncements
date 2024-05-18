@@ -1,5 +1,6 @@
 local _, LFGAnnouncements = ...
 local AceGUI = LibStub("AceGUI-3.0", "AceEvent-3.0")
+local Utils = LFGAnnouncements.Utils
 
 local InviteUnit = InviteUnit
 local GetCursorPosition = GetCursorPosition
@@ -7,6 +8,30 @@ local GetCursorPosition = GetCursorPosition
 local stringformat = string.format
 
 local LFGAnnouncementsContextMenu = {}
+
+if not StaticPopupDialogs.LFGA_COPY_URL then
+	StaticPopupDialogs.LFGA_COPY_URL = {
+		text = "URL",
+		button1 = "Close",
+		timeout = 0,
+		whileDead = true,
+		hideOnEscape = true,
+		preferredIndex = 3,
+		wide = true,
+		hasEditBox = true,
+		OnShow = function(self, data)
+			self.editBox:SetText(data.url)
+			self.editBox:HighlightText()
+			self.editBox:SetWidth(self:GetWidth() - 32)
+		end,
+		EditBoxOnEscapePressed = function(self)
+			self:GetParent():Hide()
+		end,
+		EditBoxOnEnterPressed = function(self)
+			self:GetParent():Hide()
+		end,
+	}
+end
 
 local function OnClickWho(widget, event, button)
 	local self = widget.parent.menu
@@ -37,7 +62,7 @@ local function OnClickUrl(widget, event, button)
 	local self = widget.parent.menu
 	if self._urlLink then
 		popup_data.url = stringformat("%s", self._urlLink)
-		StaticPopup_Show("CLICK_LINK_CLICKURL", "", "", popup_data)
+		StaticPopup_Show("LFGA_COPY_URL", "", "", popup_data)
 	end
 	self._frame:Hide()
 end
@@ -47,7 +72,7 @@ local function OnClickArmory(widget, event, button)
 	local self = widget.parent.menu
 	if self._armoryLink then
 		popup_data.url = stringformat("%s", self._armoryLink)
-		StaticPopup_Show("CLICK_LINK_CLICKURL", "", "", popup_data)
+		StaticPopup_Show("LFGA_COPY_URL", "", "", popup_data)
 	end
 	self._frame:Hide()
 end
@@ -138,6 +163,15 @@ end
 
 local function getArmoryLink(author)
 	-- TODO: Cache this in the future
+	local version
+	if Utils.game.compareGameExpansion(Utils.game.GameExpansionLookup.Cataclysm) >= 0 then
+		version = "cataclysm"
+	elseif Utils.game.compareGameExpansion(Utils.game.GameExpansionLookup.SeasonOfDiscovery) >= 0 then
+		version = "vanilla"
+	else
+		return
+	end
+
 
 	local region
 	local regionId = GetCurrentRegion()
@@ -149,13 +183,7 @@ local function getArmoryLink(author)
 	local realmSlug = GetRealmName():gsub("[%p%c]", ""):gsub("[%s]", "-"):lower()
 
 	if region then
-		local realm = GetNormalizedRealmName()
-		local pos = realm:find("%u", 2)
-		if pos then
-			realm = realm:sub(1, pos - 1) .. "-" .. realm:sub(pos)
-		end
-
-		return string.format("https://classic-armory.org/character/%s/vanilla/%s/%s", region, strlower(realm), author)
+		return string.format("https://classic-armory.org/character/%s/%s/%s/%s", region, version, realmSlug, author)
 	end
 end
 
@@ -188,7 +216,14 @@ function LFGAnnouncementsContextMenu:Show(author, message)
 		self._urlLink = ""
 	end
 
-	self._armoryLink = getArmoryLink(author)
+	local armoryUrl = getArmoryLink(author)
+	if armoryUrl then
+		self._armoryLink = armoryUrl
+		self._armory:SetDisabled(false)
+	else
+		self._armoryLink = ""
+		self._armory:SetDisabled(true)
+	end
 
 	self._frame:Show()
 
