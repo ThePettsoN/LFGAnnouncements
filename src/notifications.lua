@@ -20,8 +20,12 @@ local NEXT_TOASTER = 1
 
 local function onClickToaster(toaster)
 	local ui = LFGAnnouncements.UI
+	local self = LFGAnnouncements.Notifications
+
 	ui:Show()
-	ui:CloseAll()
+	if self._collapseOtherCategories then
+		ui:CloseAll()
+	end
 	ui:OpenGroup(toaster.instanceId)
 end
 
@@ -39,6 +43,7 @@ function LFGAnnouncementsNotification:OnEnable()
 	self._fontSettings = LFGAnnouncements.DB:GetProfileData("general", "font")
 	self._enabledForInstanceTypes = self._db:GetProfileData("notifications", "general", "enable_in_instance")
 	self._numAllowedToasters = self._db:GetProfileData("notifications", "toaster", "num_toasters")
+	self._collapseOtherCategories = self._db:GetProfileData("notifications", "toaster", "collapse_other")
 
 	local soundId = self._db:GetProfileData("notifications", "sound", "id")
 	local soundPath = self._db:GetProfileData("notifications", "sound", "path")
@@ -171,6 +176,11 @@ function LFGAnnouncementsNotification:SetToasterDuration(duration)
 	self._db:SetProfileData("duration", duration, "notifications", "toaster")
 end
 
+function LFGAnnouncementsNotification:SetCollapseOther(value)
+	self._collapseOtherCategories = value
+	self._db:SetProfileData("collapse_other", value, "notifications", "toaster")
+end
+
 function LFGAnnouncementsNotification:SetToasterSize(width, height)
 	if width then
 		for i = 1, #self._toasters do
@@ -209,13 +219,13 @@ function LFGAnnouncementsNotification:OnPlayerEnteringWorld(event, isInitialLogi
 end
 
 function LFGAnnouncementsNotification:OnInstanceEntry(event, instanceId, difficulty, message, time, totalTime, authorGUID, reason)
-	if reason ~= LFGAnnouncements.Core.DUNGEON_ENTRY_REASON.NEW then
-		return
-	end
-
-	if not self._enabledForInstanceTypes[self._instanceType] then
-		return
-	end
+	 if reason ~= LFGAnnouncements.Core.DUNGEON_ENTRY_REASON.NEW then
+	 	return
+	 end
+ 
+	 if not self._enabledForInstanceTypes[self._instanceType] then
+	 	return
+	 end
 
 	-- if self._db:GetProfileData("notifications", "chat") then
 		-- print(message)

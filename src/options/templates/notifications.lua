@@ -94,10 +94,22 @@ local function optionsTemplate()
 						db:SetProfileData("enabled", newValue, "notifications", "toaster")
 					end,
 				},
+				collapse_other = {
+					type = "toggle",
+					width = "full",
+					order = 2,
+					name = "Collapse other categories when opening request",
+					get = function(info)
+						return db:GetProfileData("notifications", "toaster", "collapse_other")
+					end,
+					set = function(info, newValue)
+						LFGAnnouncements.Notifications:SetCollapseOther(newValue)
+					end,
+				},
 				duration = {
 					type = "range",
 					width = "full",
-					order = 2,
+					order = 3,
 					name = "Duration, in seconds, the toaster should be visible",
 					min = 1,
 					max = 10,
@@ -113,7 +125,7 @@ local function optionsTemplate()
 				width = {
 					type = "range",
 					-- width = "full",
-					order = 3,
+					order = 4,
 					name = "Width",
 					min = 1,
 					max = ceil(GetScreenWidth()),
@@ -128,7 +140,7 @@ local function optionsTemplate()
 				height = {
 					type = "range",
 					-- width = "full",
-					order = 4,
+					order = 5,
 					name = "Height",
 					min = 52,
 					max = ceil(GetScreenHeight()),
@@ -143,7 +155,7 @@ local function optionsTemplate()
 				num_toasters = {
 					type = "range",
 					width = "full",
-					order = 5,
+					order = 6,
 					name = "Number of toasters that can be shown at once",
 					min = 1,
 					max = 10,
