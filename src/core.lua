@@ -278,7 +278,7 @@ function LFGAnnouncementsCore:SetEnabledInInstance(key, value)
 end
 
 local module
-local regex = "[%w]+"
+local regex = "[%a]+"
 function LFGAnnouncementsCore:_parseMessage(message, authorGUID)
 	if #message < 3 then
 		return false
