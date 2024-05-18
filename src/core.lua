@@ -13,7 +13,7 @@ local pairs = pairs
 local GetBuildInfo = GetBuildInfo
 
 local LFGAnnouncementsCore = LibStub("AceAddon-3.0"):NewAddon("LFGAnnouncementsCore", "AceEvent-3.0", "AceTimer-3.0")
-local Utils = LibStub:GetLibrary("PUtils-1.3")
+local Utils = LibStub:GetLibrary("PUtils-1.4")
 LFGAnnouncements.Utils = Utils
 
 local DIFFICULTIES = {
