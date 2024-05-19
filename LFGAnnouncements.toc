@@ -2,6 +2,7 @@
 ## Interface-Classic: 11502
 ## Interface-BCC: 20504
 ## Interface-Wrath: 30403
+## Interface-Cata: 40400
 ## Title: LFG Announcements
 ## Notes: 
 ## Author: ThePettsoN
@@ -29,6 +30,7 @@ src/instances/index.lua
 src/instances/vanilla.lua
 src/instances/tbc.lua
 src/instances/wotlk.lua
+src/instances/cataclysm.lua
 
 src/options/main.lua
 src/options/templates/general.lua
