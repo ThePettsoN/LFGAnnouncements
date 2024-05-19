@@ -49,6 +49,7 @@ local defaults = {
 			},
 			toaster = {
 				enabled = false,
+				collapse_other = true,
 				duration = 1,
 				num_toasters = 1,
 				position = {
