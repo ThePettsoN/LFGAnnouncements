@@ -36,6 +36,7 @@ local BOOST_TAGS = {
 	boosting = true,
 	wts = true,
 	wst = true,
+	selling = true,
 }
 
 local LFM_TAGS = {
@@ -57,6 +58,7 @@ local LFG_TAGS = {
 
 local GDKP_TAGS = {
 	gdkp = true,
+	gbid = true,
 }
 
 local DUNGEON_ENTRY_REASON = {
