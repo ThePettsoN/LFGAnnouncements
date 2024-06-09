@@ -282,6 +282,8 @@ end
 
 local module
 local regex = "[%a]+"
+local regexNumbers = "[%w]+"
+local matchLookup = {}
 function LFGAnnouncementsCore:_parseMessage(message, authorGUID)
 	if #message < 3 then
 		return false
@@ -292,6 +294,7 @@ function LFGAnnouncementsCore:_parseMessage(message, authorGUID)
 	end
 
 	wipe(tbl)
+	wipe(matchLookup)
 	index = 1
 
 	message = self:_formatMessage(message)
@@ -301,8 +304,19 @@ function LFGAnnouncementsCore:_parseMessage(message, authorGUID)
 
 	local lowerMsg = strlower(message)
 	for v in stringgmatch(lowerMsg, regex) do
-		tbl[index] = v
-		index = index + 1
+		if not matchLookup[v] then
+			tbl[index] = v
+			index = index + 1
+			matchLookup[v] = true
+		end
+	end
+
+	for v in stringgmatch(lowerMsg, regexNumbers) do
+		if not matchLookup[v] then
+			tbl[index] = v
+			index = index + 1
+			matchLookup[v] = true
+		end
 	end
 
 	local filter, isBoostEntry, isGdkpEntry = self:_filterMessage(tbl)
