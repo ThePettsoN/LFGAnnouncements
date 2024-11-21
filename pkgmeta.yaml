@@ -65,5 +65,6 @@ ignore:
     - .vscode
     - local_development
     - .gitignore
-    - LFGAnnouncements.code-workspace
+    - workspace.code-workspace
     - TODO.txt
+    - .luacheckrc
