@@ -76,9 +76,11 @@ LFGAnnouncementsCore.DIFFICULTIES = DIFFICULTIES
 
 LFGAnnouncements.Core = LFGAnnouncementsCore
 function LFGAnnouncementsCore:OnInitialize()
-	Utils.debug.initialize(self, "LFGAnnouncements")
+	Utils.debug.initialize(self, "LFGAnnouncements", "Debug")
+	for name, mod in pairs(self.modules) do
+		Utils.debug.initializeModule(mod, self, name)
+	end
 
-	self._modules = {}
 	self._instanceEntries = {}
 end
 
@@ -194,7 +196,10 @@ end
 function LFGAnnouncementsCore:RegisterModule(name, module, ...)
 	local mod = self:NewModule(name, module, ...)
 	LFGAnnouncements[name] = mod
-	Utils.debug.initialize(mod, name)
+
+	if self.__putils_debug then
+		Utils.debug.initializeModule(mod, self, name)
+	end
 end
 
 function LFGAnnouncementsCore:SetDifficultyFilter(difficulty)
