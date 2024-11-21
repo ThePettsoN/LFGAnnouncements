@@ -76,7 +76,7 @@ LFGAnnouncementsCore.DIFFICULTIES = DIFFICULTIES
 
 LFGAnnouncements.Core = LFGAnnouncementsCore
 function LFGAnnouncementsCore:OnInitialize()
-	Utils.debug.initialize(self, "LFGAnnouncements", "Debug")
+	Utils.debug.initialize(self, "LFGAnnouncements")
 	for name, mod in pairs(self.modules) do
 		Utils.debug.initializeModule(mod, self, name)
 	end
