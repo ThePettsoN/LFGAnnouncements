@@ -88,7 +88,7 @@ function LFGAnnouncementsCommands:test(nextPosition, args)
 	end
 
 	local currentSeverity = self:getSeverity()
-	self:setSeverity(Utils.debug.Severities.Debug)
+	-- self:setSeverity(DebugUtils.Debug)
 	LFGAnnouncements.Instances:DisableAll()
 	local total = 0
 	local found = 0

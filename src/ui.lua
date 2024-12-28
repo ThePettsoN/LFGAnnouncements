@@ -101,8 +101,10 @@ function LFGAnnouncementsUI:CloseAll()
 end
 
 function LFGAnnouncementsUI:OpenGroup(instanceId)
+	self:info("Opening %s group", instanceId)
 	local container = self._instanceContainers[instanceId]
 	if not container then
+		self:warning("Failed to open %s group", instanceId)
 		return
 	end
 
@@ -157,6 +159,7 @@ end
 
 function LFGAnnouncementsUI:ShowTotalTime(show)
 	if self._showTotalTime ~= show then
+		self:info("Changed 'ShowTotalTime' setting to %s", tostring(show))
 		self._showTotalTime = show
 		LFGAnnouncements.DB:SetProfileData("show_total_time", show, "general", "format")
 	end
@@ -190,6 +193,7 @@ end
 
 function LFGAnnouncementsUI:ShowLevelRange(show)
 	if self._showLevelRange ~= show then
+		self:info("Changed 'ShowLevelRange' setting to %s", tostring(show))
 		self._showLevelRange = show
 		LFGAnnouncements.DB:SetProfileData("show_level_range", show, "general", "format")
 
