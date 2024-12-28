@@ -162,29 +162,30 @@ function LFGAnnouncementsContextMenu:SetFont(font, size, flags)
 	self._frame.frame:SetHeight(requiredHeight + frameHeight - contentHeight)
 end
 
+local armoryUrlPrefix
 local function getArmoryLink(author)
-	-- TODO: Cache this in the future
-	local version
-	if Gameutils.IsCatalysm() then
-		version = "cataclysm"
-	elseif Gameutils.IsSeasonOfDiscovery() then
-		version = "vanilla"
-	else
-		return
+	if armoryUrlPrefix == false then
+		return nil
 	end
 
-	local region
-	local regionId = GetCurrentRegion()
-	if regionId == 1 then
-		region = "us"
-	elseif regionId == 3 then
-		region = "eu"
-	end
-	local realmSlug = GetRealmName():gsub("[%p%c]", ""):gsub("[%s]", "-"):lower()
+	if not armoryUrlPrefix then
+		local region
+		local regionId = GetCurrentRegion()
+		if regionId == 1 then
+			region = "us"
+		elseif regionId == 3 then
+			region = "eu"
+		end
+		local realmSlug = GetRealmName():gsub("[%p%c]", ""):gsub("[%s]", "-"):lower()
 
-	if region then
-		return string.format("https://classic-armory.org/character/%s/%s/%s/%s", region, version, realmSlug, author)
+		if region then
+			armoryUrlPrefix = string.format("https://classicwowarmory.com/character/%s/%s/", region, realmSlug) .. "%s"
+		else
+			armoryUrlPrefix = false
+		end
 	end
+
+	return string.format(armoryUrlPrefix, author)
 end
 
 function LFGAnnouncementsContextMenu:Show(author, message)
