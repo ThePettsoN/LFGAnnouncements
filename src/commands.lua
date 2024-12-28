@@ -145,7 +145,6 @@ end
 
 function LFGAnnouncementsCommands:severity(nextPosition, args)
 	local severity = self:GetArgs(args, 1, nextPosition)
-	print(severity)
 	self:setSeverity(severity)
 end
 

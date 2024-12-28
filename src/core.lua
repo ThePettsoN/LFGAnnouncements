@@ -344,7 +344,6 @@ function LFGAnnouncementsCore:_parseMessage(message, authorGUID)
 
 	for v in stringgmatch(lowerMsg, regexRaidAndSize) do
 		if not matchLookup[v] then
-			print(v)
 			tbl[index] = v
 			index = index + 1
 			matchLookup[v] = true
