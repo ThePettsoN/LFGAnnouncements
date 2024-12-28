@@ -151,7 +151,7 @@ local function optionsTemplate()
 			order = 2,
 			name = "Duration, in seconds, each request should be visible",
 			min = 1,
-			max = 300,
+			max = 3600,
 			step = 1,
 			get = function(info)
 				return db:GetProfileData("general", "time_visible_sec")
