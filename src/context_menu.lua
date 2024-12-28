@@ -1,6 +1,7 @@
 local _, LFGAnnouncements = ...
 local AceGUI = LibStub("AceGUI-3.0", "AceEvent-3.0")
-local Utils = LFGAnnouncements.Utils
+local PUtils = LFGAnnouncements.PUtils
+local GameUtils = PUtils.Game
 
 local InviteUnit = InviteUnit
 local GetCursorPosition = GetCursorPosition
@@ -161,30 +162,30 @@ function LFGAnnouncementsContextMenu:SetFont(font, size, flags)
 	self._frame.frame:SetHeight(requiredHeight + frameHeight - contentHeight)
 end
 
+local armoryUrlPrefix
 local function getArmoryLink(author)
-	-- TODO: Cache this in the future
-	local version
-	if Utils.game.compareGameExpansion(Utils.game.GameExpansionLookup.Cataclysm) >= 0 then
-		version = "cataclysm"
-	elseif Utils.game.compareGameExpansion(Utils.game.GameExpansionLookup.SeasonOfDiscovery) >= 0 then
-		version = "vanilla"
-	else
-		return
+	if armoryUrlPrefix == false then
+		return nil
 	end
 
+	if not armoryUrlPrefix then
+		local region
+		local regionId = GetCurrentRegion()
+		if regionId == 1 then
+			region = "us"
+		elseif regionId == 3 then
+			region = "eu"
+		end
+		local realmSlug = GetRealmName():gsub("[%p%c]", ""):gsub("[%s]", "-"):lower()
 
-	local region
-	local regionId = GetCurrentRegion()
-	if regionId == 1 then
-		region = "us"
-	elseif regionId == 3 then
-		region = "eu"
+		if region then
+			armoryUrlPrefix = string.format("https://classicwowarmory.com/character/%s/%s/", region, realmSlug) .. "%s"
+		else
+			armoryUrlPrefix = false
+		end
 	end
-	local realmSlug = GetRealmName():gsub("[%p%c]", ""):gsub("[%s]", "-"):lower()
 
-	if region then
-		return string.format("https://classic-armory.org/character/%s/%s/%s/%s", region, version, realmSlug, author)
-	end
+	return string.format(armoryUrlPrefix, author)
 end
 
 function LFGAnnouncementsContextMenu:Show(author, message)

@@ -1,5 +1,7 @@
 local TOCNAME, LFGAnnouncements = ...
-local Utils = LFGAnnouncements.Utils
+local PUtils = LFGAnnouncements.PUtils
+local TableUtils = PUtils.Table
+local GameUtils = PUtils.Game
 
 -- Lua APIs
 local pairs = pairs
@@ -57,7 +59,7 @@ function LFGAnnouncementsUI:OnEnable()
 	local playerLevel = UnitLevel("player")
 	self._playerLevel = playerLevel
 
-	local maxLevel = MAX_PLAYER_LEVEL_TABLE[GetServerExpansionLevel()]
+	local maxLevel = GameUtils.GetMaxLevel()
 	if playerLevel ~= maxLevel then
 		self:RegisterEvent("PLAYER_LEVEL_UP", "OnPlayerLevelUp")
 	end
@@ -99,8 +101,10 @@ function LFGAnnouncementsUI:CloseAll()
 end
 
 function LFGAnnouncementsUI:OpenGroup(instanceId)
+	self:info("Opening %s group", instanceId)
 	local container = self._instanceContainers[instanceId]
 	if not container then
+		self:warning("Failed to open %s group", instanceId)
 		return
 	end
 
@@ -155,6 +159,7 @@ end
 
 function LFGAnnouncementsUI:ShowTotalTime(show)
 	if self._showTotalTime ~= show then
+		self:info("Changed 'ShowTotalTime' setting to %s", tostring(show))
 		self._showTotalTime = show
 		LFGAnnouncements.DB:SetProfileData("show_total_time", show, "general", "format")
 	end
@@ -188,6 +193,7 @@ end
 
 function LFGAnnouncementsUI:ShowLevelRange(show)
 	if self._showLevelRange ~= show then
+		self:info("Changed 'ShowLevelRange' setting to %s", tostring(show))
 		self._showLevelRange = show
 		LFGAnnouncements.DB:SetProfileData("show_level_range", show, "general", "format")
 
@@ -275,7 +281,7 @@ function LFGAnnouncementsUI:_createInstanceContainer(instanceId)
 	group:Collapse()
 
 	local order = instances:GetInstancesOrder()
-	local _, instanceOrder = Utils.table.find(order, instanceId)
+	local _, instanceOrder = TableUtils.find(order, instanceId)
 
 	local nextGroup, nextOrder
 	for _, data in pairs(self._instanceContainers) do

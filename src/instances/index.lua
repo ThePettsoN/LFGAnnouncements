@@ -1,6 +1,9 @@
 local _, LFGAnnouncements = ...
 local LFGAnnouncementsInstances = {}
-local Utils = LFGAnnouncements.Utils
+local PUtils = LFGAnnouncements.PUtils
+local GameUtils = PUtils.Game
+local TableUtils = PUtils.Table
+local StringUtils = PUtils.String
 
 -- Lua APIs
 local wipe = wipe
@@ -11,8 +14,6 @@ local min = min
 -- WoW APIs
 local UnitLevel = UnitLevel
 local tContains = tContains
-
-local utils = LFGAnnouncements.Utils
 
 local Modules = {}
 local Dungeons = {}
@@ -62,7 +63,7 @@ end
 function LFGAnnouncementsInstances:OnEnable()
 	for i = 1, #Modules do
 		local data = Modules[i]
-		if Utils.game.compareGameExpansion(data.expansionId) <= 0 then
+		if GameUtils.CompareGameVersion(data.expansionId) then
 			local group
 			if data.instanceType == "RAIDS" then
 				group = Raids
@@ -73,8 +74,8 @@ function LFGAnnouncementsInstances:OnEnable()
 			end
 			
 			local perExpansion = group[data.expansionId] or {}
-			Utils.table.mergeRecursive(perExpansion, data.instances)
-			Utils.table.mergeRecursive(Instances, data.instances)
+			TableUtils.mergeRecursive(perExpansion, data.instances)
+			TableUtils.mergeRecursive(Instances, data.instances)
 			group[data.expansionId] = perExpansion
 
 			for id, tags in pairs(data.instances.Tags) do
@@ -121,7 +122,7 @@ function LFGAnnouncementsInstances:GetActivatedInstances()
 end
 
 function LFGAnnouncementsInstances:AddCustomInstance(name)
-	local id = Utils.string.uuid("xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx")
+	local id = StringUtils.uuid("xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx")
 	local tags = {}
 	LFGAnnouncements.DB:SetCharacterData(id, {name = name, tags = tags, activated = true}, "dungeons", "custom_instances")
 	

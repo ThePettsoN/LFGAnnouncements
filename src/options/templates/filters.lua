@@ -1,5 +1,6 @@
 local _, LFGAnnouncements = ...
-local Utils = LFGAnnouncements.Utils
+local PUtils = LFGAnnouncements.PUtils
+local GameUtils = PUtils.Game
 
 -- Lua APIs
 local stringformat = string.format
@@ -157,7 +158,7 @@ local function optionsTemplate()
 		inline = false,
 		args = {}
 	}
-	local instances = instancesModule:GetDungeons(Utils.game.GameExpansionLookup.Vanilla)
+	local instances = instancesModule:GetDungeons(GameUtils.GameVersionLookup.CLASSIC)
 	createGroup(vanilla_dungeons.args, instances)
 
 	local args = {
@@ -254,7 +255,7 @@ local function optionsTemplate()
 	}
 
 	local order = 5
-	instances = instancesModule:GetRaids(Utils.game.GameExpansionLookup.Vanilla)
+	instances = instancesModule:GetRaids(GameUtils.GameVersionLookup.CLASSIC)
 	if instances and next(instances) ~= nil then
 		local vanilla_raids = {
 			type = "group",
@@ -268,8 +269,8 @@ local function optionsTemplate()
 		args.vanilla_raids = vanilla_raids
 	end
 
-	if Utils.game.compareGameExpansion(Utils.game.GameExpansionLookup.Tbc) <= 0 then
-		instances = instancesModule:GetDungeons(Utils.game.GameExpansionLookup.Tbc)
+	if GameUtils.CompareGameVersion(GameUtils.GameVersionLookup.TBC) then
+		instances = instancesModule:GetDungeons(GameUtils.GameVersionLookup.TBC)
 		if instances and next(instances) ~= nil then
 			order = order + 1
 			local tbc_dungeons = {
@@ -284,7 +285,7 @@ local function optionsTemplate()
 			args.tbc_dungeons = tbc_dungeons
 		end
 
-		instances = instancesModule:GetRaids(Utils.game.GameExpansionLookup.Tbc)
+		instances = instancesModule:GetRaids(GameUtils.GameVersionLookup.TBC)
 		if instances and next(instances) ~= nil then
 			order = order + 1
 			local tbc_raids = {
@@ -300,8 +301,8 @@ local function optionsTemplate()
 		end
 	end
 
-	if Utils.game.compareGameExpansion(Utils.game.GameExpansionLookup.Wotlk) <= 0 then
-		instances = instancesModule:GetDungeons(Utils.game.GameExpansionLookup.Wotlk)
+	if GameUtils.CompareGameVersion(GameUtils.GameVersionLookup.WOTLK) then
+		instances = instancesModule:GetDungeons(GameUtils.GameVersionLookup.WOTLK)
 		if instances and next(instances) ~= nil then
 			order = order + 1
 			local wotlk_dungeons = {
@@ -316,7 +317,7 @@ local function optionsTemplate()
 			args.wotlk_dungeons = wotlk_dungeons
 		end
 
-		instances = instancesModule:GetRaids(Utils.game.GameExpansionLookup.Wotlk)
+		instances = instancesModule:GetRaids(GameUtils.GameVersionLookup.WOTLK)
 		if instances and next(instances) ~= nil then
 			order = order + 1
 			local wotlk_raids = {
@@ -332,8 +333,8 @@ local function optionsTemplate()
 		end
 	end
 
-	if Utils.game.compareGameExpansion(Utils.game.GameExpansionLookup.Cataclysm) <= 0 then
-		instances = instancesModule:GetDungeons(Utils.game.GameExpansionLookup.Cataclysm)
+	if GameUtils.CompareGameVersion(GameUtils.GameVersionLookup.CATACLYSM) then
+		instances = instancesModule:GetDungeons(GameUtils.GameVersionLookup.CATACLYSM)
 		if instances and next(instances) ~= nil then
 			order = order + 1
 			local cataclysm_dungeons = {
@@ -348,7 +349,7 @@ local function optionsTemplate()
 			args.cataclysm_dungeons = cataclysm_dungeons
 		end
 
-		instances = instancesModule:GetRaids(Utils.game.GameExpansionLookup.Cataclysm)
+		instances = instancesModule:GetRaids(GameUtils.GameVersionLookup.CATACLYSM)
 		if instances and next(instances) ~= nil then
 			order = order + 1
 			local cataclysm_raids = {

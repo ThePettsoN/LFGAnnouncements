@@ -1,4 +1,4 @@
-local _, LFGAnnouncements = ...
+local TOCNAME, LFGAnnouncements = ...
 
 -- Lua APIs
 local stringgsub = string.gsub
@@ -13,8 +13,9 @@ local pairs = pairs
 local GetBuildInfo = GetBuildInfo
 
 local LFGAnnouncementsCore = LibStub("AceAddon-3.0"):NewAddon("LFGAnnouncementsCore", "AceEvent-3.0", "AceTimer-3.0")
-local Utils = LibStub:GetLibrary("PUtils-1.5")
-LFGAnnouncements.Utils = Utils
+local PUtils = LibStub:GetLibrary("PUtils-2.0")
+local DebugUtils = PUtils.Debug
+LFGAnnouncements.PUtils = PUtils
 
 local DIFFICULTIES = {
 	NORMAL = "NORMAL",
@@ -76,11 +77,12 @@ LFGAnnouncementsCore.DIFFICULTIES = DIFFICULTIES
 
 LFGAnnouncements.Core = LFGAnnouncementsCore
 function LFGAnnouncementsCore:OnInitialize()
-	Utils.debug.initialize(self, "LFGAnnouncements")
+	DebugUtils.initialize(self, TOCNAME)
 	for name, mod in pairs(self.modules) do
-		Utils.debug.initializeModule(mod, self, name)
+		DebugUtils.initializeModule(mod, self, name)
 	end
 
+	-- self:setSeverity(DebugUtils.Severities.Debug)
 	self._instanceEntries = {}
 end
 
@@ -198,7 +200,8 @@ function LFGAnnouncementsCore:RegisterModule(name, module, ...)
 	LFGAnnouncements[name] = mod
 
 	if self.__putils_debug then
-		Utils.debug.initializeModule(mod, self, name)
+		DebugUtils.initializeModule(mod, self, name)
+		-- self:setSeverity(DebugUtils.Severities.Debug)
 	end
 end
 
@@ -206,6 +209,7 @@ function LFGAnnouncementsCore:SetDifficultyFilter(difficulty)
 	if self._difficultyFilter ~= difficulty then
 		self._difficultyFilter = difficulty
 		LFGAnnouncements.DB:SetCharacterData("difficulty", difficulty, "filters")
+		self:info("Changed 'Difficulty' setting to %s", difficulty)
 	end
 end
 
@@ -213,6 +217,7 @@ function LFGAnnouncementsCore:SetBoostFilter(enabled)
 	if self._boostFilter ~= enabled then
 		self._boostFilter = enabled
 		LFGAnnouncements.DB:SetCharacterData("boost", enabled, "filters")
+		self:info("Changed 'BoostFilter' setting to %s", tostring(enabled))
 	end
 end
 
@@ -220,6 +225,7 @@ function LFGAnnouncementsCore:SetGdkpFilter(enabled)
 	if self._gdkpFilter ~= enabled then
 		self._gdkpFilter = enabled
 		LFGAnnouncements.DB:SetCharacterData("gdkp", enabled, "filters")
+		self:info("Changed 'GdkpFilter' setting to %s", tostring(enabled))
 	end
 end
 
@@ -227,6 +233,7 @@ function LFGAnnouncementsCore:SetLFGFilter(enabled)
 	if self._lfgFilter ~= enabled then
 		self._lfgFilter = enabled
 		LFGAnnouncements.DB:SetCharacterData("lfg", enabled, "filters")
+		self:info("Changed 'LFGFilter' setting to %s", tostring(enabled))
 	end
 end
 
@@ -234,6 +241,7 @@ function LFGAnnouncementsCore:SetLFMFilter(enabled)
 	if self._lfmFilter ~= enabled then
 		self._lfmFilter = enabled
 		LFGAnnouncements.DB:SetCharacterData("lfm", enabled, "filters")
+		self:info("Changed 'LFMFilter' setting to %s", tostring(enabled))
 	end
 end
 
@@ -241,6 +249,7 @@ function LFGAnnouncementsCore:SetFakeFilter(amount)
 	if self._fakeRequestFilterAmount ~= amount then
 		self._fakeRequestFilterAmount = amount
 		LFGAnnouncements.DB:SetCharacterData("fake_amount", amount, "filters")
+		self:info("Changed 'FakeFilter' setting to %d", amount)
 	end
 end
 
@@ -248,6 +257,7 @@ function LFGAnnouncementsCore:SetRaidMarkersFilter(enabled)
 	if self._removeRaidMarkers ~= enabled then
 		self._removeRaidMarkers = enabled
 		LFGAnnouncements.DB:SetProfileData("remove_raid_markers", enabled, "general", "format")
+		self:info("Changed 'RaidMarkersFilter' setting to %s", tostring(enabled))
 
 		if enabled then
 			local msg, changed
@@ -255,6 +265,7 @@ function LFGAnnouncementsCore:SetRaidMarkersFilter(enabled)
 				for authorGUID, entry in pairs(data) do
 					msg, changed = self:_formatMessage(entry.message)
 					if changed then
+						self:info("Updated %s's %s entry due to raid markers setting", authorGUID, instanceId)
 						entry.message = msg
 						self:SendMessage("OnInstanceEntry", instanceId, entry.difficulty, msg, entry.time, entry.total_time, authorGUID, DUNGEON_ENTRY_REASON.UPDATE) -- TOOD: Could group together and send at once
 					end
@@ -278,23 +289,29 @@ function LFGAnnouncementsCore:SetDuration(newDuration)
 
 	self._timeToShow = newDuration
 	LFGAnnouncements.DB:SetProfileData("time_visible_sec", newDuration, "general")
+	self:info("Changed 'Duration' setting to %d", newDuration)
 end
 
 function LFGAnnouncementsCore:SetEnabledInInstance(key, value)
 	self._enabledForInstanceTypes[key] = value
 	LFGAnnouncements.DB:SetProfileData(key, value, "general", "enable_in_instance")
+	self:info("Changed 'EnabledInInstance' setting to %s:%s", tostring(key), tostring(value))
 end
 
 local module
 local regex = "[%a]+"
 local regexNumbers = "[%w]+"
+local regexRaidAndSize = "[%a]+ [0-9][0-9]"
 local matchLookup = {}
 function LFGAnnouncementsCore:_parseMessage(message, authorGUID)
+	self:debug("Parsing message '%s' from '%s'", message, authorGUID)
 	if #message < 3 then
+		self:debug("Ignoring due to size")
 		return false
 	end
 
 	if not self._enabledForInstanceTypes[self._instanceType] then
+		self:debug("Ignoring due to player in disabled area")
 		return
 	end
 
@@ -304,6 +321,7 @@ function LFGAnnouncementsCore:_parseMessage(message, authorGUID)
 
 	message = self:_formatMessage(message)
 	if not message then
+		self:debug("Failed to format message")
 		return
 	end
 
@@ -324,19 +342,30 @@ function LFGAnnouncementsCore:_parseMessage(message, authorGUID)
 		end
 	end
 
+	for v in stringgmatch(lowerMsg, regexRaidAndSize) do
+		if not matchLookup[v] then
+			tbl[index] = v
+			index = index + 1
+			matchLookup[v] = true
+		end
+	end
+
 	local filter, isBoostEntry, isGdkpEntry = self:_filterMessage(tbl)
 	if filter then
+		self:debug("Ignoring due to filter. isBoostEntry: %s, isGdkpEntry: %s", isBoostEntry, isGdkpEntry)
 		return
 	end
 
 	local filter, isLfgEntry, isLfmEntry = self:_filterRegexMessage(lowerMsg)
 	if filter then
+		self:debug("Ignoring due to filter. isLfgEntry: %s, isLfmEntry: %s", isLfgEntry, isLfmEntry)
 		return
 	end
 
 	module = self._instances
 	local foundInstances, numTotalInstancesFound = module:FindInstances(tbl)
 	if foundInstances and numTotalInstancesFound <= self._fakeRequestFilterAmount then
+		self:debug("Found %d instances from %s's message", #foundInstances, authorGUID)
 		local difficulty = self:_findDifficulty(tbl)
 		for i = 1, #foundInstances do
 			self:_createInstanceEntry(foundInstances[i], difficulty, message, authorGUID, isBoostEntry, isGdkpEntry, isLfgEntry, isLfmEntry)
@@ -345,6 +374,7 @@ function LFGAnnouncementsCore:_parseMessage(message, authorGUID)
 		return true
 	end
 
+	self:debug("Found 0 instances from %s's message", authorGUID)
 	return false
 end
 

@@ -1,5 +1,6 @@
 local _, LFGAnnouncements = ...
-Utils = LFGAnnouncements.Utils
+local PUtils = LFGAnnouncements.PUtils
+local GameUtils = PUtils.Game
 
 -- Lua APIs
 local wipe = wipe
@@ -97,9 +98,9 @@ local Dungeons = {
 	Tags = {
 		RFC				= { "rfc", "ragefire", "chasm", },
 		WC				= { "wc", "wailing", "caverns", },
-		DM				= { "deadmines", "vc", "vancleef", "mine", "mines", },
+		DM				= { "deadmines", "vc", "vancleef", "mine", "mines", "dm", },
 		SFK				= { "sfk", "shadowfang", },
-		STOCKS			= { "stk", "stock", "stockade", "stockades" },
+		STOCKS			= { "stk", "stock", "stockade", "stockades", "stocks" },
 		RFK				= { "rfk", "kraul", },
 		-- SM
 		SM_GY			= { "smgy", "smg", "gy", "graveyard", },
@@ -125,16 +126,44 @@ local Dungeons = {
 
 local Raids = {
 	Order = {
+		"ONY",
+		"ZG",
+		"MC",
+		"BWL",
+		"AQ20",
+		"AQ40",
+		"NAXX",
 	},
 	Names = {
+		ONY = "Onyxia's Lair",
+		ZG = "Zul'Gurub",
+		MC = "Molten Core",
+		BWL = "Blackwing Lair",
+		AQ20 = "Ahn'Qiraj Ruins",
+		AQ40 = "Ahn'Qiraj Temple",
+		NAXX = "Naxxramas",
 	},
 	Levels = {
+		ONY = { 60, 60, },
+		ZG = { 60, 60, },
+		MC = { 60, 60, },
+		BWL = { 60, 60, },
+		AQ20 = { 60, 60, },
+		AQ40 = { 60, 60, },
+		NAXX = { 60, 60, },
 	},
 	Tags = {
+		ONY = { "ony", "onyxia", },
+		ZG = { "zg", "gurub", "zulgurub", "zulg" },
+		MC = { "mc", "molten", "core", "moltencore", },
+		BWL = { "blackwing", "bwl", },
+		AQ20 = { "ruins", "aq20", "aq10", "aq 10", "aq 20", },
+		AQ40 = { "aq40", "aq 40", },
+		NAXX = { "naxxramas", "nax", "naxx", "nax10", "naxx10", "nax25", "naxx25", "naxx 10", "nax 10", "naxx 25", "nax 25" },
 	}
 }
 
-if Utils.game.compareGameVersion(Utils.game.GameVersionLookup.SeasonOfDiscovery) then
+if GameUtils.IsSeasonOfDiscovery() then
 	-- BFD
 	Raids.Order[#Raids.Order + 1] = "BFD"
 	Raids.Names.BFD = "Blackfathom Deeps"
@@ -146,6 +175,12 @@ if Utils.game.compareGameVersion(Utils.game.GameVersionLookup.SeasonOfDiscovery)
 	Raids.Names.GNOMER = "Gnomeregan"
 	Raids.Levels.GNOMER = { 40, 40, }
 	Raids.Tags.GNOMER = { "gno", "gnom", "gnomeregan", "gnomeragan", "gnome", "gnomregan", "gnomragan", "gnomer" }
+
+	-- Demon Fall Canyon
+	Dungeons.Order[#Dungeons.Order + 1] = "DFC"
+	Dungeons.Names.DFC = "Demon Fall Canyon"
+	Dungeons.Levels.DFC = { 60, 60, }
+	Dungeons.Tags.DFC = { "demonfall", "dfc", "demon", "fall", "canyon", }
 
 else
 	table.insert(Dungeons.Order, 6, "BFD")
@@ -159,5 +194,5 @@ else
 	Dungeons.Tags.GNOMER = { "gno", "gnom", "gnomeregan", "gnomeragan", "gnome", "gnomregan", "gnomragan", "gnomer" }
 end
 
-LFGAnnouncements.Instances.Register("DUNGEONS", Utils.game.GameExpansionLookup.Vanilla, Dungeons)
-LFGAnnouncements.Instances.Register("RAIDS", Utils.game.GameExpansionLookup.Vanilla, Raids)
+LFGAnnouncements.Instances.Register("DUNGEONS", GameUtils.GameVersionLookup.CLASSIC, Dungeons)
+LFGAnnouncements.Instances.Register("RAIDS", GameUtils.GameVersionLookup.CLASSIC, Raids)
