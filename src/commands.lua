@@ -14,6 +14,7 @@ local COMMANDS_LOOKUP = {
 		config = "settings",
 		options = "settings",
 		debug = "debug",
+		severity = "severity",
 }
 
 local LFGAnnouncementsCommands = {}
@@ -140,6 +141,12 @@ function LFGAnnouncementsCommands:test(nextPosition, args)
 
 	self:debug("Expected to find: %d. Found: %d. Diff: %d", total, found, total - found)
 	self:setSeverity(currentSeverity)
+end
+
+function LFGAnnouncementsCommands:severity(nextPosition, args)
+	local severity = self:GetArgs(args, 1, nextPosition)
+	print(severity)
+	self:setSeverity(severity)
 end
 
 LFGAnnouncements.Core:RegisterModule("Commands", LFGAnnouncementsCommands, "AceConsole-3.0")
