@@ -1,6 +1,7 @@
 local AceGUI = LibStub("AceGUI-3.0")
 local AceTimer = LibStub("AceTimer-3.0")
-local Utils = LibStub:GetLibrary("PUtils-1.5")
+local PUtils = LibStub:GetLibrary("PUtils-2.0")
+local TableUtils = PUtils.Table
 
 -- Lua APIs
 local pairs = pairs
@@ -276,7 +277,7 @@ end
 -- Constructor --
 local function Constructor()
 	local self = {}
-	Utils.table.mergeRecursive(self, AceContainerToast)
+	TableUtils.mergeRecursive(self, AceContainerToast)
 
 
 	local frame = CreateFrame("Frame", "ToasterFrame", UIParent, BackdropTemplateMixin and "BackdropTemplate" or nil)

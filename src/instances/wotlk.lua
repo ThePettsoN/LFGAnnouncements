@@ -1,5 +1,6 @@
 local _, LFGAnnouncements = ...
-local Utils = LFGAnnouncements.Utils
+local PUtils = LFGAnnouncements.PUtils
+local GameUtils = PUtils.Game
 
 -- Lua APIs
 local wipe = wipe
@@ -133,5 +134,5 @@ local Raids = {
 	}
 }
 
-LFGAnnouncements.Instances.Register("DUNGEONS", Utils.game.GameExpansionLookup.Wotlk, Dungeons)
-LFGAnnouncements.Instances.Register("RAIDS", Utils.game.GameExpansionLookup.Wotlk, Raids)
+LFGAnnouncements.Instances.Register("DUNGEONS", GameUtils.GameVersionLookup.WOTLK, Dungeons)
+LFGAnnouncements.Instances.Register("RAIDS", GameUtils.GameVersionLookup.WOTLK, Raids)

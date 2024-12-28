@@ -1,6 +1,8 @@
 local _, LFGAnnouncements = ...
 
-local Utils = LFGAnnouncements.Utils
+local PUtils = LFGAnnouncements.PUtils
+local StringUtils = PUtils.String
+local DebugUtils = PUtils.Debug
 local COMMANDS_LOOKUP = {
 		show = "show",
 		open = "show",
@@ -99,7 +101,7 @@ function LFGAnnouncementsCommands:test(nextPosition, args)
 			local tags = LFGAnnouncements.Instances:GetInstanceTags(id)
 			for i = 1, #tags do
 				total = total + 1
-				if LFGAnnouncements.Core:OnChatMsgChannel(nil, tags[i], nil, nil, nil, nil, nil, nil, 1, nil, nil, nil, Utils.string.uuid("Player-xxx-xxxxxxxx")) then
+				if LFGAnnouncements.Core:OnChatMsgChannel(nil, tags[i], nil, nil, nil, nil, nil, nil, 1, nil, nil, nil, StringUtils.uuid("Player-xxx-xxxxxxxx")) then
 					found = found + 1
 				else
 					self:debug("Failed to find dungeon from tag: %s", tags[i])
@@ -125,7 +127,7 @@ function LFGAnnouncementsCommands:test(nextPosition, args)
 			for j = 1, num_symbols do
 				local endSymbol = symbols[j]
 				local message = string.format("%s%s%s", startSymbol, tag, endSymbol)
-				if LFGAnnouncements.Core:OnChatMsgChannel(nil, string.format("%s%s%s", startSymbol, tag, endSymbol), nil, nil, nil, nil, nil, nil, 1, nil, nil, nil, Utils.string.uuid("Player-xxx-xxxxxxxx")) then
+				if LFGAnnouncements.Core:OnChatMsgChannel(nil, string.format("%s%s%s", startSymbol, tag, endSymbol), nil, nil, nil, nil, nil, nil, 1, nil, nil, nil, StringUtils.uuid("Player-xxx-xxxxxxxx")) then
 					found = found + 1
 				else
 					self:debug("Failed to find dungeon from message: %s", message)

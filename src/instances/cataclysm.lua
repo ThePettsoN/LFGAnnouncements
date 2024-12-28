@@ -1,5 +1,6 @@
 local _, LFGAnnouncements = ...
-local Utils = LFGAnnouncements.Utils
+local PUtils = LFGAnnouncements.PUtils
+local GameUtils = PUtils.Game
 
 -- Lua APIs
 local wipe = wipe
@@ -113,5 +114,5 @@ local Raids = {
 	}
 }
 
-LFGAnnouncements.Instances.Register("DUNGEONS", Utils.game.GameExpansionLookup.Cataclysm, Dungeons)
-LFGAnnouncements.Instances.Register("RAIDS", Utils.game.GameExpansionLookup.Cataclysm, Raids)
+LFGAnnouncements.Instances.Register("DUNGEONS", GameUtils.GameVersionLookup.CATACLYSM, Dungeons)
+LFGAnnouncements.Instances.Register("RAIDS", GameUtils.GameVersionLookup.CATACLYSM, Raids)

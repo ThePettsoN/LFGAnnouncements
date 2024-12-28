@@ -1,5 +1,7 @@
 local TOCNAME, LFGAnnouncements = ...
-local Utils = LFGAnnouncements.Utils
+local PUtils = LFGAnnouncements.PUtils
+local TableUtils = PUtils.Table
+local GameUtils = PUtils.Game
 
 -- Lua APIs
 local pairs = pairs
@@ -57,7 +59,7 @@ function LFGAnnouncementsUI:OnEnable()
 	local playerLevel = UnitLevel("player")
 	self._playerLevel = playerLevel
 
-	local maxLevel = MAX_PLAYER_LEVEL_TABLE[GetServerExpansionLevel()]
+	local maxLevel = GameUtils.GetMaxLevel()
 	if playerLevel ~= maxLevel then
 		self:RegisterEvent("PLAYER_LEVEL_UP", "OnPlayerLevelUp")
 	end
@@ -275,7 +277,7 @@ function LFGAnnouncementsUI:_createInstanceContainer(instanceId)
 	group:Collapse()
 
 	local order = instances:GetInstancesOrder()
-	local _, instanceOrder = Utils.table.find(order, instanceId)
+	local _, instanceOrder = TableUtils.find(order, instanceId)
 
 	local nextGroup, nextOrder
 	for _, data in pairs(self._instanceContainers) do

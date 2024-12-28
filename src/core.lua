@@ -1,4 +1,4 @@
-local _, LFGAnnouncements = ...
+local TOCNAME, LFGAnnouncements = ...
 
 -- Lua APIs
 local stringgsub = string.gsub
@@ -13,8 +13,9 @@ local pairs = pairs
 local GetBuildInfo = GetBuildInfo
 
 local LFGAnnouncementsCore = LibStub("AceAddon-3.0"):NewAddon("LFGAnnouncementsCore", "AceEvent-3.0", "AceTimer-3.0")
-local Utils = LibStub:GetLibrary("PUtils-1.5")
-LFGAnnouncements.Utils = Utils
+local PUtils = LibStub:GetLibrary("PUtils-2.0")
+local DebugUtils = PUtils.Debug
+LFGAnnouncements.PUtils = PUtils
 
 local DIFFICULTIES = {
 	NORMAL = "NORMAL",
@@ -76,11 +77,12 @@ LFGAnnouncementsCore.DIFFICULTIES = DIFFICULTIES
 
 LFGAnnouncements.Core = LFGAnnouncementsCore
 function LFGAnnouncementsCore:OnInitialize()
-	Utils.debug.initialize(self, "LFGAnnouncements")
+	DebugUtils.initialize(self, TOCNAME)
 	for name, mod in pairs(self.modules) do
-		Utils.debug.initializeModule(mod, self, name)
+		DebugUtils.initializeModule(mod, self, name)
 	end
 
+	-- self:setSeverity(DebugUtils.Severities.Debug)
 	self._instanceEntries = {}
 end
 
@@ -198,7 +200,8 @@ function LFGAnnouncementsCore:RegisterModule(name, module, ...)
 	LFGAnnouncements[name] = mod
 
 	if self.__putils_debug then
-		Utils.debug.initializeModule(mod, self, name)
+		DebugUtils.initializeModule(mod, self, name)
+		-- self:setSeverity(DebugUtils.Severities.Debug)
 	end
 end
 

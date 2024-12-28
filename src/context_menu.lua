@@ -1,6 +1,7 @@
 local _, LFGAnnouncements = ...
 local AceGUI = LibStub("AceGUI-3.0", "AceEvent-3.0")
-local Utils = LFGAnnouncements.Utils
+local PUtils = LFGAnnouncements.PUtils
+local GameUtils = PUtils.Game
 
 local InviteUnit = InviteUnit
 local GetCursorPosition = GetCursorPosition
@@ -164,14 +165,13 @@ end
 local function getArmoryLink(author)
 	-- TODO: Cache this in the future
 	local version
-	if Utils.game.compareGameExpansion(Utils.game.GameExpansionLookup.Cataclysm) >= 0 then
+	if Gameutils.IsCatalysm() then
 		version = "cataclysm"
-	elseif Utils.game.compareGameExpansion(Utils.game.GameExpansionLookup.SeasonOfDiscovery) >= 0 then
+	elseif Gameutils.IsSeasonOfDiscovery() then
 		version = "vanilla"
 	else
 		return
 	end
-
 
 	local region
 	local regionId = GetCurrentRegion()

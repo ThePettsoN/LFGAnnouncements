@@ -1,5 +1,6 @@
 local _, LFGAnnouncements = ...
-Utils = LFGAnnouncements.Utils
+local PUtils = LFGAnnouncements.PUtils
+local GameUtils = PUtils.Game
 
 -- Lua APIs
 local wipe = wipe
@@ -134,7 +135,7 @@ local Raids = {
 	}
 }
 
-if Utils.game.compareGameVersion(Utils.game.GameVersionLookup.SeasonOfDiscovery) then
+if GameUtils.IsSeasonOfDiscovery() then
 	-- BFD
 	Raids.Order[#Raids.Order + 1] = "BFD"
 	Raids.Names.BFD = "Blackfathom Deeps"
@@ -159,5 +160,5 @@ else
 	Dungeons.Tags.GNOMER = { "gno", "gnom", "gnomeregan", "gnomeragan", "gnome", "gnomregan", "gnomragan", "gnomer" }
 end
 
-LFGAnnouncements.Instances.Register("DUNGEONS", Utils.game.GameExpansionLookup.Vanilla, Dungeons)
-LFGAnnouncements.Instances.Register("RAIDS", Utils.game.GameExpansionLookup.Vanilla, Raids)
+LFGAnnouncements.Instances.Register("DUNGEONS", GameUtils.GameVersionLookup.CLASSIC, Dungeons)
+LFGAnnouncements.Instances.Register("RAIDS", GameUtils.GameVersionLookup.CLASSIC, Raids)
