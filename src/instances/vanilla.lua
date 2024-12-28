@@ -98,9 +98,9 @@ local Dungeons = {
 	Tags = {
 		RFC				= { "rfc", "ragefire", "chasm", },
 		WC				= { "wc", "wailing", "caverns", },
-		DM				= { "deadmines", "vc", "vancleef", "mine", "mines", },
+		DM				= { "deadmines", "vc", "vancleef", "mine", "mines", "dm", },
 		SFK				= { "sfk", "shadowfang", },
-		STOCKS			= { "stk", "stock", "stockade", "stockades" },
+		STOCKS			= { "stk", "stock", "stockade", "stockades", "stocks" },
 		RFK				= { "rfk", "kraul", },
 		-- SM
 		SM_GY			= { "smgy", "smg", "gy", "graveyard", },
@@ -157,9 +157,9 @@ local Raids = {
 		ZG = { "zg", "gurub", "zulgurub", "zulg" },
 		MC = { "mc", "molten", "core", "moltencore", },
 		BWL = { "blackwing", "bwl", },
-		AQ20 = { "ruins", "aq20", "aq10" },
-		AQ40 = { "aq40", },
-		NAXX = { "naxxramas", "nax", "naxx", "nax10", "naxx10", "nax25", "naxx25", },
+		AQ20 = { "ruins", "aq20", "aq10", "aq 10", "aq 20", },
+		AQ40 = { "aq40", "aq 40", },
+		NAXX = { "naxxramas", "nax", "naxx", "nax10", "naxx10", "nax25", "naxx25", "naxx 10", "nax 10", "naxx 25", "nax 25" },
 	}
 }
 

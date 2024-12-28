@@ -301,6 +301,7 @@ end
 local module
 local regex = "[%a]+"
 local regexNumbers = "[%w]+"
+local regexRaidAndSize = "[%a]+ [0-9][0-9]"
 local matchLookup = {}
 function LFGAnnouncementsCore:_parseMessage(message, authorGUID)
 	self:debug("Parsing message '%s' from '%s'", message, authorGUID)
@@ -335,6 +336,15 @@ function LFGAnnouncementsCore:_parseMessage(message, authorGUID)
 
 	for v in stringgmatch(lowerMsg, regexNumbers) do
 		if not matchLookup[v] then
+			tbl[index] = v
+			index = index + 1
+			matchLookup[v] = true
+		end
+	end
+
+	for v in stringgmatch(lowerMsg, regexRaidAndSize) do
+		if not matchLookup[v] then
+			print(v)
 			tbl[index] = v
 			index = index + 1
 			matchLookup[v] = true
