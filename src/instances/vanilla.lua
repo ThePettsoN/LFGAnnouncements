@@ -126,12 +126,40 @@ local Dungeons = {
 
 local Raids = {
 	Order = {
+		"ONY",
+		"ZG",
+		"MC",
+		"BWL",
+		"AQ20",
+		"AQ40",
+		"NAXX",
 	},
 	Names = {
+		ONY = "Onyxia's Lair",
+		ZG = "Zul'Gurub",
+		MC = "Molten Core",
+		BWL = "Blackwing Lair",
+		AQ20 = "Ahn'Qiraj Ruins",
+		AQ40 = "Ahn'Qiraj Temple",
+		NAXX = "Naxxramas",
 	},
 	Levels = {
+		ONY = { 60, 60, },
+		ZG = { 60, 60, },
+		MC = { 60, 60, },
+		BWL = { 60, 60, },
+		AQ20 = { 60, 60, },
+		AQ40 = { 60, 60, },
+		NAXX = { 60, 60, },
 	},
 	Tags = {
+		ONY = { "ony", "onyxia", },
+		ZG = { "zg", "gurub", "zulgurub", "zulg" },
+		MC = { "mc", "molten", "core", "moltencore", },
+		BWL = { "blackwing", "bwl", },
+		AQ20 = { "ruins", "aq20", "aq10" },
+		AQ40 = { "aq40", },
+		NAXX = { "naxxramas", "nax", "naxx", "nax10", "naxx10", "nax25", "naxx25", },
 	}
 }
 
@@ -147,6 +175,12 @@ if GameUtils.IsSeasonOfDiscovery() then
 	Raids.Names.GNOMER = "Gnomeregan"
 	Raids.Levels.GNOMER = { 40, 40, }
 	Raids.Tags.GNOMER = { "gno", "gnom", "gnomeregan", "gnomeragan", "gnome", "gnomregan", "gnomragan", "gnomer" }
+
+	-- Demon Fall Canyon
+	Dungeons.Order[#Dungeons.Order + 1] = "DFC"
+	Dungeons.Names.DFC = "Demon Fall Canyon"
+	Dungeons.Levels.DFC = { 60, 60, }
+	Dungeons.Tags.DFC = { "demonfall", "dfc", "demon", "fall", "canyon", }
 
 else
 	table.insert(Dungeons.Order, 6, "BFD")
