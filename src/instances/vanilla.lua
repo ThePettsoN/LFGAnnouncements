@@ -76,9 +76,9 @@ local Tags = {
 	SCHOLO			= { "scholomance", "scholo", "sholo", "sholomance", },
 	STRAT			= { "stratlive", "live", "living", "stratud", "undead", "ud", "baron", "stratholme", "stath", "stratholm", "strah", "strath", "strat", "starth" },
 	-- DIRE_MAUL
-	DIRE_MAUL_E		= { "dme", "dmeast", "east", "puzilin", "jumprun", },
-	DIRE_MAUL_N		= { "dmn", "dmnorth", "north", "tribute", },
-	DIRE_MAUL_W		= { "dmw", "dmwest", "west", },
+	DIRE_MAUL_E		= { "dme", "dmeast", "dm:e", "east", "puzilin", "jumprun", },
+	DIRE_MAUL_N		= { "dmn", "dmnorth", "dm:n", "north", "tribute", },
+	DIRE_MAUL_W		= { "dmw", "dmwest", "dm:w", "west", },
 	-- RAIDS
 	ONY 			= { "ony", "onyxia", },
 	ZG 				= { "zg", "gurub", "zulgurub", "zulg" },

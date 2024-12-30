@@ -299,9 +299,14 @@ function LFGAnnouncementsCore:SetEnabledInInstance(key, value)
 end
 
 local module
-local regex = "[%a]+"
-local regexNumbers = "[%w]+"
-local regexRaidAndSize = "[%a]+ [0-9][0-9]"
+local regex = {
+	"[%a]+",
+	"[%w]+",
+	"[%a]+ [0-9][0-9]",
+	"[%a]+:[%a]+",
+}
+local numRegex = #regex
+
 local matchLookup = {}
 function LFGAnnouncementsCore:_parseMessage(message, authorGUID)
 	self:debug("Parsing message '%s' from '%s'", message, authorGUID)
@@ -326,27 +331,13 @@ function LFGAnnouncementsCore:_parseMessage(message, authorGUID)
 	end
 
 	local lowerMsg = strlower(message)
-	for v in stringgmatch(lowerMsg, regex) do
-		if not matchLookup[v] then
-			tbl[index] = v
-			index = index + 1
-			matchLookup[v] = true
-		end
-	end
-
-	for v in stringgmatch(lowerMsg, regexNumbers) do
-		if not matchLookup[v] then
-			tbl[index] = v
-			index = index + 1
-			matchLookup[v] = true
-		end
-	end
-
-	for v in stringgmatch(lowerMsg, regexRaidAndSize) do
-		if not matchLookup[v] then
-			tbl[index] = v
-			index = index + 1
-			matchLookup[v] = true
+	for i = 1, numRegex do
+		for v in stringgmatch(lowerMsg, regex[i]) do
+			if not matchLookup[v] then
+				tbl[index] = v
+				index = index + 1
+				matchLookup[v] = true
+			end
 		end
 	end
 
