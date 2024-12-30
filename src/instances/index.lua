@@ -15,10 +15,14 @@ local min = min
 local UnitLevel = UnitLevel
 local tContains = tContains
 
-local Modules = {}
 local Dungeons = {}
 local Raids = {}
-local Instances = {}
+local Instances = {
+	Order = {},
+	Names = {},
+	Levels = {},
+	Tags = {},
+}
 local TagsLookup = {}
 local CustomInstances = {
 	Order = {},
@@ -61,31 +65,6 @@ local function removeCustom(tbl, id)
 end
 
 function LFGAnnouncementsInstances:OnEnable()
-	for i = 1, #Modules do
-		local data = Modules[i]
-		if GameUtils.CompareGameVersion(data.expansionId) then
-			local group
-			if data.instanceType == "RAIDS" then
-				group = Raids
-			elseif data.instanceType == "DUNGEONS" then
-				group = Dungeons
-			else
-				assert(false, "Invalid instanceType")
-			end
-			
-			local perExpansion = group[data.expansionId] or {}
-			TableUtils.mergeRecursive(perExpansion, data.instances)
-			TableUtils.mergeRecursive(Instances, data.instances)
-			group[data.expansionId] = perExpansion
-
-			for id, tags in pairs(data.instances.Tags) do
-				for i = 1, #tags do
-					TagsLookup[tags[i]] = id
-				end
-			end
-		end
-	end
-	
 	local db = LFGAnnouncements.DB
 	local initialized = db:GetCharacterData("initialized")
 	
@@ -214,15 +193,7 @@ end
 
 local instancesFound = {}
 function LFGAnnouncementsInstances:GetInstancesByLevel(level)
-	local maxLevel
-	if LFGAnnouncements.GameExpansion == "WOTLK" then
-		maxLevel = 80
-	elseif LFGAnnouncements.GameExpansion == "TBC" then
-		maxLevel = 70
-	else
-		maxLevel = 60
-	end
-	
+	local maxLevel = GameUtils.GetMaxLevel()
 	wipe(instancesFound)
 	
 	local minDiff, maxDiff
@@ -318,12 +289,78 @@ function LFGAnnouncementsInstances:FindInstances(splitMessage)
 	end
 end
 
-function LFGAnnouncementsInstances.Register(instanceType, expansionId, instances)
-	Modules[#Modules + 1] = {
-		instanceType = instanceType,
-		expansionId = expansionId,
-		instances = instances,
-	}
+local function createLevelRange(activityInfo, fallbackLevels)
+	local minLevel, maxLevel
+
+	if activityInfo.minLevel and activityInfo.minLevel ~= 0 then
+		minLevel = activityInfo.minLevel
+	elseif activityInfo.minLevelSuggestion and activityInfo.minLevelSuggestion ~= 0 then
+		minLevel = activityInfo.minLevelSuggestion
+	elseif fallbackLevels then
+		minLevel = fallbackLevels[1] or 0
+	else
+		minLevel = 0
+	end
+
+	if activityInfo.maxLevel and activityInfo.maxLevel ~= 0 then
+		maxLevel = activityInfo.maxLevel
+	elseif activityInfo.maxLevelSuggestion and activityInfo.maxLevelSuggestion ~= 0 then
+		maxLevel = activityInfo.maxLevelSuggestion
+	elseif fallbackLevels then
+		maxLevel = fallbackLevels[2] or 0
+	else
+		maxLevel = 0
+	end
+
+	return { minLevel, maxLevel }
+end
+
+function LFGAnnouncementsInstances.Register(expansionId, instances, tags, levels)
+	if not GameUtils.CompareGameVersion(expansionId) then
+		return
+	end
+
+	local GetActivityInfoTable = C_LFGList.GetActivityInfoTable
+	for i = 1, #instances do
+		local data = instances[i]
+		if data then
+
+			local abriv = data[1]
+			local id = data[2]
+			local abriv_expansion = string.format("%s_%d", abriv, expansionId)
+
+			local info = GetActivityInfoTable(id)
+			local group
+			if info.categoryID == 2 then
+				group = Dungeons
+			elseif info.categoryID == 114 then
+				group = Raids
+			else
+				error("Unsupported group category")
+			end
+
+			local perExpansion = group[expansionId] or {
+				Order = {},
+				Names = {},
+				Levels = {},
+				Tags = {},
+			}
+
+			local name = string.gsub(info.fullName, " %(.*%)", "")
+			local levelRange = createLevelRange(info, levels and levels[abriv])
+
+			perExpansion.Order[#perExpansion.Order + 1] = abriv_expansion
+			perExpansion.Names[abriv_expansion] = name
+			perExpansion.Levels[abriv_expansion] = levelRange
+			perExpansion.Tags[abriv_expansion] = tags[abriv]
+			group[expansionId] = perExpansion
+
+			Instances.Order[#Instances.Order + 1] = abriv_expansion
+			Instances.Names[abriv_expansion] = name
+			Instances.Levels[abriv_expansion] = levelRange
+			Instances.Tags[abriv_expansion] = tags[abriv]
+		end
+	end
 end
 
 LFGAnnouncements.Core:RegisterModule("Instances", LFGAnnouncementsInstances, "AceEvent-3.0")
