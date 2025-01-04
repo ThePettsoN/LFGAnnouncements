@@ -241,7 +241,7 @@ function LFGAnnouncementsUI:_createUI()
 	settingsButton:SetPoint("BOTTOMLEFT", frame.frame, "BOTTOMLEFT", 27, 17)
 	settingsButton:SetHeight(20)
 	settingsButton:SetWidth(100)
-	settingsButton:SetText("Settings")
+	settingsButton:SetText(L("ui_settings_btn"))
 	settingsButton:SetCallback("OnClick", function(widget, event, button)
 		if button == "LeftButton" then
 			LFGAnnouncements.ContextMenu:Hide()

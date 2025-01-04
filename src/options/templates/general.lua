@@ -1,6 +1,7 @@
 local _, LFGAnnouncements = ...
 
 local LSM = LibStub("LibSharedMedia-3.0")
+local L = LFGAnnouncements.Localize
 
 local function getFonts()
 	local fonts = {}
@@ -11,29 +12,17 @@ local function getFonts()
 	return fonts
 end
 
-local function fontGroup(order, db)
-	return {
-		type = "group",
-		name = "Font",
-		order = order,
-		inline = true,
-		args = {
-			
-		}
-	}
-end
-
 local function formatGroup(order, db)
 	return {
 		type = "group",
-		name = "Messages Formatting",
+		name = L("options_general_msg_formatting_header"),
 		order = order,
 		inline = true,
 		args = {
 			name = {
 				type = "select",
 				order = 1,
-				name = "Font",
+				name = L("options_general_msg_formatting_font_name"),
 				values = getFonts(),
 				get = function(info)
 					return LFGAnnouncements.DB:GetProfileData("general", "font", "path")
@@ -46,7 +35,7 @@ local function formatGroup(order, db)
 			size = {
 				type = "range",
 				order = 2,
-				name = "Size",
+				name = L("options_general_msg_formatting_size_name"),
 				min = 8,
 				max = 64,
 				step = 1,
@@ -62,7 +51,7 @@ local function formatGroup(order, db)
 				type = "toggle",
 				width = "full",
 				order = 3,
-				name = "Remove raid markers from messages",
+				name = L("options_general_msg_formatting_raid_marker_filter_name"),
 				get = function(info)
 					return db:GetProfileData("general", "format", "remove_raid_markers")
 				end,
@@ -74,7 +63,7 @@ local function formatGroup(order, db)
 				type = "toggle",
 				width = "full",
 				order = 4,
-				name = "Show the total time instead of current time since last request",
+				name = L("options_general_msg_formatting_show_total_time_name"),
 				get = function(info)
 					return db:GetProfileData("general", "format", "show_total_time")
 				end,
@@ -86,7 +75,7 @@ local function formatGroup(order, db)
 				type = "toggle",
 				width = "full",
 				order = 5,
-				name = "Show the level range for each instance type",
+				name = L("options_general_msg_formatting_show_level_range_name"),
 				get = function(info)
 					return db:GetProfileData("general", "format", "show_level_range")
 				end,
@@ -101,7 +90,7 @@ end
 local function minimapGroup(order, db)
 	return {
 		type = "group",
-		name = "Minimap",
+		name = L("options_general_minimap_header"),
 		order = order,
 		inline = true,
 		args = {
@@ -109,7 +98,7 @@ local function minimapGroup(order, db)
 				type = "toggle",
 				width = "full",
 				order = 1,
-				name = "Show minimap button",
+				name = L("options_general_minimap_visible_name"),
 				get = function(info)
 					return not db:GetProfileData("minimap", "hide")
 				end,
@@ -122,7 +111,7 @@ local function minimapGroup(order, db)
 				type = "toggle",
 				width = "full",
 				order = 2,
-				name = "Lock minimap button",
+				name = L("options_general_minimap_locked_name"),
 				get = function(info)
 					return db:GetProfileData("minimap", "lock")
 				end,
@@ -142,14 +131,14 @@ local function optionsTemplate()
 			order = 1,
 			type = "header",
 			width = "full",
-			name = "General",
+			name = L("options_general_header"),
 		},
 
 		duration = {
 			type = "range",
 			width = "full",
 			order = 2,
-			name = "Duration, in seconds, each request should be visible",
+			name = L("options_general_duration_name"),
 			min = 1,
 			max = 3600,
 			step = 1,
@@ -162,7 +151,7 @@ local function optionsTemplate()
 		},
 
 		enable_in_areas = {
-			name = "Enable addon in areas",
+			name = L("options_general_enable_in_areas_header"),
 			type = "multiselect",
 			width = "full",
 			order = 3,
@@ -175,14 +164,13 @@ local function optionsTemplate()
 			end,
 		},
 
-		-- font = fontGroup(4, db),
 		format = formatGroup(4, db),
 		minimap = minimapGroup(5, db),
 	}
 
 	return {
 		type = "group",
-		name = "General",
+		name = L("options_general_header"),
 		order = 1,
 		args = args
 	}

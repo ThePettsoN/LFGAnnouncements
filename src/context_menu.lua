@@ -1,4 +1,5 @@
 local _, LFGAnnouncements = ...
+local L = LFGAnnouncements.Localize
 local AceGUI = LibStub("AceGUI-3.0", "AceEvent-3.0")
 local PUtils = LFGAnnouncements.PUtils
 local GameUtils = PUtils.Game
@@ -13,7 +14,7 @@ local LFGAnnouncementsContextMenu = {}
 if not StaticPopupDialogs.LFGA_COPY_URL then
 	StaticPopupDialogs.LFGA_COPY_URL = {
 		text = "URL",
-		button1 = "Close",
+		button1 = L("ui_close_btn"),
 		timeout = 0,
 		whileDead = true,
 		hideOnEscape = true,
@@ -104,12 +105,12 @@ function LFGAnnouncementsContextMenu:_createUI()
 	self._frame.frame:SetBackdropBorderColor(0, 0, 0)
 	self._frame.menu = self
 
-	self._who = CreateLabel("Who", OnClickWho)
-	self._whisper = CreateLabel("Whisper", OnClickWhisper)
-	self._invite = CreateLabel("Invite", OnClickInvite)
-	self._ignore = CreateLabel("Ignore", OnClickIgnore)
-	self._url = CreateLabel("Copy URL", OnClickUrl)
-	self._armory = CreateLabel("Copy Armory URL", OnClickArmory)
+	self._who = CreateLabel(L("entry_context_menu_who_name"), OnClickWho)
+	self._whisper = CreateLabel(L("entry_context_menu_whisper_name"), OnClickWhisper)
+	self._invite = CreateLabel(L("entry_context_menu_invite_name"), OnClickInvite)
+	self._ignore = CreateLabel(L("entry_context_menu_ignore_name"), OnClickIgnore)
+	self._url = CreateLabel(L("entry_context_menu_copy_url_name"), OnClickUrl)
+	self._armory = CreateLabel(L("entry_context_menu_copy_armory_name"), OnClickArmory)
 
 	self._frame:AddChild(self._who)
 	self._frame:AddChild(self._whisper)
@@ -201,10 +202,10 @@ function LFGAnnouncementsContextMenu:Show(author, message)
 	self._frame:SetPoint("TOPLEFT", "UIParent", "BOTTOMLEFT", x / uiScale, y / uiScale)
 	self._frame:SetTitle(author)
 
-	self._who:SetText("Who " .. author)
-	self._whisper:SetText("Whisper " .. author)
-	self._invite:SetText("Invite " .. author)
-	self._ignore:SetText("Ignore " .. author)
+	self._who:SetText(L("entry_context_menu_who", author))
+	self._who:SetText(L("entry_context_menu_whisper", author))
+	self._who:SetText(L("entry_context_menu_invite", author))
+	self._who:SetText(L("entry_context_menu_ignore", author))
 
 	self._author = author
 
