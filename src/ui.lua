@@ -1,4 +1,5 @@
 local TOCNAME, LFGAnnouncements = ...
+local L = LFGAnnouncements.Localize
 local PUtils = LFGAnnouncements.PUtils
 local TableUtils = PUtils.Table
 local GameUtils = PUtils.Game
@@ -37,7 +38,7 @@ local TimeColorLookup = {
 local LFGAnnouncementsUI = {}
 function LFGAnnouncementsUI:OnInitialize()
 	self._instanceContainers = {}
-	self._frame = nil
+	self:_createUI()
 
 	self:RegisterMessage("OnInstanceActivated", "OnInstanceActivated")
 	self:RegisterMessage("OnInstanceDeactivated", "OnInstanceDeactivated")
@@ -70,10 +71,7 @@ function LFGAnnouncementsUI:IsShown()
 end
 
 function LFGAnnouncementsUI:Show()
-	if not self._frame then
-		self:_createUI()
-		self:SendMessage("OnShowUI")
-	elseif not self._frame:IsShown() then
+	if not self._frame:IsShown() then
 		self._frame:Show()
 		self:SendMessage("OnShowUI")
 	end
@@ -238,7 +236,7 @@ function LFGAnnouncementsUI:_createUI()
 
 	local settingsButton = AceGUI:Create("Button")
 	settingsButton:ClearAllPoints()
-	settingsButton:SetPoint("BOTTOMLEFT", frame.frame, "BOTTOMLEFT", 27, 17)
+	settingsButton:SetPoint("BOTTOMLEFT", 27, 17)
 	settingsButton:SetHeight(20)
 	settingsButton:SetWidth(100)
 	settingsButton:SetText(L("ui_settings_btn"))
@@ -252,6 +250,7 @@ function LFGAnnouncementsUI:_createUI()
 
 	self._frame = frame
 	self._scrollContainer = container
+	self:Hide()
 end
 
 function LFGAnnouncementsUI:_createInstanceContainer(instanceId)
