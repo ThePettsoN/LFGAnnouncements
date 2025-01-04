@@ -1,3 +1,5 @@
+-- en will always be loaded as it's used as the fallback
+
 local _, tbl = ...
 local LocaleStrings = {
     options_general_header = "General",
