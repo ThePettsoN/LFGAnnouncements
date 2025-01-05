@@ -346,7 +346,7 @@ function LFGAnnouncementsInstances.Register(expansionId, instances, tags, levels
 				Tags = {},
 			}
 
-			local name = string.gsub(info.fullName, " %(.*%)", "")
+			local name = info.shortName
 			local levelRange = createLevelRange(info, levels and levels[abriv])
 
 			perExpansion.Order[#perExpansion.Order + 1] = abriv_expansion

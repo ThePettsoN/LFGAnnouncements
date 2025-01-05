@@ -1,4 +1,5 @@
 local _, LFGAnnouncements = ...
+local L = LFGAnnouncements.Localize
 
 -- Lua APIs
 local select = select
@@ -95,17 +96,17 @@ local defaults = {
 function LFGAnnouncementsDBModule:OnInitialize()
 	self._db = LibStub("AceDB-3.0"):New("LFGAnnouncementsDB", defaults)
 	self.dungeonDifficulties = {
-		ALL = "Show all",
-		NORMAL = "Normal Only",
-		HEROIC = "Heroic Only",
+		ALL = L("options_filters_difficulty_all"),
+		NORMAL = L("options_filters_difficulty_normal"),
+		HEROIC = L("options_filters_difficulty_heroic"),
 	}
 
 	self.instanceTypes = {
-		world = "World",
-		party = "Dungeons",
-		raid = "Raids",
-		arena = "Arenas",
-		pvp = "Battlegrounds",
+		world = L("options_general_enable_in_areas_world"),
+		party = L("options_general_enable_in_areas_party"),
+		raid = L("options_general_enable_in_areas_raid"),
+		arena = L("options_general_enable_in_areas_arena"),
+		pvp = L("options_general_enable_in_areas_pvp"),
 	}
 end
 
