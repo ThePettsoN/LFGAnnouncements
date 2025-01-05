@@ -8,12 +8,13 @@ local stringformat = string.format
 local strjoin = strjoin
 local unpack = unpack
 
-local function formatName(id)
+local function formatName(id, isLocked)
 	local module = LFGAnnouncements.Instances
 	local levelRange = module:GetLevelRange(id)
 	local name = module:GetInstanceName(id)
+	local lockIcon = " |TInterface\\LFGFRAME\\UI-LFG-ICON-LOCK:16|t"
 
-	return stringformat("%s (%d - %d)", name, levelRange[1], levelRange[2])
+	return stringformat("%s (%d - %d)%s", name, levelRange[1], levelRange[2], isLocked and lockIcon or "")
 end
 
 local function UpdateData(object, funcName, ...)
@@ -22,11 +23,15 @@ local function UpdateData(object, funcName, ...)
 end
 
 local function createEntry(id, order)
+	local instancesModule = LFGAnnouncements.Instances
+	local isLocked = instancesModule:IsLocked(id)
+
 	return {
 		type = "toggle",
 		width = "full",
 		order = order,
-		name = formatName(id),
+		disabled = isLocked,
+		name = formatName(id, isLocked),
 		get = function(info)
 			return LFGAnnouncements.DB:GetCharacterData("dungeons", "activated", id)
 		end,
@@ -46,9 +51,12 @@ local function createGroup(args, instances)
 		width = "normal",
 		order = 1,
 		func = function()
+			local instancesModules = LFGAnnouncements.Instances
 			for i = 1, num do
 				local id = instances[i]
-				LFGAnnouncements.Instances:ActivateInstance(id)
+				if not instancesModules:IsLocked(id) then
+					instancesModules:ActivateInstance(id)
+				end
 			end
 		end,
 	}
@@ -58,9 +66,12 @@ local function createGroup(args, instances)
 		width = "normal",
 		order = 2,
 		func = function()
+			local instancesModules = LFGAnnouncements.Instances
 			for i = 1, num do
 				local id = instances[i]
-				LFGAnnouncements.Instances:DeactivateInstance(id)
+				if not instancesModules:IsLocked(id) then
+					instancesModules:DeactivateInstance(id)
+				end
 			end
 		end,
 	}

@@ -343,13 +343,13 @@ function LFGAnnouncementsCore:_parseMessage(message, authorGUID)
 
 	local filter, isBoostEntry, isGdkpEntry = self:_filterMessage(tbl)
 	if filter then
-		self:debug("Ignoring due to filter. isBoostEntry: %s, isGdkpEntry: %s", isBoostEntry, isGdkpEntry)
+		self:debug("Ignoring due to filter. isBoostEntry: %s, isGdkpEntry: %s", tostring(isBoostEntry), tostring(isGdkpEntry))
 		return
 	end
 
 	local filter, isLfgEntry, isLfmEntry = self:_filterRegexMessage(lowerMsg)
 	if filter then
-		self:debug("Ignoring due to filter. isLfgEntry: %s, isLfmEntry: %s", isLfgEntry, isLfmEntry)
+		self:debug("Ignoring due to filter. isLfgEntry: %s, isLfmEntry: %s", tostring(isLfgEntry), tostring(isLfmEntry))
 		return
 	end
 
