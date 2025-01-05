@@ -265,10 +265,6 @@ function LFGAnnouncementsNotification:OnInstanceEntry(event, instanceId, authorG
 	if self:_filterEntry(reason, entry, currentTime) then
 		return
 	end
- 
-	-- if self._db:GetProfileData("notifications", "chat") then
-		-- print(message)
-	-- end
 
 	entry.time_last_notification = currentTime
 	if self._db:GetProfileData("notifications", "toaster", "enabled") then

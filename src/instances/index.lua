@@ -22,6 +22,7 @@ local Instances = {
 	Names = {},
 	Levels = {},
 	Tags = {},
+	MapIDs = {},
 }
 local TagsLookup = {}
 local CustomInstances = {
@@ -42,6 +43,7 @@ LFGAnnouncements.Instances = LFGAnnouncementsInstances
 function LFGAnnouncementsInstances:OnInitialize()
 	self._activatedInstances = {}
 	self._activeTags = {}
+	self._lockedInstances = {}
 end
 
 local customLevelRange = {0, 70}
@@ -94,6 +96,27 @@ function LFGAnnouncementsInstances:OnEnable()
 			addCustom(Instances, id, entry.name, entry.tags)
 		end
 	end
+
+	self:UpdateLockedInstances()
+	self:RegisterEvent("UPDATE_INSTANCE_INFO", "UpdateLockedInstances")
+	self:RegisterEvent("ENCOUNTER_END", "UpdateLockedInstances")
+end
+
+function LFGAnnouncementsInstances:UpdateLockedInstances()
+	wipe(self._lockedInstances)
+
+	for i = 1, GetNumSavedInstances() do
+		local name, _, reset, difficultyId, _, _, _, isRaid, _, _, _, _, _, mapId = GetSavedInstanceInfo(i)
+		local instance = Instances.MapIDs[mapId]
+		if instance then
+			self:DeactivateInstance(instance)
+			self._lockedInstances[instance] = true
+		end
+	end
+end
+
+function LFGAnnouncementsInstances:IsLocked(id)
+	return self._lockedInstances[id]
 end
 
 function LFGAnnouncementsInstances:GetActivatedInstances()
@@ -141,6 +164,7 @@ end
 
 function LFGAnnouncementsInstances:DeactivateInstance(id)
 	if not self._activatedInstances[id] then
+		self:debug("Tried to deactivate not activated instances '%s'", id)
 		return
 	end
 	
@@ -324,7 +348,6 @@ function LFGAnnouncementsInstances.Register(expansionId, instances, tags, levels
 	for i = 1, #instances do
 		local data = instances[i]
 		if data then
-
 			local abriv = data[1]
 			local id = data[2]
 			local abriv_expansion = string.format("%s_%d", abriv, expansionId)
@@ -346,7 +369,7 @@ function LFGAnnouncementsInstances.Register(expansionId, instances, tags, levels
 				Tags = {},
 			}
 
-			local name = string.gsub(info.fullName, " %(.*%)", "")
+			local name = info.shortName
 			local levelRange = createLevelRange(info, levels and levels[abriv])
 
 			perExpansion.Order[#perExpansion.Order + 1] = abriv_expansion
@@ -357,6 +380,7 @@ function LFGAnnouncementsInstances.Register(expansionId, instances, tags, levels
 
 			Instances.Order[#Instances.Order + 1] = abriv_expansion
 			Instances.Names[abriv_expansion] = name
+			Instances.MapIDs[info.mapID] = abriv_expansion
 			Instances.Levels[abriv_expansion] = levelRange
 			Instances.Tags[abriv_expansion] = tags[abriv]
 		end

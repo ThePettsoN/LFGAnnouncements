@@ -1,4 +1,5 @@
 local _, LFGAnnouncements = ...
+local L = LFGAnnouncements.Localize
 
 local ceil = ceil
 
@@ -9,9 +10,9 @@ local LSM = LibStub("LibSharedMedia-3.0")
 
 local function getSounds()
 	local sounds = {
-		[3081] = "Default",
-		[110981] = "VoiceChat - Join Channel",
-		[39517] = "InGame Store - Purchase Delivered",
+		[3081] = L("options_notifications_sound_default"),
+		[110981] = L("options_notifications_sound_voice_chat_join_channel"),
+		[39517] = L("options_notifications_sound_ingame_store_purchase_delivered"),
 	}
 
 	for name, _ in next, LSM:HashTable("sound") do
@@ -29,7 +30,7 @@ local function optionsTemplate()
 			order = 1,
 			type = "header",
 			width = "full",
-			name = "Notifications",
+			name = L("options_notifications_header"),
 		},
 
 		existing_requests = {
@@ -71,7 +72,7 @@ local function optionsTemplate()
 
 		sound = {
 			type = "group",
-			name = "Sound",
+			name = L("options_notifications_sound_header"),
 			order = 3,
 			inline = true,
 			args = {
@@ -79,7 +80,7 @@ local function optionsTemplate()
 					type = "toggle",
 					width = "full",
 					order = 1,
-					name = "Play sound on new requests",
+					name = L("options_notifications_sound_enabled_name"),
 					get = function(info)
 						return db:GetProfileData("notifications", "sound", "enabled")
 					end,
@@ -91,7 +92,7 @@ local function optionsTemplate()
 					type = "select",
 					width = "double",
 					order = 2,
-					name = "Sound To Play",
+					name = L("options_notifications_sound_sound_id_name"),
 					values = getSounds(),
 					get = function(info)
 						return LFGAnnouncements.DB:GetProfileData("notifications", "sound", "id")
@@ -105,7 +106,7 @@ local function optionsTemplate()
 					type = "execute",
 					width = "half",
 					order = 3,
-					name = "Play",
+					name = L("options_notifications_sound_play_sound_name"),
 					func = function()
 						LFGAnnouncements.Notifications:_triggerSound()
 					end
@@ -115,7 +116,7 @@ local function optionsTemplate()
 
 		toaster = {
 			type = "group",
-			name = "Toaster",
+			name = L("options_notifications_toaster_header"),
 			order = 4,
 			inline = true,
 			args = {
@@ -123,7 +124,7 @@ local function optionsTemplate()
 					type = "toggle",
 					width = "full",
 					order = 1,
-					name = "Show a toast window on new requests",
+					name = L("options_notifications_toaster_enabled_name"),
 					get = function(info)
 						return db:GetProfileData("notifications", "toaster", "enabled")
 					end,
@@ -135,7 +136,7 @@ local function optionsTemplate()
 					type = "toggle",
 					width = "full",
 					order = 2,
-					name = "Collapse other categories when opening request",
+					name = L("options_notifications_toaster_collapse_other_name"),
 					get = function(info)
 						return db:GetProfileData("notifications", "toaster", "collapse_other")
 					end,
@@ -147,7 +148,7 @@ local function optionsTemplate()
 					type = "range",
 					width = "full",
 					order = 3,
-					name = "Duration, in seconds, the toaster should be visible",
+					name = L("options_notifications_toaster_duration_name"),
 					min = 1,
 					max = 10,
 					step = 1,
@@ -163,7 +164,7 @@ local function optionsTemplate()
 					type = "range",
 					-- width = "full",
 					order = 4,
-					name = "Width",
+					name = L("options_notifications_toaster_width_name"),
 					min = 1,
 					max = ceil(GetScreenWidth()),
 					step = 1,
@@ -178,7 +179,7 @@ local function optionsTemplate()
 					type = "range",
 					-- width = "full",
 					order = 5,
-					name = "Height",
+					name = L("options_notifications_toaster_height_name"),
 					min = 52,
 					max = ceil(GetScreenHeight()),
 					step = 1,
@@ -193,7 +194,7 @@ local function optionsTemplate()
 					type = "range",
 					width = "full",
 					order = 6,
-					name = "Number of toasters that can be shown at once",
+					name = L("options_notifications_toaster_num_toasters_name"),
 					min = 1,
 					max = 10,
 					step = 1,
@@ -209,7 +210,7 @@ local function optionsTemplate()
 
 		flash_icon = {
 			type = "group",
-			name = "Flash Client Icon",
+			name = L("options_notifications_flash_icon_header"),
 			order = 5,
 			inline = true,
 			args = {
@@ -217,7 +218,7 @@ local function optionsTemplate()
 					type = "toggle",
 					width = "full",
 					order = 1,
-					name = "Flash the client game icon on new requests",
+					name = L("options_notifications_flash_icon_enabled_name"),
 					get = function(info)
 						return db:GetProfileData("notifications", "flash", "enabled")
 					end,
@@ -228,7 +229,7 @@ local function optionsTemplate()
 			}
 		},
 		show_in_areas = {
-			name = "Show notifications in areas",
+			name = L("options_notifications_show_in_areas_header"),
 			type = "multiselect",
 			width = "full",
 			order = 6,
@@ -244,7 +245,7 @@ local function optionsTemplate()
 
 	return {
 		type = "group",
-		name = "Notifications",
+		name = L("options_notifications_header"),
 		order = 1,
 		args = args
 	}
