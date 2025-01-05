@@ -50,9 +50,12 @@ local function createGroup(args, instances)
 		width = "normal",
 		order = 1,
 		func = function()
+			local instancesModules = LFGAnnouncements.Instances
 			for i = 1, num do
 				local id = instances[i]
-				LFGAnnouncements.Instances:ActivateInstance(id)
+				if not instancesModules:IsLocked(id) then
+					instancesModules:ActivateInstance(id)
+				end
 			end
 		end,
 	}
@@ -62,9 +65,12 @@ local function createGroup(args, instances)
 		width = "normal",
 		order = 2,
 		func = function()
+			local instancesModules = LFGAnnouncements.Instances
 			for i = 1, num do
 				local id = instances[i]
-				LFGAnnouncements.Instances:DeactivateInstance(id)
+				if not instancesModules:IsLocked(id) then
+					instancesModules:DeactivateInstance(id)
+				end
 			end
 		end,
 	}
