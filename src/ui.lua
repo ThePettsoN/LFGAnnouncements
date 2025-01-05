@@ -520,10 +520,9 @@ function LFGAnnouncementsUI:OnInstanceDeactivated(event, instanceId)
 	self:_removeInstanceContainer(instanceId)
 end
 
-function LFGAnnouncementsUI:OnInstanceEntry(event, instanceId, difficulty, message, time, totalTime, authorGUID, reason)
+function LFGAnnouncementsUI:OnInstanceEntry(event, instanceId, authorGUID, reason, entry)
 	if self:IsShown() then
-		self:_createEntryLabel(instanceId, difficulty, message, time, totalTime, authorGUID, reason)
-		-- self._scrollContainer:DoLayout()
+		self:_createEntryLabel(instanceId, entry.difficulty, entry.message, entry.time, entry.total_time, authorGUID, reason)
 	end
 end
 

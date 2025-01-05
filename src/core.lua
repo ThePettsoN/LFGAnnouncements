@@ -64,8 +64,10 @@ local GDKP_TAGS = {
 
 local DUNGEON_ENTRY_REASON = {
 	NEW = 1,
-	UPDATE = 2,
+	ENTRY_UPDATE = 2,
 	SHOW = 3,
+	TIME_UPDATE = 4,
+	SETTINGS_UPDATE = 5,
 }
 
 local tbl = {}
@@ -135,7 +137,8 @@ function LFGAnnouncementsCore:OnUpdate()
 				local total_time = entry.total_time + UpdateTime
 				entry.time = time
 				entry.total_time = total_time
-				self:SendMessage("OnInstanceEntry", instanceId, entry.difficulty, entry.message, time, total_time, authorGUID, DUNGEON_ENTRY_REASON.UPDATE) -- TOOD: Could group together and send at once
+
+				self:SendMessage("OnInstanceEntry", instanceId, authorGUID, DUNGEON_ENTRY_REASON.TIME_UPDATE, entry) -- TOOD: Could group together and send at once
 			end
 		end
 	end
@@ -267,7 +270,8 @@ function LFGAnnouncementsCore:SetRaidMarkersFilter(enabled)
 					if changed then
 						self:info("Updated %s's %s entry due to raid markers setting", authorGUID, instanceId)
 						entry.message = msg
-						self:SendMessage("OnInstanceEntry", instanceId, entry.difficulty, msg, entry.time, entry.total_time, authorGUID, DUNGEON_ENTRY_REASON.UPDATE) -- TOOD: Could group together and send at once
+
+						self:SendMessage("OnInstanceEntry", instanceId, authorGUID, DUNGEON_ENTRY_REASON.SETTINGS_UPDATE, entry) -- TOOD: Could group together and send at once
 					end
 				end
 			end
@@ -515,7 +519,7 @@ function LFGAnnouncementsCore:_createInstanceEntry(instanceId, difficulty, messa
 		instanceEntriesForId[authorGUID] = entry
 	end
 
-	self:SendMessage("OnInstanceEntry", instanceId, difficulty, message, 0, entry.total_time, authorGUID, newEntry and DUNGEON_ENTRY_REASON.NEW or DUNGEON_ENTRY_REASON.UPDATE)
+	self:SendMessage("OnInstanceEntry", instanceId, authorGUID, newEntry and DUNGEON_ENTRY_REASON.NEW or DUNGEON_ENTRY_REASON.ENTRY_UPDATE, entry)
 end
 
 function LFGAnnouncementsCore:_findDifficulty(tbl)
@@ -566,7 +570,7 @@ end
 function LFGAnnouncementsCore:OnShowUI(event)
 	for instanceId, data in pairs(self._instanceEntries) do
 		for authorGUID, entry in pairs(data) do
-			self:SendMessage("OnInstanceEntry", instanceId, entry.difficulty, entry.message, entry.time, entry.total_time, authorGUID, DUNGEON_ENTRY_REASON.SHOW)
+			self:SendMessage("OnInstanceEntry", instanceId, authorGUID, DUNGEON_ENTRY_REASON.SHOW, entry)
 		end
 	end
 end

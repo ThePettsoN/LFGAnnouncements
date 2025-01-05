@@ -32,10 +32,47 @@ local function optionsTemplate()
 			name = "Notifications",
 		},
 
+		existing_requests = {
+			type = "group",
+			name = "Existing Requests",
+			order = 2,
+			inline = true,
+			args = {
+				notify_existing_requests = {
+					type = "toggle",
+					width = "full",
+					order = 1,
+					name = "Show notifications on existing requests",
+					get = function(info)
+						return db:GetProfileData("notifications", "existing_requests", "enabled")
+					end,
+					set = function(info, newValue)
+						LFGAnnouncements.Notifications:SetExistingRequestsEnabled(newValue)
+					end,
+				},
+		
+				time_before_notifying_existing_requests = {
+					type = "range",
+					width = "full",
+					order = 2,
+					name = "Time before notifications should show for existing requests",
+					min = 0,
+					max = 60,
+					step = 1,
+					get = function(info)
+						return db:GetProfileData("notifications", "existing_requests", "wait_duration")
+					end,
+					set = function(info, newValue)
+						LFGAnnouncements.Notifications:SetExistingRequestsWaitDuration(newValue)
+					end
+				},
+			}
+		},
+
 		sound = {
 			type = "group",
 			name = "Sound",
-			order = 2,
+			order = 3,
 			inline = true,
 			args = {
 				enabled = {
@@ -79,7 +116,7 @@ local function optionsTemplate()
 		toaster = {
 			type = "group",
 			name = "Toaster",
-			order = 3,
+			order = 4,
 			inline = true,
 			args = {
 				enabled = {
@@ -173,7 +210,7 @@ local function optionsTemplate()
 		flash_icon = {
 			type = "group",
 			name = "Flash Client Icon",
-			order = 4,
+			order = 5,
 			inline = true,
 			args = {
 				enabled = {
@@ -194,7 +231,7 @@ local function optionsTemplate()
 			name = "Show notifications in areas",
 			type = "multiselect",
 			width = "full",
-			order = 5,
+			order = 6,
 			values = db.instanceTypes,
 			get = function(info, key)
 				return db:GetProfileData("notifications", "general", "enable_in_instance", key)
