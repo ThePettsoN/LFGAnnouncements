@@ -1,4 +1,5 @@
 local _, LFGAnnouncements = ...
+local L = LFGAnnouncements.Localize
 local PUtils = LFGAnnouncements.PUtils
 local GameUtils = PUtils.Game
 
@@ -46,7 +47,7 @@ local function createGroup(args, instances)
 
 	args["enable_all"] = {
 		type = "execute",
-		name = "Enable All",
+		name = L("options_filters_enable_all_btn"),
 		width = "normal",
 		order = 1,
 		func = function()
@@ -61,7 +62,7 @@ local function createGroup(args, instances)
 	}
 	args["disable_all"] = {
 		type = "execute",
-		name = "Disable All",
+		name = L("options_filters_disable_all_btn"),
 		width = "normal",
 		order = 2,
 		func = function()
@@ -92,8 +93,8 @@ local function createCustomFilters(args, customEntries)
 			args = {
 				tags = {
 					type = "input",
-					name = "Tags",
-					desc = "Custom tags separated by spaces",
+					name = L("options_filters_custom_tag_tags_name"),
+					desc = L("options_filters_custom_tag_desc"),
 					width = "double",
 					order = 2,
 					get = function()
@@ -109,7 +110,7 @@ local function createCustomFilters(args, customEntries)
 				},
 				remove = {
 					type = "execute",
-					name = "Remove",
+					name = L("options_filters_custom_tag_remove_btn"),
 					width = "half",
 					order = 3,
 					func = function()
@@ -124,13 +125,13 @@ local function createCustomFilters(args, customEntries)
 
 	args.new = {
 		type = "group",
-		name = "New",
+		name = L("options_filters_custom_tag_new_header"),
 		order = 2,
 		inline = true,
 		args = {
 			name = {
 				type = "input",
-				name = "Name",
+				name = L("options_filters_custom_tag_name_name"),
 				width = "double",
 				order = 1,
 				get = function()
@@ -142,7 +143,7 @@ local function createCustomFilters(args, customEntries)
 			},
 			button = {
 				type = "execute",
-				name = "Add",
+				name = L("options_filters_custom_tag_add_btn"),
 				width = "half",
 				order = 2,
 				func = function(info)
@@ -164,7 +165,7 @@ local function optionsTemplate()
 	local core = LFGAnnouncements.Core
 	local vanilla_dungeons = {
 		type = "group",
-		name = "Vanilla Dungeons",
+		name = L("options_filters_vanilla_dungeons_name"),
 		order = 5,
 		inline = false,
 		args = {}
@@ -177,14 +178,14 @@ local function optionsTemplate()
 			order = 1,
 			type = "header",
 			width = "full",
-			name = "Filters",
+			name = L("options_filters_header"),
 		},
 		difficulty_filter = {
 			type = "select",
 			width = "full",
 			order = 2,
-			name = "Filter on dungeon difficulty",
-			desc = "Only show dungeons with the matched difficulty. Raids will always be shown.",
+			name = L("options_filters_difficulty_filter_name"),
+			desc = L("options_filters_difficulty_filter_desc"),
 			values = db.dungeonDifficulties,
 			get = function(info)
 				return db:GetCharacterData("filters", "difficulty")
@@ -197,8 +198,8 @@ local function optionsTemplate()
 			type = "toggle",
 			width = "full",
 			order = 3,
-			name = "Filter boost requests",
-			desc = "Try filter requests where people are selling or promoting boost runs",
+			name = L("options_filters_boost_filter_name"),
+			desc = L("options_filters_boost_filter_desc"),
 			get = function(info)
 				return db:GetCharacterData("filters", "boost")
 			end,
@@ -210,8 +211,8 @@ local function optionsTemplate()
 			type = "toggle",
 			width = "full",
 			order = 3,
-			name = "Filter gdkp requests",
-			desc = "Try filter gdkp runs",
+			name = L("options_filters_gdkp_filter_name"),
+			desc = L("options_filters_gdkp_filter_desc"),
 			get = function(info)
 				return db:GetCharacterData("filters", "gdkp")
 			end,
@@ -223,8 +224,8 @@ local function optionsTemplate()
 			type = "toggle",
 			width = "full",
 			order = 3,
-			name = "Filter LFG requests",
-			desc = "Try filter LFG runs",
+			name = L("options_filters_lfg_filter_name"),
+			desc = L("options_filters_lfg_filter_desc"),
 			get = function(info)
 				return db:GetCharacterData("filters", "lfg")
 			end,
@@ -236,8 +237,8 @@ local function optionsTemplate()
 			type = "toggle",
 			width = "full",
 			order = 3,
-			name = "Filter LFM requests",
-			desc = "Try filter LFM runs",
+			name = L("options_filters_lfm_filter_name"),
+			desc = L("options_filters_lfm_filter_desc"),
 			get = function(info)
 				return db:GetCharacterData("filters", "lfm")
 			end,
@@ -249,8 +250,8 @@ local function optionsTemplate()
 			type = "range",
 			width = "full",
 			order = 4,
-			name = "Filter requests with more than " .. db:GetCharacterData("filters", "fake_amount") .. " matched instances from a message",
-			desc = "Recommended to leave this a bit higher than desired due to false results (\"MT\" could mean \"Main Tank\" but would also trigger a hit for Mana-Tombs).",
+			name = L("options_filters_fake_filter_amount_name", db:GetCharacterData("filters", "fake_amount")),
+			desc = L("options_filters_fake_filter_amount_desc"),
 			min = 0,
 			max = 50,
 			step = 1,
@@ -270,7 +271,7 @@ local function optionsTemplate()
 	if instances and next(instances) ~= nil then
 		local vanilla_raids = {
 			type = "group",
-			name = "Vanilla Raids",
+			name = L("options_filters_vanilla_raids_name"),
 			order = order,
 			inline = false,
 			args = {}
@@ -286,7 +287,7 @@ local function optionsTemplate()
 			order = order + 1
 			local tbc_dungeons = {
 				type = "group",
-				name = "TBC Dungeons",
+				name = L("options_filters_tbc_vanilla_dungeons_name"),
 				order = order,
 				inline = false,
 				args = {}
@@ -301,7 +302,7 @@ local function optionsTemplate()
 			order = order + 1
 			local tbc_raids = {
 				type = "group",
-				name = "TBC Raids",
+				name = L("options_filters_tbc_raids_name"),
 				order = order,
 				inline = false,
 				args = {}
@@ -318,7 +319,7 @@ local function optionsTemplate()
 			order = order + 1
 			local wotlk_dungeons = {
 				type = "group",
-				name = "WOTLK Dungeons",
+				name = L("options_filters_wotlk_dungeons_name"),
 				order = order,
 				inline = false,
 				args = {}
@@ -333,7 +334,7 @@ local function optionsTemplate()
 			order = order + 1
 			local wotlk_raids = {
 				type = "group",
-				name = "WOTLK Raids",
+				name = L("options_filters_wotlk_raids_name"),
 				order = order,
 				inline = false,
 				args = {}
@@ -350,7 +351,7 @@ local function optionsTemplate()
 			order = order + 1
 			local cataclysm_dungeons = {
 				type = "group",
-				name = "Cataclysm Dungeons",
+				name = L("options_filters_cataclysm_dungeons_name"),
 				order = order,
 				inline = false,
 				args = {}
@@ -365,7 +366,7 @@ local function optionsTemplate()
 			order = order + 1
 			local cataclysm_raids = {
 				type = "group",
-				name = "Cataclysm Raids",
+				name = L("options_filters_cataclysm_raids_name"),
 				order = order,
 				inline = false,
 				args = {}
@@ -379,7 +380,7 @@ local function optionsTemplate()
 	order = order + 1
 	local custom_instances = {
 		type = "group",
-		name = "Custom",
+		name = L("options_filters_custom_name"),
 		order = order,
 		inline = false,
 		args = {},
@@ -390,7 +391,7 @@ local function optionsTemplate()
 
 	return {
 		type = "group",
-		name = "Filters",
+		name = L("options_filters_header"),
 		order = 2,
 		args = args
 	}

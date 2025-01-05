@@ -14,6 +14,7 @@
 ## X-Wago-ID: q96dm5KO
 
 embeds.xml
+Locales/Locales.xml
 src/gui/AceGUIContainer-CollapsableInlineGroup.lua
 src/gui/AceGUIContainer-Toaster.lua
 src/gui/AceGUILayout-OffsetList.lua

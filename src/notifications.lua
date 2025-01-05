@@ -227,10 +227,6 @@ function LFGAnnouncementsNotification:OnInstanceEntry(event, instanceId, difficu
 		return
 	end
 
-	-- if self._db:GetProfileData("notifications", "chat") then
-		-- print(message)
-	-- end
-
 	if self._db:GetProfileData("notifications", "toaster", "enabled") then
 		self:_triggerToaster(instanceId, message)
 	end
