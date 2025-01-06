@@ -35,7 +35,7 @@ local function optionsTemplate()
 
 		existing_requests = {
 			type = "group",
-			name = "Existing Requests",
+			name = L("options_notifications_existing_requests_header"),
 			order = 2,
 			inline = true,
 			args = {
@@ -43,7 +43,7 @@ local function optionsTemplate()
 					type = "toggle",
 					width = "full",
 					order = 1,
-					name = "Show notifications on existing requests",
+					name = L("options_notifications_existing_requests_enabled_name"),
 					get = function(info)
 						return db:GetProfileData("notifications", "existing_requests", "enabled")
 					end,
@@ -56,7 +56,7 @@ local function optionsTemplate()
 					type = "range",
 					width = "full",
 					order = 2,
-					name = "Time before notifications should show for existing requests",
+					name = L("options_notifications_existing_requests_wait_duration_name"),
 					min = 0,
 					max = 60,
 					step = 1,
