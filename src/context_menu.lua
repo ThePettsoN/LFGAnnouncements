@@ -205,7 +205,7 @@ function LFGAnnouncementsContextMenu:Show(author, message)
 	self._who:SetText(L("entry_context_menu_who", author))
 	self._who:SetText(L("entry_context_menu_whisper", author))
 	self._who:SetText(L("entry_context_menu_invite", author))
-	self._who:SetText(L("entry_context_menu_ignore", author))
+	self._who:SetText(L("entry_context_menu_who", author))
 
 	self._author = author
 
