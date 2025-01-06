@@ -39,6 +39,10 @@ local defaults = {
 			lock = false,
 		},
 		notifications = {
+			existing_requests = {
+				enabled = true,
+				wait_duration = 10,
+			},
 			general = {
 				enable_in_instance = {
 					world = true,

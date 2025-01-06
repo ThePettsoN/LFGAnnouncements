@@ -33,10 +33,47 @@ local function optionsTemplate()
 			name = L("options_notifications_header"),
 		},
 
+		existing_requests = {
+			type = "group",
+			name = L("options_notifications_existing_requests_header"),
+			order = 2,
+			inline = true,
+			args = {
+				notify_existing_requests = {
+					type = "toggle",
+					width = "full",
+					order = 1,
+					name = L("options_notifications_existing_requests_enabled_name"),
+					get = function(info)
+						return db:GetProfileData("notifications", "existing_requests", "enabled")
+					end,
+					set = function(info, newValue)
+						LFGAnnouncements.Notifications:SetExistingRequestsEnabled(newValue)
+					end,
+				},
+		
+				time_before_notifying_existing_requests = {
+					type = "range",
+					width = "full",
+					order = 2,
+					name = L("options_notifications_existing_requests_wait_duration_name"),
+					min = 0,
+					max = 60,
+					step = 1,
+					get = function(info)
+						return db:GetProfileData("notifications", "existing_requests", "wait_duration")
+					end,
+					set = function(info, newValue)
+						LFGAnnouncements.Notifications:SetExistingRequestsWaitDuration(newValue)
+					end
+				},
+			}
+		},
+
 		sound = {
 			type = "group",
 			name = L("options_notifications_sound_header"),
-			order = 2,
+			order = 3,
 			inline = true,
 			args = {
 				enabled = {
@@ -80,7 +117,7 @@ local function optionsTemplate()
 		toaster = {
 			type = "group",
 			name = L("options_notifications_toaster_header"),
-			order = 3,
+			order = 4,
 			inline = true,
 			args = {
 				enabled = {
@@ -174,7 +211,7 @@ local function optionsTemplate()
 		flash_icon = {
 			type = "group",
 			name = L("options_notifications_flash_icon_header"),
-			order = 4,
+			order = 5,
 			inline = true,
 			args = {
 				enabled = {
@@ -195,7 +232,7 @@ local function optionsTemplate()
 			name = L("options_notifications_show_in_areas_header"),
 			type = "multiselect",
 			width = "full",
-			order = 5,
+			order = 6,
 			values = db.instanceTypes,
 			get = function(info, key)
 				return db:GetProfileData("notifications", "general", "enable_in_instance", key)

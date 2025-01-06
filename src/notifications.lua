@@ -44,6 +44,8 @@ function LFGAnnouncementsNotification:OnEnable()
 	self._enabledForInstanceTypes = self._db:GetProfileData("notifications", "general", "enable_in_instance")
 	self._numAllowedToasters = self._db:GetProfileData("notifications", "toaster", "num_toasters")
 	self._collapseOtherCategories = self._db:GetProfileData("notifications", "toaster", "collapse_other")
+	self._existingRequestsWaitDuration = self._db:GetProfileData("notifications", "existing_requests", "wait_duration")
+	self._existingRequestsEnabled = self._db:GetProfileData("notifications", "existing_requests", "enabled")
 
 	local soundId = self._db:GetProfileData("notifications", "sound", "id")
 	local soundPath = self._db:GetProfileData("notifications", "sound", "path")
@@ -171,6 +173,16 @@ function LFGAnnouncementsNotification:SetSound(key, path, skipSave)
 	end
 end
 
+function LFGAnnouncementsNotification:SetExistingRequestsEnabled(value)
+	self._existingRequestsEnabled = value
+	self._db:SetProfileData("enabled", value, "notifications", "existing_requests")
+end
+
+function LFGAnnouncementsNotification:SetExistingRequestsWaitDuration(value)
+	self._existingRequestsWaitDuration = value
+	self._db:SetProfileData("wait_duration", value, "notifications", "existing_requests")
+end
+
 function LFGAnnouncementsNotification:SetToasterDuration(duration)
 	self._toasterDuration = duration
 	self._db:SetProfileData("duration", duration, "notifications", "toaster")
@@ -218,17 +230,45 @@ function LFGAnnouncementsNotification:OnPlayerEnteringWorld(event, isInitialLogi
 	self._instanceType = instanceType == "none" and "world" or instanceType
 end
 
-function LFGAnnouncementsNotification:OnInstanceEntry(event, instanceId, difficulty, message, time, totalTime, authorGUID, reason)
-	if reason ~= LFGAnnouncements.Core.DUNGEON_ENTRY_REASON.NEW then
-		return
-	end
- 
+function LFGAnnouncementsNotification:_filterEntry(reason, entry, currentTime)
 	if not self._enabledForInstanceTypes[self._instanceType] then
+		return true
+	end
+
+	local reasons = LFGAnnouncements.Core.DUNGEON_ENTRY_REASON
+	if reason == reasons.NEW then
+		return false
+	end
+
+	if reason ~= reasons.ENTRY_UPDATE then
+		return true
+	end
+
+	if not self._existingRequestsEnabled then
+		return true
+	end
+
+	local timeLastNotification = entry.time_last_notification
+	if not timeLastNotification then
+		return true
+	end
+
+	if currentTime - timeLastNotification < self._existingRequestsWaitDuration then
+		return true
+	end
+
+	return false
+end
+
+function LFGAnnouncementsNotification:OnInstanceEntry(event, instanceId, authorGUID, reason, entry)
+	local currentTime = time()
+	if self:_filterEntry(reason, entry, currentTime) then
 		return
 	end
 
+	entry.time_last_notification = currentTime
 	if self._db:GetProfileData("notifications", "toaster", "enabled") then
-		self:_triggerToaster(instanceId, message)
+		self:_triggerToaster(instanceId, entry.message)
 	end
 
 	if self._db:GetProfileData("notifications", "sound", "enabled") then

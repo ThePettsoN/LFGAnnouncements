@@ -23,6 +23,10 @@ local LocaleStrings = {
     options_general_minimap_visible_name = "Show minimap button",
     options_general_minimap_locked_name = "Lock minimap button",
 
+    options_notifications_existing_requests_header = "Existing Requests",
+    options_notifications_existing_requests_enabled_name = "Show notifications on existing requests",
+    options_notifications_existing_requests_wait_duration_name = "Time before notifications should show for existing requests",
+
     options_notifications_header = "Notifications",
     options_notifications_sound_header = "Sound",
     options_notifications_sound_enabled_name = "Play sound on new requests",
@@ -91,7 +95,6 @@ local LocaleStrings = {
     entry_context_menu_invite = "Invite %s",
     entry_context_menu_ignore = "Ignore %s",
 
-
     ui_settings_btn = "Settings",
     ui_close_btn = "Close",
 }
@@ -100,8 +103,8 @@ tbl.LocaleStrings = LocaleStrings
 tbl.Localize = function(key, arg1, ...)
     local str = LocaleStrings[key]
     if not str then
-        error("Failed to localize string ", str)
-        return str
+        error(string.format("Failed to localize string: %s", tostring(key)))
+        return key
     end
 
     if arg1 then
