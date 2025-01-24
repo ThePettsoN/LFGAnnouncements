@@ -122,7 +122,7 @@ function LFGAnnouncementsNotification:_triggerSound()
 	end
 end
 
-function LFGAnnouncementsNotification:_triggerToaster(instanceId, message)
+function LFGAnnouncementsNotification:_triggerToaster(instanceId, message, authorGUID)
 	local index
 	for i = 1, #self._freeSlots do
 		if i > self._numAllowedToasters then
@@ -139,10 +139,14 @@ function LFGAnnouncementsNotification:_triggerToaster(instanceId, message)
 		return
 	end
 
+	local _, class, _, _, _, author = GetPlayerInfoByGUID(authorGUID)
+	local _,_,_, hex = GetClassColor(class)
+	local name = string.format(" | |c%s%s|r", hex, author)
+
 	local toaster = self._toasters[index]
 	toaster:SetInstanceId(instanceId)
 	toaster:SetText(message)
-	toaster:SetTitle(self._instances:GetInstanceName(instanceId))
+	toaster:SetTitle(self._instances:GetInstanceName(instanceId) .. name)
 	toaster:Trigger(self._toasterDuration)
 
 	self._freeSlots[index] = false
@@ -268,7 +272,7 @@ function LFGAnnouncementsNotification:OnInstanceEntry(event, instanceId, authorG
 
 	entry.time_last_notification = currentTime
 	if self._db:GetProfileData("notifications", "toaster", "enabled") then
-		self:_triggerToaster(instanceId, entry.message)
+		self:_triggerToaster(instanceId, entry.message, authorGUID)
 	end
 
 	if self._db:GetProfileData("notifications", "sound", "enabled") then
