@@ -109,7 +109,7 @@ function LFGAnnouncementsInstances:UpdateLockedInstances()
 		local name, _, reset, difficultyId, _, _, _, isRaid, _, _, _, _, _, mapId = GetSavedInstanceInfo(i)
 		local instance = Instances.MapIDs[mapId]
 		if instance then
-			self:DeactivateInstance(instance)
+			self:DeactivateInstance(instance, false)
 			self._lockedInstances[instance] = true
 		end
 	end
@@ -162,7 +162,7 @@ function LFGAnnouncementsInstances:ActivateInstance(id)
 	self:SendMessage("OnInstanceActivated", id)
 end
 
-function LFGAnnouncementsInstances:DeactivateInstance(id)
+function LFGAnnouncementsInstances:DeactivateInstance(id, persistant)
 	if not self._activatedInstances[id] then
 		self:debug("Tried to deactivate not activated instances '%s'", id)
 		return
@@ -171,7 +171,11 @@ function LFGAnnouncementsInstances:DeactivateInstance(id)
 	self:debug("Deactivated instance '%s'", id)
 	
 	self._activatedInstances[id] = nil
-	LFGAnnouncements.DB:SetCharacterData(id, false, "dungeons", "activated")
+
+	persistant = persistant == nil and true or persistant
+	if persistant then
+		LFGAnnouncements.DB:SetCharacterData(id, false, "dungeons", "activated")
+	end
 	
 	local activeTags = self._activeTags
 	for key, value in pairs(activeTags) do

@@ -33,9 +33,17 @@ local function createEntry(id, order)
 		disabled = isLocked,
 		name = formatName(id, isLocked),
 		get = function(info)
+			if isLocked then
+				return false
+			end
+
 			return LFGAnnouncements.DB:GetCharacterData("dungeons", "activated", id)
 		end,
 		set = function(info, newValue)
+			if isLocked then
+				return
+			end
+
 			local funcName = newValue and "ActivateInstance" or "DeactivateInstance"
 			UpdateData(LFGAnnouncements.Instances, funcName, id, newValue)
 		end,
