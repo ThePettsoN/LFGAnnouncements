@@ -45,7 +45,7 @@ local function createEntry(id, order)
 			end
 
 			local funcName = newValue and "ActivateInstance" or "DeactivateInstance"
-			UpdateData(LFGAnnouncements.Instances, funcName, id, newValue)
+			UpdateData(LFGAnnouncements.Instances, funcName, id)
 		end,
 	}
 end

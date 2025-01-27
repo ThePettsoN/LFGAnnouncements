@@ -167,9 +167,9 @@ function LFGAnnouncementsInstances:DeactivateInstance(id, persistant)
 		self:debug("Tried to deactivate not activated instances '%s'", id)
 		return
 	end
-	
-	self:debug("Deactivated instance '%s'", id)
-	
+
+	self:debug("Deactivated instance '%s'. persistant: %s", id, tostring(temp))
+
 	self._activatedInstances[id] = nil
 
 	persistant = persistant == nil and true or persistant
