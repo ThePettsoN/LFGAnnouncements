@@ -84,8 +84,8 @@ local Tags = {
 	ZG 				= { "zg", "gurub", "zulgurub", "zulg" },
 	MC 				= { "mc", "molten", "core", "moltencore", },
 	BWL 			= { "blackwing", "bwl", },
-	AQ20 			= { "ruins", "aq20", "aq10", "aq 10", "aq 20", },
-	AQ40 			= { "aq40", "aq 40", },
+	AQ20 			= { "ruins", "aq20", "aq10", "aq 10", "aq 20", "aq 15" },
+	AQ40 			= { "aq40", "aq 40", "aq temple", "aq 30" },
 	NAXX 			= { "naxxramas", "nax", "naxx", "nax10", "naxx10", "nax25", "naxx25", "naxx 10", "nax 10", "naxx 25", "nax 25" },
 }
 
