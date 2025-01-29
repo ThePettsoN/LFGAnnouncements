@@ -354,17 +354,33 @@ function LFGAnnouncementsInstances.Register(expansionId, instances, tags, levels
 		if data then
 			local abriv = data[1]
 			local id = data[2]
+			local overrides = data[3]
 			local abriv_expansion = string.format("%s_%d", abriv, expansionId)
 
-			local info = GetActivityInfoTable(id)
-			local group
-			if info.categoryID == 2 then
-				group = Dungeons
-			elseif info.categoryID == 114 then
-				group = Raids
-			else
-				error("Unsupported group category")
+			local info = overrides or GetActivityInfoTable(id)
+			if not info then
+				error("Faield to fetch info")
 			end
+
+			local group
+
+			if info then
+				if info.categoryID == 2 then
+					group = Dungeons
+				elseif info.categoryID == 114 then
+					group = Raids
+				else
+					error("Unsupported group category")
+				end
+			else
+				if categoryID == 2 then
+					group = Dungeons
+				elseif categoryID == 114 then
+					group = Raids
+					error("Unsupported group category")
+				end
+			end
+
 
 			local perExpansion = group[expansionId] or {
 				Order = {},

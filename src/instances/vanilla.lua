@@ -128,18 +128,26 @@ local Levels = {
 
 if isSoD then
 	Instances[#Instances + 1] = { "DFC", 1607, }
+	Instances[#Instances + 1] = { "KZ_CRYPTS", -1, {
+		categoryID = 2,
+		shortName = "Karazhan Crypts",
+		mapID = 16074
+	}}
 	Instances[#Instances + 1] = { "AZURE", 1608, }
 	Instances[#Instances + 1] = { "KAZZAK", 1609, }
 	Instances[#Instances + 1] = { "EMRLD_DRGN", 1610, }
 	Instances[#Instances + 1] = { "THUNDERAAN", 1611, }
 
 	Tags.DFC = { "demonfall", "dfc", "demon", "fall", "canyon", }
+	Tags.KZ_CRYPTS = { "kara", "cara", "crypt", "crypts", "kc", }
+
 	Tags.AZURE = { "azu", "azuregos", "azregos", }
 	Tags.KAZZAK = { "kazzak", "kaz", }
 	Tags.EMRLD_DRGN = { "grove", "nmg", "dragons", }
 	Tags.THUNDERAAN = { "crystal", "vale", "thunderan", "thunderaan", }
 
 	Levels.DFC = { 60, 60, }
+	Levels.KZ_CRYPTS = { 60, 60, }
 	Levels.AZURE = { 60, 60, }
 	Levels.KAZZAK = { 60, 60, }
 	Levels.EMRLD_DRGN = { 60, 60, }

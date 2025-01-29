@@ -36,6 +36,10 @@ local BOOST_TAGS = {
 	boosts = true,
 	boosting = true,
 	wts = true,
+	wtb = true,
+	wbt = true,
+	buying = true,
+	buy = true,
 	wst = true,
 	selling = true,
 }
