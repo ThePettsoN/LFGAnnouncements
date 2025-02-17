@@ -317,6 +317,10 @@ local numRegex = #regex
 
 local matchLookup = {}
 function LFGAnnouncementsCore:_parseMessage(message, authorGUID)
+	if not authorGUID or not message then
+		return false
+	end
+
 	self:debug("Parsing message '%s' from '%s'", message, authorGUID)
 	if #message < 3 then
 		self:debug("Ignoring due to size")
