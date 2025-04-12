@@ -128,15 +128,12 @@ local Levels = {
 
 if isSoD then
 	Instances[#Instances + 1] = { "DFC", 1607, }
-	Instances[#Instances + 1] = { "KZ_CRYPTS", -1, {
-		categoryID = 2,
-		shortName = "Karazhan Crypts",
-		mapID = 16074
-	}}
+	Instances[#Instances + 1] = { "KZ_CRYPTS", 1693 }
 	Instances[#Instances + 1] = { "AZURE", 1608, }
 	Instances[#Instances + 1] = { "KAZZAK", 1609, }
 	Instances[#Instances + 1] = { "EMRLD_DRGN", 1610, }
 	Instances[#Instances + 1] = { "THUNDERAAN", 1611, }
+	Instances[#Instances + 1] = { "SCARLET_ENCLAVE", 1710 }
 
 	Tags.DFC = { "demonfall", "dfc", "demon", "fall", "canyon", }
 	Tags.KZ_CRYPTS = { "kara", "cara", "crypt", "crypts", "kc", }
@@ -145,6 +142,7 @@ if isSoD then
 	Tags.KAZZAK = { "kazzak", "kaz", }
 	Tags.EMRLD_DRGN = { "grove", "nmg", "dragons", }
 	Tags.THUNDERAAN = { "crystal", "vale", "thunderan", "thunderaan", }
+	Tags.SCARLET_ENCLAVE = { "scarlet", "enclave", "scarletenclave" }
 
 	Levels.DFC = { 60, 60, }
 	Levels.KZ_CRYPTS = { 60, 60, }
@@ -152,6 +150,7 @@ if isSoD then
 	Levels.KAZZAK = { 60, 60, }
 	Levels.EMRLD_DRGN = { 60, 60, }
 	Levels.THUNDERAAN = { 60, 60, }
+	Levels.SCARLET_ENCLAVE = { 60, 60, }
 end
 
 LFGAnnouncements.Instances.Register(GameUtils.GameVersionLookup.CLASSIC, Instances, Tags, Levels)
