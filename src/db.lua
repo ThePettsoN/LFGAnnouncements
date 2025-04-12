@@ -33,6 +33,7 @@ local defaults = {
 				arena = true,
 				pvp = true,
 			},
+			entries = { },
 		},
 		minimap = {
 			hide = false,

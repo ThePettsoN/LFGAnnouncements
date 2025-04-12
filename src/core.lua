@@ -89,7 +89,7 @@ function LFGAnnouncementsCore:OnInitialize()
 	end
 
 	-- self:setSeverity(DebugUtils.Severities.Debug)
-	self._instanceEntries = {}
+	-- self._instanceEntries = {}
 end
 
 local UpdateTime = 1
@@ -116,6 +116,7 @@ function LFGAnnouncementsCore:OnEnable()
 	self._fakeRequestFilterAmount = db:GetCharacterData("filters", "fake_amount")
 	self._removeRaidMarkers = db:GetProfileData("general", "format", "remove_raid_markers")
 	self._enabledForInstanceTypes = db:GetProfileData("general", "enable_in_instance")
+	self._instanceEntries = db:GetProfileData("general", "entries")
 end
 
 function LFGAnnouncementsCore:OnDisable()
@@ -441,7 +442,7 @@ end
 local formattedMessage
 local raidSymbols = { -- This is ugly, but since LUA can't do ignore case on pattern matching, and we don't want all messages to be in lowercase we have to check for all combinations with both upper and lower case letters
 	"{[Ss][Tt][Aa][Rr]}",
-	"{[Cc][ii][Rr][Cc][Ll][Ee]}",
+	"{[Cc][Ii][Rr][Cc][Ll][Ee]}",
 	"{[Dd][Ii][Aa][Mm][Oo][Nn][Dd]}",
 	"{[Tt][Rr][Ii][Aa][Nn][Gg][Ll][Ee]}",
 	"{[Mm][Oo][Oo][Nn]}",

@@ -34,7 +34,7 @@ local Instances = {
 	{ "TFW", 1531 },
 	{ "BWD", 1523 },
 	{ "FL", 1586 },
-	-- { "DS", },
+	{ "DS", 1703 },
 }
 
 local Tags = {
@@ -49,7 +49,7 @@ local Tags = {
 	SFK 	= { "sfk", "shadowfang", },
 	ZG 		= { "zg", "gurub", },
 	ZA 		= { "za", "aman", },
-	ET 		= { "et", "time" },
+	ET 		= { "et", "endtime", "end time", "end-time" },
 	WOE 	= { "woe", "well", "eternity", },
 	HOT 	= { "hot", "hour", },
 	-- Raids
@@ -58,7 +58,7 @@ local Tags = {
 	TFW 	= { "totfw", "tfw", "toftw", "tofw", "winds", "tot4w" },
 	BWD 	= { "blackwing", "descent", "bd", "bwd" },
 	FL 		= { "fl", "firelands", },
-	-- DS 		= { "ds", "soul", },
+	DS 		= { "ds", "soul", "dragon soul" },
 }
 
 local Levels = {
